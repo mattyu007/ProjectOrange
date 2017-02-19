@@ -1,18 +1,24 @@
+CREATE DATABASE Cue;
+USE Cue;
+
+
 CREATE TABLE IF NOT EXISTS User
 (
     uuid VARCHAR(36) NOT NULL PRIMARY KEY,
-    access_token VARCHAR(36) NOT NULL,
-    name VARCHAR(255) NOT NULL
+    fb_user_id VARCHAR(36) NOT NULL UNIQUE,
+    access_token VARCHAR(160) NOT NULL,
+    name VARCHAR(255)
 );
 
 
 CREATE TABLE IF NOT EXISTS Deck
 (
     uuid VARCHAR(36) NOT NULL PRIMARY KEY,
+    created TIMESTAMP NOT NULL DEFAULT NOW(),
+    last_update TIMESTAMP NOT NULL,
     name VARCHAR(255) NOT NULL,
     owner VARCHAR(36) NOT NULL,
-    rating FLOAT DEFAULT NULL,
-    num_ratings INTEGER NOT NULL DEFAULT 0,
+    rating INTEGER DEFAULT NULL,
     public BOOLEAN NOT NULL DEFAULT FALSE,
     deleted BOOLEAN NOT NULL DEFAULT FALSE,
     version INTEGER NOT NULL DEFAULT 0,
@@ -49,6 +55,20 @@ CREATE TABLE IF NOT EXISTS Library
 (
     user_id VARCHAR(36) NOT NULL,
     deck_id VARCHAR(36) NOT NULL,
+    version INTEGER NOT NULL DEFAULT 0,
+    last_update_device VARCHAR(255),
+
+    PRIMARY KEY (user_id, deck_id),
+    FOREIGN KEY (user_id) REFERENCES User(uuid),
+    FOREIGN KEY (deck_id) REFERENCES Deck(uuid)
+);
+
+
+CREATE TABLE IF NOT EXISTS Rating
+(
+    user_id VARCHAR(36) NOT NULL,
+    deck_id VARCHAR(36) NOT NULL,
+    rating INTEGER NOT NULL,
 
     PRIMARY KEY (user_id, deck_id),
     FOREIGN KEY (user_id) REFERENCES User(uuid),
