@@ -2,6 +2,7 @@
 Handle requests to update authentication tokens and create users.
 """
 
+import json
 import logging
 
 from config import DBConfig, StatusCode
@@ -32,7 +33,6 @@ class AuthHandler(BaseHandler):
 
         # Return existing credentials.
         if len(result) == 1:
-            connector.close()
             return self.make_response(response=json.dumps({
                 'user-id': result['uuid'],
                 'access-token': result['access_token']
