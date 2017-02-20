@@ -188,7 +188,7 @@ Request description:
 Response:
 ```
 {
-    user-data-version: <user-data-version>
+    user_data_version: <user-data-version>
 }
 ```
 Here, `<user-data-version>` indicates the new version of the user data for the deck.
@@ -351,11 +351,12 @@ This response only contains metadata (does not include the cards in the deck).
     "owner": "<userid>",
     "public": true | false,
     "deck_version": "<deck-version>",
-    "user_data-version": "<user-data-version>",
+    "user_data_version": "<user-data-version>",
     "created": "<created>"
     "last_update": "<last-update>",
     "last_update_device": "<last-update-device>",
-    "share_code"
+    "share_code": "<share-code>",
+    "deleted": true | false
 }
 ```
 
@@ -373,6 +374,9 @@ Response description:
 - `last_update`: ISO format UTC datetime string describing the time of the most recent deck update
 - `last_update_device`: the name of the device that last modified the deck (this is only available for decks that are owned by the requester)
 - `share_code`: the code that can be entered by users to gain access to a remote private deck
+- `deleted`: boolean indicating whether or not a deck has been deleted by the owner
+
+*Note*: if the `deleted` flag is set to true in the response, the client should not expect to receive any other metadata about the deck (with the exception of `name` and `uuid`).
 
 ### Full Response
 This response includes all of the data from the metadata response and also contains the cards of the deck.
