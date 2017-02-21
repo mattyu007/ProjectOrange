@@ -7,6 +7,7 @@ Server-side API routes.
 - [Deck Manipulation](#deck-manipulation)
     - [Deck Creation](#deck-creation)
     - [Deck Edits](#deck-edits)
+    - [Deck Overwrites](#deck-overwrites)
     - [Flagging Cards For Review](#flagging-cards-for-review)
     - [Share Code Generation](#share-code-generation)
 - [Synchronization](#synchronization)
@@ -155,6 +156,39 @@ Delete action:
     "card_id": "<card-id>"
 }
 ```
+
+Response: [Standard Full Deck Response](#full-response)
+
+### Deck Overwrites
+This route will allow a deck to be overwritten. This can be handy when there is a version conflict and the client opts to keep the version that was not synchronized with the server. This route is almost identical to the route for deck creation (with some minor differences).
+
+When this route is used, all existing ratings for the deck will be maintained. It should be noted that this operation can only be done by the owner of the deck.
+
+Request:
+```
+POST /api/v1/deck/<uuid>
+{
+    "name": "<deckname>",
+    "tags": ["<tag1>", "<tag2>", ...],
+    "public": true | false
+    "cards": [
+        {
+            "uuid": "<uuid>" | null,
+            "front": "<Q>",
+            "back": "<A>"
+        },
+        ...
+    ]
+}
+```
+Request description:
+- `name`: the name of the deck
+- `tags`: a list of strings that can be searched on
+- `public`: describes whether the deck should be publicly discoverable or not
+- `cards`: a list of objects representing cards. The order of the cards in the array will reflect their position in the deck.
+    - `uuid`: the UUID for an existing card, if the card is new then `null`
+    - `front`: the text on the front of the card
+    - `back`: the text on the back of the card
 
 Response: [Standard Full Deck Response](#full-response)
 
