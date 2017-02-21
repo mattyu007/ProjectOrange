@@ -321,7 +321,7 @@ Request:
 ```
 GET /api/v1/discover/top[?page=<page>]
 ```
-Where `page` is the page offset into the result set (0 by default).
+Where `page` is the page offset into the result set (1 by default).
 
 Response:
 ```
@@ -339,7 +339,7 @@ Request:
 ```
 GET /api/v1/discover/new[?page=<page>]
 ```
-Where `page` is the page offset into the result set (0 by default).
+Where `page` is the page offset into the result set (1 by default).
 
 Response:
 ```
@@ -355,9 +355,12 @@ Response:
 ### Search
 Request:
 ```
-GET /api/v1/discover/search?query=<query>[&page=<page>]
+GET /api/v1/discover/search?query=<query>&tags=<tags>[&page=<page>]
 ```
-Where `page` is the page offset into the result set (0 by default).
+Response description:
+- `query`: String used to search by deck name.
+- `tags`: Serialized array of tags to search by.
+- `page`: is the page offset into the result set (1 by default).
 
 Response:
 ```
