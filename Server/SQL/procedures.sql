@@ -234,6 +234,50 @@ BEGIN
     WHERE Deck.uuid=did AND (Deck.owner=uid OR Deck.public=TRUE);
 END$$
 
+-- Fetch metadata for a page of decks
+CREATE PROCEDURE FETCH_DECKS(IN type VARCHAR(10), IN page Integer)
+BEGIN
+    DECLARE sort_criteria VARCHAR(20);
+    DECLARE page_size INTEGER DEFAULT 50;
+    DECLARE page_offset INTEGER;
+    
+    SET page = IFNULL(page, 1);
+
+    IF (type = 'top') THEN
+        SET sort_criteria = 'Deck.rating';
+    ELSEIF (type = 'new') THEN
+        SET sort_criteria = 'Deck.created';
+    ELSE 
+	SET sort_criteria = 'Deck.rating';
+    END IF;
+
+    SET page_offset = (page - 1) * page_size;
+
+    SET @sql_statement = CONCAT('SELECT
+        Deck.uuid,
+        Deck.name,
+        Deck.rating,
+        (SELECT COUNT(*) FROM Rating WHERE deck_id=Deck.uuid) AS num_ratings,
+        Deck.owner,
+        Deck.public,
+        Deck.version AS deck_version,
+        L.version AS user_data_version,
+        Deck.created,
+        Deck.last_update,
+        L.last_update_device,
+        Deck.share_code
+    FROM Deck LEFT JOIN (
+        SELECT version, last_update_device, deck_id
+        FROM Library
+    ) AS L ON L.deck_id=Deck.uuid
+    WHERE Deck.public=TRUE
+    ORDER BY ', sort_criteria, ' DESC ',
+    'LIMIT ', CAST(page_offset AS CHAR), ', ', page_size);
+
+    PREPARE stmt FROM @sql_statement;
+    EXECUTE stmt;
+
+END$$
 
 -- Fetch the cards for a particular deck.
 CREATE PROCEDURE FETCH_CARDS(IN did VARCHAR(36))
@@ -261,6 +305,36 @@ BEGIN
     INNER JOIN (
         SELECT tag_id FROM DeckTag WHERE deck_id=did
     ) AS DT ON DT.tag_id=Tag.id;
+END$$
+
+CREATE PROCEDURE SEARCH_DECKS(IN query_string VARCHAR(255), IN tags VARCHAR(255), IN num_tags Integer)
+BEGIN
+
+    SELECT
+        Deck.uuid,
+        Deck.name,
+        Deck.rating,
+        (SELECT COUNT(*) FROM Rating WHERE deck_id=Deck.uuid) AS num_ratings,
+        Deck.owner,
+        Deck.public,
+        Deck.version AS deck_version,
+        L.version AS user_data_version,
+        Deck.created,
+        Deck.last_update,
+        L.last_update_device,
+        Deck.share_code
+    FROM Deck LEFT JOIN (
+        SELECT version, last_update_device, deck_id
+        FROM Library
+    ) AS L ON L.deck_id=Deck.uuid
+    WHERE Deck.public=TRUE
+    AND (LOWER(Deck.name) like CONCAT('%',LOWER(query_string),'%')
+        OR Deck.uuid IN (SELECT dt.deck_id FROM DeckTag dt
+	    LEFT JOIN Tag t ON dt.tag_id=t.id
+	    WHERE FIND_IN_SET(LOWER(t.tag),LOWER(tags))
+	    GROUP BY dt.deck_id
+	    HAVING COUNT(dt.tag_id) = num_tags))
+    ORDER BY Deck.rating desc;
 END$$
 
 
