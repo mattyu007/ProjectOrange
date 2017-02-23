@@ -27,30 +27,30 @@ class CueTabsView extends React.Component {
   render() {
     return (
       <TabBarIOS>
-        <TabBarItemIOS
+        <TabBarIOS.Item
           title="Library"
           selected={this.props.tab === 'library'}
-          onPress={this.onTabSelect.bind(this, 'library')}
+          onPress={this.onTabSelect.bind(this, 'library')}>
           <LibraryView
             navigator={this.props.navigator}
           />
-        </TabBarItemIOS>
-        <TabBarItemIOS
+        </TabBarIOS.Item>
+        <TabBarIOS.Item
           title="Discover"
           selected={this.props.tab === 'discover'}
-          onPress={this.onTabSelect.bind(this, 'discover')}
+          onPress={this.onTabSelect.bind(this, 'discover')}>
           <DiscoverView
             navigator={this.props.navigator}
           />
-        </TabBarItemIOS>
-         <TabBarItemIOS
+        </TabBarIOS.Item>
+        <TabBarIOS.Item
           title="Search"
           selected={this.props.tab === 'search'}
-          onPress={this.onTabSelect.bind(this, 'search')}
+          onPress={this.onTabSelect.bind(this, 'search')}>
           <SearchView
             navigator={this.props.navigator}
           />
-        </TabBarItemIOS>
+        </TabBarIOS.Item>
       </TabBarIOS>
     );
   }

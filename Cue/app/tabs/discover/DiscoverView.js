@@ -33,7 +33,6 @@ class DiscoverView extends React.Component {
       <CueDrawerLayout
         ref={(drawer) => { this._drawer = drawer; }}
         drawerWidth={300}
-        drawerPosition="right"
         renderNavigationView={this.renderNavigationView}>
         {content}
       </CueDrawerLayout>

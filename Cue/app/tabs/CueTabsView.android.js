@@ -105,7 +105,6 @@ class CueTabsView extends React.Component {
       <CueDrawerLayout
         ref="drawer"
         drawerWidth={290}
-        drawerPosition="left"
         renderNavigationView={this.renderNavigationView}>
         <View style={styles.content} key={this.props.tab}>
           {this.renderContent()}

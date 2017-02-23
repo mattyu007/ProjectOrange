@@ -17,13 +17,11 @@ class CueDrawerLayout extends React.Component {
   }
 
   render() {
-    const {drawerPosition, ...props} = this.props;
-    const {Right, Left} = DrawerLayoutAndroid.positions;
+    const {...props} = this.props;
     return (
       <DrawerLayoutAndroid
         ref={(drawer) => { this._drawer = drawer; }}
         {...props}
-        drawerPosition={drawerPosition === 'right' ? Right : Left}
         onDrawerOpen={this.onDrawerOpen}
         onDrawerClose={this.onDrawerClose}
       />
