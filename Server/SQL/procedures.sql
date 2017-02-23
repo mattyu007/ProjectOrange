@@ -337,5 +337,45 @@ BEGIN
     ORDER BY Deck.rating desc;
 END$$
 
+CREATE PROCEDURE FETCH_LIBRARY(IN uid VARCHAR(36))
+BEGIN
+    SELECT
+        Deck.uuid,
+        Deck.name,
+        Deck.rating,
+        (SELECT COUNT(*) FROM Rating WHERE deck_id=Deck.uuid) AS num_ratings,
+        Deck.owner,
+        Deck.public,
+        Deck.version AS deck_version,
+        L.version AS user_data_version,
+        Deck.created,
+        Deck.last_update,
+        L.last_update_device,
+        Deck.share_code
+    FROM Deck LEFT JOIN (
+        SELECT version, last_update_device, deck_id
+        FROM Library WHERE user_id=uid
+    ) AS L ON L.deck_id=Deck.uuid
+    WHERE Deck.owner=uid OR Deck.public=TRUE;
+END$$
+
+CREATE PROCEDURE LIBRARY_ADD(IN uid VARCHAR(36), IN did VARCHAR(36))
+BEGIN
+    INSERT INTO Library (user_id, deck_id) VALUES (uid, did);
+END$$
+
+CREATE PROCEDURE LIBRARY_REMOVE(IN uid VARCHAR(36), IN did VARCHAR(36))
+BEGIN
+    DELETE FROM Library WHERE user_id=uid AND deck_id=did;
+
+    SELECT Deck.owner INTO @owner FROM Deck
+    WHERE Deck.uuid = did;
+
+    IF (@owner=uid) THEN
+        UPDATE Deck SET deleted=true WHERE Deck.uuid=did;
+        DELETE FROM Card WHERE deck_id=did;
+        DELETE FROM DeckTag WHERE deck_id=did;
+    END IF;
+END$$
 
 DELIMITER ;

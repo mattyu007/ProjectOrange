@@ -33,7 +33,7 @@ class NewHandler(BaseHandler):
         # Retrieve a page of deck's metadata.
         decks = connector.call_procedure('FETCH_DECKS', 'new' , page)
 
-	for deck in decks:
+        for deck in decks:
             deck['tags'] = map(lambda x: x['tag'], connector.call_procedure('GET_TAGS', deck["uuid"]))
 
         # Return search results to the user.
