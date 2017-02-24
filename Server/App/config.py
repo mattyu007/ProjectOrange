@@ -45,3 +45,4 @@ class FacebookConfig(object):
 class SecurityConfig(object):
     ACCESS_TOKEN_HEADER = 'X-CUE-ACCESS-TOKEN'
     USER_ID_HEADER = 'X-CUE-USER-ID'
+    ACCESS_TOKEN_RAW_BYTES = 120
