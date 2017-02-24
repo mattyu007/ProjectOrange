@@ -1,15 +1,16 @@
 // @flow
 
-var React = require('React');
-var Navigator = require('Navigator');
-var LibraryView = require('./library/LibraryView');
-var DiscoverView = require('./discover/DiscoverView');
-var SearchView = require('./search/SearchView');
-var { switchTab } = require('../actions/navigation');
-var { connect } = require('react-redux');
-var TabBarIOS = require('TabBarIOS');
+import React from 'react'
+import { Navigator, TabBarIOS } from 'react-native'
 
-import type {Tab} from '../reducers/navigation';
+import { connect } from 'react-redux'
+import { switchTab } from '../actions/tabs'
+
+import LibraryHome from './library/LibraryHome';
+import DiscoverHome from './discover/DiscoverHome'
+import SearchHome from './search/SearchHome'
+
+import type {Tab} from '../reducers/tabs';
 
 class CueTabsView extends React.Component {
   props: {
@@ -31,15 +32,14 @@ class CueTabsView extends React.Component {
           title="Library"
           selected={this.props.tab === 'library'}
           onPress={this.onTabSelect.bind(this, 'library')}>
-          <LibraryView
-            navigator={this.props.navigator}
-          />
+          <LibraryHome
+            navigator={this.props.navigator} />
         </TabBarIOS.Item>
         <TabBarIOS.Item
           title="Discover"
           selected={this.props.tab === 'discover'}
           onPress={this.onTabSelect.bind(this, 'discover')}>
-          <DiscoverView
+          <DiscoverHome
             navigator={this.props.navigator}
           />
         </TabBarIOS.Item>
@@ -47,7 +47,7 @@ class CueTabsView extends React.Component {
           title="Search"
           selected={this.props.tab === 'search'}
           onPress={this.onTabSelect.bind(this, 'search')}>
-          <SearchView
+          <SearchHome
             navigator={this.props.navigator}
           />
         </TabBarIOS.Item>
@@ -59,7 +59,7 @@ class CueTabsView extends React.Component {
 
 function select(store) {
   return {
-    tab: store.navigation.tab,
+    tab: store.tabs.tab,
   };
 }
 

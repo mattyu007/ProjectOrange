@@ -1,14 +1,15 @@
 // @flow
 
-var React = require('React');
-var Platform = require('Platform');
-var BackAndroid = require('BackAndroid');
-var Navigator = require('Navigator');
-var StyleSheet = require('StyleSheet');
-var { connect } = require('react-redux');
-var LoginModal = require('./login/LoginModal');
-var CueTabsView = require('./tabs/CueTabsView');
-var { switchTab } = require('./actions/navigation');
+import React from 'react'
+import { Platform, BackAndroid, Navigator, Text, StyleSheet } from 'react-native'
+
+import { connect } from 'react-redux'
+import { switchTab } from './actions/tabs'
+
+import CueColors from './common/CueColors'
+import LoginModal from './login/LoginModal'
+import CueTabsView  from './tabs/CueTabsView'
+import DeckView from './tabs/library/DeckView'
 
 var CueNavigator = React.createClass({
   _handlers: ([]: Array<() => boolean>),
@@ -65,11 +66,8 @@ var CueNavigator = React.createClass({
         configureScene={(route) => {
           if (Platform.OS === 'android') {
             return Navigator.SceneConfigs.FloatFromBottomAndroid;
-          }
-          if (route.shareSettings || route.friend) {
-            return Navigator.SceneConfigs.FloatFromRight;
           } else {
-            return Navigator.SceneConfigs.FloatFromBottom;
+            return Navigator.SceneConfigs.FloatFromRight;
           }
         }}
         initialRoute={{}}
@@ -79,13 +77,8 @@ var CueNavigator = React.createClass({
   },
 
   renderScene: function(route, navigator) {
-    if (route.login) {
-      return (
-        <LoginModal
-          navigator={navigator}
-          onLogin={route.callback}
-        />
-      );
+    if (route.deck) {
+      return <DeckView navigator={navigator} deck={route.deck}/>
     }
     return <CueTabsView navigator={navigator} />;
   },
@@ -105,7 +98,7 @@ var styles = StyleSheet.create({
 
 function select(store) {
   return {
-    tab: store.navigation.tab,
+    tab: store.tabs.tab,
     isLoggedIn: store.user.isLoggedIn,
   };
 }

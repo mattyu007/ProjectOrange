@@ -7,6 +7,8 @@ var View = require('View');
 var StatusBar = require('StatusBar');
 var CueNavigator = require('./CueNavigator');
 
+import CueColors from './common/CueColors'
+
 var { connect } = require('react-redux');
 
 var CueApp = React.createClass({
@@ -16,7 +18,7 @@ var CueApp = React.createClass({
 
   componentWillUnmount: function() {
     AppState.removeEventListener('change', this.handleAppStateChange);
-  
+
   },
 
   handleAppStateChange: function(appState) {
@@ -31,7 +33,7 @@ var CueApp = React.createClass({
       <View style={styles.container}>
       	<StatusBar
           translucent={false}
-          backgroundColor="rgba(0, 0, 0, 0.2)"
+          backgroundColor={CueColors.primaryTintDark}
           barStyle="light-content"
 		    />
         <CueNavigator />
