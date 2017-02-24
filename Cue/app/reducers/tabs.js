@@ -7,9 +7,9 @@ type State = {
   tab: Tab;
 };
 
-const initialState: State = { tab: 'library'};
+const initialState: State = { tab: 'library' };
 
-function navigation(state: State = initialState, action: Action): State {
+function tabs(state: State = initialState, action: Action): State {
   if (action.type === 'SWITCH_TAB') {
     return {...state, tab: action.tab};
   }
@@ -19,4 +19,4 @@ function navigation(state: State = initialState, action: Action): State {
   return state;
 }
 
-module.exports = navigation;
+module.exports = tabs;

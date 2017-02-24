@@ -19,7 +19,7 @@ var createCueStore = applyMiddleware(thunk, logger)(createStore);
 
 function configureStore(onComplete: ?() => void) {
   const store = autoRehydrate()(createCueStore)(reducers);
-  persistStore(store, {storage: AsyncStorage}, onComplete);
+  persistStore(store, {storage: AsyncStorage, blacklist: ['tabs']}, onComplete);
   if (isDebuggingInChrome) {
     window.store = store;
   }

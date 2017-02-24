@@ -1,11 +1,7 @@
 // @flow
 
-var React = require('React');
-var View = require('View');
-var Text = require('Text');
-var TouchableHighlight = require('TouchableHighlight');
-var StyleSheet = require('StyleSheet');
-
+import React from 'react'
+import { View, Text, TouchableNativeFeedback, StyleSheet } from 'react-native'
 
 class MenuItem extends React.Component {
   props: {
@@ -16,13 +12,15 @@ class MenuItem extends React.Component {
 
   render() {
     return (
-      <TouchableHighlight onPress={this.props.onPress}>
+      <TouchableNativeFeedback
+        onPress={this.props.onPress}
+        background={TouchableNativeFeedback.SelectableBackground()}>
         <View style={styles.container}>
           <Text>
             {this.props.title}
           </Text>
         </View>
-      </TouchableHighlight>
+      </TouchableNativeFeedback>
     );
   }
 }

@@ -1,9 +1,9 @@
 // @flow
 
 const loginActions = require('./login');
-const navigationActions = require('./navigation');
+const tabsActions = require('./tabs');
 
 module.exports = {
   ...loginActions,
-  ...navigationActions,
+  ...tabsActions,
 }

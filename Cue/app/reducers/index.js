@@ -1,7 +1,9 @@
 // @flow
-var { combineReducers } = require('redux');
+import { combineReducers } from 'redux'
+import user from './user'
+import tabs from './tabs'
 
 module.exports = combineReducers({
-  user: require('./user'),
-  navigation: require('./navigation'),
+  user,
+  tabs
 });

@@ -1,20 +1,19 @@
 // @flow
 
-var React = require('React');
-var Navigator = require('Navigator');
-var View = require('View');
-var StyleSheet = require('StyleSheet');
-var Text = require('Text');
-var MenuItem = require('./MenuItem');
-var CueDrawerLayout = require('../common/CueDrawerLayout');
-var LibraryView = require('./library/LibraryView');
-var DiscoverView = require('./discover/DiscoverView');
-var SearchView = require('./search/SearchView');
-var { switchTab } = require('../actions/navigation');
-var { logOut } = require('../actions/login');
-var { connect } = require('react-redux');
+import React from 'react'
+import { Navigator, View, StyleSheet, Text } from 'react-native'
 
-import type {Tab} from '../reducers/navigation';
+import { connect } from 'react-redux'
+import { switchTab } from '../actions/tabs'
+import { logOut } from '../actions/login'
+
+import MenuItem from './MenuItem'
+import CueDrawerLayout from '../common/CueDrawerLayout'
+import LibraryHome from './library/LibraryHome'
+import DiscoverHome from './discover/DiscoverHome'
+import SearchHome from './search/SearchHome'
+
+import type { Tab } from '../reducers/tabs';
 
 class CueTabsView extends React.Component {
   props: {
@@ -26,7 +25,6 @@ class CueTabsView extends React.Component {
   constructor(props) {
     super(props);
     this.renderNavigationView = this.renderNavigationView.bind(this);
-    this.openProfileSettings = this.openProfileSettings.bind(this);
     this.openDrawer = this.openDrawer.bind(this);
   }
 
@@ -45,11 +43,6 @@ class CueTabsView extends React.Component {
       this.props.onTabSelect(tab);
     }
     this.refs.drawer.closeDrawer();
-  }
-
-  openProfileSettings() {
-    this.refs.drawer.closeDrawer();
-    this.props.navigator.push({shareSettings: true});
   }
 
   renderNavigationView() {
@@ -78,21 +71,24 @@ class CueTabsView extends React.Component {
     switch (this.props.tab) {
       case 'library':
         return (
-          <LibraryView
+          <LibraryHome
+            onPressMenu={() => this.openDrawer()}
             navigator={this.props.navigator}
           />
         );
 
       case 'discover':
         return (
-          <DiscoverView
+          <DiscoverHome
+            onPressMenu={() => this.openDrawer()}
             navigator={this.props.navigator}
           />
         );
 
       case 'search':
         return (
-          <SearchView
+          <SearchHome
+            onPressMenu={() => this.openDrawer()}
             navigator={this.props.navigator}
           />
         );
@@ -120,7 +116,7 @@ CueTabsView.childContextTypes = {
 
 function select(store) {
   return {
-    tab: store.navigation.tab,
+    tab: store.tabs.tab,
     user: store.user,
   };
 }
