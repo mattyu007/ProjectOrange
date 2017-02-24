@@ -1,6 +1,7 @@
 export PYTHONPATH := $(shell pwd)
 VENV = $(shell pwd)/venv
 VPY = $(VENV)/bin/python
+VPIP = $(VENV)/bin/pip
 
 
 all: run
@@ -8,7 +9,7 @@ all: run
 everything: system venv depends init run
 
 depends:
-	pip install -r requirements.txt --target venv/lib/python2.7/site-packages/ -q
+	$(VPIP) install -r requirements.txt -q
 
 run:
 	$(VPY) App/server.py
