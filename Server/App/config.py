@@ -2,6 +2,8 @@
 App-wide configuration.
 """
 
+import os
+
 
 class StatusCode(object):
     """HTTP Status Codes."""
@@ -32,9 +34,9 @@ class ServerConfig(object):
 
 
 class FacebookConfig(object):
-    APP_NAME = 'Cue'
-    APP_ID = '1655143831455954'
-    APP_SECRET = '?????'  # Populate in prod
+    APP_NAME = os.getenv('APP_NAME', '????')
+    APP_ID = os.getenv('APP_ID', '????')
+    APP_SECRET = os.getenv('APP_SECRET', '????')
 
     VERIFY_ACCESS_TOKEN_URL = ('https://graph.facebook.com/debug_token?' +
         'input_token={access_token}&access_token={app_token}')
