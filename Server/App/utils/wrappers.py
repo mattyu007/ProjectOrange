@@ -31,7 +31,7 @@ def authorize_request_and_create_db_connector(func):
         user_id = self.request.headers.get(SecurityConfig.USER_ID_HEADER)
 
         if access_token is None or user_id is None:
-            self.abort_transaction(StatusCode.UNAUTHORIZED)
+            self.abort(StatusCode.UNAUTHORIZED)
 
         # Retrieve access token from DB
         connector = DatabaseConnector()
@@ -39,7 +39,7 @@ def authorize_request_and_create_db_connector(func):
 
         # Verify they are the same
         if len(result) != 1 or access_token != result[0]['access_token']:
-            self.abort_transaction(StatusCode.UNAUTHORIZED)
+            self.abort(StatusCode.UNAUTHORIZED)
 
         return func(self, connector, *(list(args)[1:]), **kwargs)
     return wrapper
