@@ -43,7 +43,11 @@ class CueHeader extends React.Component {
           <HeaderItemIOS item={leftItem} />
         </View>
         <View style={styles.titleItemContainer}>
-          <Text style={styles.titleTextItem}>{title}</Text>
+          <Text
+            style={styles.titleTextItem}
+            numberOfLines={1}>
+            {title}
+          </Text>
         </View>
         <View style={styles.rightItemContainer}>
           {(rightItems || []).map((item) => <HeaderItemIOS key={item.title} item={item} />)}
@@ -71,7 +75,11 @@ class HeaderItemIOS extends React.Component {
       content = <Image source={icon} />
     } else {
       content = (
-        <Text style={styles.textItem}>{title}</Text>
+        <Text
+          style={styles.textItem}
+          numberOfLines={1}>
+          {title}
+        </Text>
       )
     }
 
@@ -79,6 +87,7 @@ class HeaderItemIOS extends React.Component {
       <TouchableOpacity
         accessibilityLabel={title}
         accessibilityTraits='button'
+        style={styles.headerItem}
         onPress={onPress}>
         {content}
       </TouchableOpacity>
@@ -98,7 +107,6 @@ styles = {
   leftItemContainer: {
     flex: 1,
     alignItems: 'flex-start',
-    padding: 8
   },
   titleItemContainer: {
     flex: 2,
@@ -107,7 +115,14 @@ styles = {
   rightItemContainer: {
     flex: 1,
     alignItems: 'flex-end',
-    padding: 8
+  },
+  headerItem: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 44,
+    minWidth: 44,
+    paddingLeft: 8,
+    paddingRight: 8
   },
   textItem: {
     color: 'white',
