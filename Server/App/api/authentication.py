@@ -33,9 +33,10 @@ class AuthHandler(BaseHandler):
 
         # Return existing credentials.
         if len(result) == 1:
+            user = result[0]
             return self.make_response(response=json.dumps({
-                'user-id': result['uuid'],
-                'access-token': result['access_token']
+                'user-id': user['uuid'],
+                'access-token': user['access_token']
             }))
 
         # Create a new user.
