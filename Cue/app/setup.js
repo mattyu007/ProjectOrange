@@ -4,9 +4,13 @@ var CueApp = require('./CueApp');
 var React = require('React');
 var { Provider } = require('react-redux');
 var configureStore = require('./store/configureStore');
+const FBSDK = require('react-native-fbsdk');
 
 
 function setup(): ReactClass<{}> {
+
+
+  window.FB = FBSDK;
 
   class Root extends React.Component {
     state: {
