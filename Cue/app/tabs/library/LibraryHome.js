@@ -3,7 +3,7 @@
 'use strict';
 
 import React from 'react'
-import { View, Text, TouchableOpacity, Platform } from 'react-native'
+import { View, Text, TouchableOpacity, Navigator, Platform } from 'react-native'
 
 import { connect } from 'react-redux'
 
@@ -73,7 +73,8 @@ class LibraryHome extends React.Component {
           overflowItems={overflowItems} />
         <LibraryListView
           style={styles.bodyContainer}
-          navigator={this.props.navigator} />
+          navigator={this.props.navigator}
+          decks={[]} />
       </View>
     )
   }
