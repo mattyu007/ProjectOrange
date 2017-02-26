@@ -47,6 +47,8 @@ class LibraryAddHandler(BaseHandler):
 
             connector.call_procedure('LIBRARY_ADD', user_id, uuid)
 
+            connector.end_transaction()
+
         except:
             connector.abort_transaction()
             logging.error('Could not add deck to library', exc_info=True)
