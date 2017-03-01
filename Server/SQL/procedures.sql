@@ -352,11 +352,11 @@ BEGIN
         Deck.last_update,
         L.last_update_device,
         Deck.share_code
-    FROM Deck LEFT JOIN (
+    FROM Deck INNER JOIN (
         SELECT version, last_update_device, deck_id
         FROM Library WHERE user_id=uid
     ) AS L ON L.deck_id=Deck.uuid
-    WHERE Deck.owner=uid OR Deck.public=TRUE;
+    WHERE Deck.owner=uid OR Deck.public=TRUE OR Deck.share_code IS NOT NULL;
 END$$
 
 CREATE PROCEDURE LIBRARY_ADD(IN uid VARCHAR(36), IN did VARCHAR(36))
