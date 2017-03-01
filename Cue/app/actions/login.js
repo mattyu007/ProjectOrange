@@ -3,6 +3,7 @@ import type { Action, PromiseAction, ThunkAction } from './types';
 import AuthenticationApi from '../api/Authentication';
 import FacebookApi from '../api/Facebook';
 import { LoginManager, AccessToken,  } from 'react-native-fbsdk';
+import { loadLibrary } from './library';
 
 function logIn(cueUserId: string, cueAccessToken: string): Action {
   return {
@@ -22,8 +23,7 @@ function logOut(): Action {
 
 
 
-async function loadUsername(data): PromiseAction {
-  let name = data.name;
+async function loadUsername(name): PromiseAction {
   return {
     type: 'LOADED_USERNAME',
     name,
@@ -31,18 +31,19 @@ async function loadUsername(data): PromiseAction {
 }
 
 function serverLogin(): ThunkAction {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     const login = _serverLogin();
 
-    // Loading username happens async
+    // Loading data happens async
     login.then(
       (result) => {
         dispatch(result[0]);
-        FacebookApi.getName(data=>{dispatch(loadUsername(data))});
+        dispatch(loadLibrary(getState()));
+        FacebookApi.getName(data=>{dispatch(loadUsername(data.name))});
       }
     ).catch(
       (e) => {
-        //If Cue auth fails, logout of facebook aswell
+        //If Cue auth fails, logout of facebook
         LoginManager.logOut();
         throw e;
     });
