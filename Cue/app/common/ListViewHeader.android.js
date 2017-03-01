@@ -4,9 +4,9 @@
 
 import React from 'react'
 import { Text, Dimensions } from 'react-native'
-import CueColors from '../../common/CueColors'
+import CueColors from './CueColors'
 
-export default class LibraryListViewHeader extends React.Component {
+export default class ListViewHeader extends React.Component {
   props: {
     section: string
   }

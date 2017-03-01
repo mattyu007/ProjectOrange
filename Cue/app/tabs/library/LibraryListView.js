@@ -5,7 +5,7 @@
 import React from 'react'
 import { Navigator, View, Text, ListView, Dimensions } from 'react-native'
 
-import LibraryListViewHeader from './LibraryListViewHeader'
+import ListViewHeader from '../../common/ListViewHeader'
 import LibraryListViewItem from './LibraryListViewItem'
 import LibraryEmptyView from './LibraryEmptyView'
 
@@ -117,7 +117,7 @@ export default class LibraryListView extends React.Component {
         dataSource={this.state.dataSource}
         initialListSize={8}
         pageSize={2}
-        renderSectionHeader={(data, category) => <LibraryListViewHeader section={category} />}
+        renderSectionHeader={(decks, category) => <ListViewHeader section={category} />}
         renderRow={deck => <LibraryListViewItem navigator={this.props.navigator} deck={deck} />} />
       )
   }
