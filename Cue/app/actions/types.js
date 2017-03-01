@@ -1,7 +1,8 @@
 // @flow
 
 export type Action =
-    { type: 'LOGGED_IN' }
+	{ type: 'LOADED_USERNAME', name: string }
+  | { type: 'LOGGED_IN', data: { userId: string; accessToken: string; } }
   | { type: 'LOGGED_OUT' }
   | { type: 'SWITCH_TAB', tab: 'library' | 'discover' | 'search' }
   ;

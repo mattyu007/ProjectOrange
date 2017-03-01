@@ -15,6 +15,8 @@ import DiscoverHome from './discover/DiscoverHome'
 import SearchHome from './search/SearchHome'
 
 import type { Tab } from '../reducers/tabs';
+import FacebookLoginButton from '../common/FacebookLoginButton';
+
 
 class CueTabsView extends React.Component {
   props: {
@@ -67,6 +69,7 @@ class CueTabsView extends React.Component {
           selected={this.props.tab === 'search'}
           onPress={this.onTabSelect.bind(this, 'search')}
         />
+        <FacebookLoginButton />
       </View>
     );
   }

@@ -7,8 +7,7 @@ import { connect } from 'react-redux'
 import { switchTab } from './actions/tabs'
 
 import CueColors from './common/CueColors'
-import LoginModal from './login/LoginModal'
-import CueTabsView  from './tabs/CueTabsView'
+import CueTabsView from './tabs/CueTabsView'
 import DeckView from './tabs/library/DeckView'
 
 var CueNavigator = React.createClass({
