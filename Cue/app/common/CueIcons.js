@@ -16,6 +16,7 @@ module.exports = {
   share: require('./img/share.png'),
 
   // Images
+  deckPlaceholder: require('./img/deck_placeholder.png'),
   emptyLibrary: require('./img/library_empty.png'),
 
   // Tabs
