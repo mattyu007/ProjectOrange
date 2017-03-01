@@ -7,6 +7,7 @@ import { connect } from 'react-redux'
 import { switchTab } from '../actions/tabs'
 import { logOut } from '../actions/login'
 
+import CueIcons from '../common/CueIcons'
 import MenuItem from './MenuItem'
 import CueDrawerLayout from '../common/CueDrawerLayout'
 import LibraryHome from './library/LibraryHome'
@@ -50,16 +51,19 @@ class CueTabsView extends React.Component {
       <View style={styles.drawer}>
         <MenuItem
           title="Library"
+          icon={CueIcons.tabLibrary}
           selected={this.props.tab === 'library'}
           onPress={this.onTabSelect.bind(this, 'library')}
         />
         <MenuItem
           title="Discover"
+          icon={CueIcons.tabDiscover}
           selected={this.props.tab === 'discover'}
           onPress={this.onTabSelect.bind(this, 'discover')}
         />
         <MenuItem
           title="Search"
+          icon={CueIcons.tabSearch}
           selected={this.props.tab === 'search'}
           onPress={this.onTabSelect.bind(this, 'search')}
         />
