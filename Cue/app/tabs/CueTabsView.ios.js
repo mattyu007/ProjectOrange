@@ -1,10 +1,13 @@
 // @flow
 
 import React from 'react'
-import { Navigator, TabBarIOS } from 'react-native'
+import { Image, Navigator, TabBarIOS } from 'react-native'
 
 import { connect } from 'react-redux'
 import { switchTab } from '../actions/tabs'
+
+import CueColors from '../common/CueColors'
+import CueIcons from '../common/CueIcons'
 
 import LibraryHome from './library/LibraryHome';
 import DiscoverHome from './discover/DiscoverHome'
@@ -27,9 +30,12 @@ class CueTabsView extends React.Component {
 
   render() {
     return (
-      <TabBarIOS>
+      <TabBarIOS
+        tintColor={CueColors.primaryTint}>
         <TabBarIOS.Item
           title="Library"
+          icon={CueIcons.tabLibrary}
+          selectedIcon={CueIcons.tabLibrarySelected}
           selected={this.props.tab === 'library'}
           onPress={this.onTabSelect.bind(this, 'library')}>
           <LibraryHome
@@ -37,6 +43,8 @@ class CueTabsView extends React.Component {
         </TabBarIOS.Item>
         <TabBarIOS.Item
           title="Discover"
+          icon={CueIcons.tabDiscover}
+          selectedIcon={CueIcons.tabDiscoverSelected}
           selected={this.props.tab === 'discover'}
           onPress={this.onTabSelect.bind(this, 'discover')}>
           <DiscoverHome
@@ -45,6 +53,8 @@ class CueTabsView extends React.Component {
         </TabBarIOS.Item>
         <TabBarIOS.Item
           title="Search"
+          icon={CueIcons.tabSearch}
+          selectedIcon={CueIcons.tabSearchSelected}
           selected={this.props.tab === 'search'}
           onPress={this.onTabSelect.bind(this, 'search')}>
           <SearchHome
