@@ -10,6 +10,13 @@ module.exports = {
   primaryText: '#53585F',
   lightText: 'rgba(0, 0, 0, 0.4)',
 
+  mediumGrey: 'rgba(0, 0, 0, 0.4)',
+  lightGrey: 'rgba(0, 0, 0, 0.3)',
+  veryLightGrey: 'rgba(0, 0, 0, 0.1)',
+
+  sharedInsetTint: '#70BF41',
+  publicInsetTint: '#51A7F9',
+
   positiveTint: '#4AA45A',
   negativeTint: '#DA3832'
 }
