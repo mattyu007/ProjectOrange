@@ -7,6 +7,8 @@ import { View, Text, TouchableOpacity, Navigator } from 'react-native'
 
 import { connect } from 'react-redux'
 
+import type { Card, Deck } from '../../api/types'
+
 import CueColors from '../../common/CueColors'
 import CueHeader from '../../common/CueHeader'
 import CueIcons from '../../common/CueIcons'
@@ -29,7 +31,7 @@ const styles = {
 export default class DeckView extends React.Component {
   props: {
     navigator: Navigator,
-    deck: any
+    deck: Deck
   }
 
   render() {

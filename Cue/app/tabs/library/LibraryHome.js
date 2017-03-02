@@ -7,6 +7,8 @@ import { View, Text, TouchableOpacity, Navigator, Platform } from 'react-native'
 
 import { connect } from 'react-redux'
 
+import type { Deck } from '../../api/types'
+
 import CueHeader from '../../common/CueHeader'
 import CueIcons from '../../common/CueIcons'
 
@@ -25,6 +27,7 @@ const styles = {
 }
 
 type Props = {
+  decks: Array<Deck>,
   navigator: Navigator,
   onPressMenu?: () => void
 }
@@ -74,7 +77,7 @@ class LibraryHome extends React.Component {
         <LibraryListView
           style={styles.bodyContainer}
           navigator={this.props.navigator}
-          decks={[]} />
+          decks={this.props.decks || []} />
       </View>
     )
   }
@@ -82,6 +85,7 @@ class LibraryHome extends React.Component {
 
 function select(store) {
   return {
+    decks: store.library.decks
   }
 }
 

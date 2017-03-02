@@ -5,36 +5,13 @@
 import React from 'react'
 import { Navigator, View, Text, ListView, Dimensions } from 'react-native'
 
+import { connect } from 'react-redux'
+
+import type { Deck, Card } from '../../api/types'
+
 import ListViewHeader from '../../common/ListViewHeader'
 import LibraryListViewItem from './LibraryListViewItem'
 import LibraryEmptyView from './LibraryEmptyView'
-
-// TODO These typedefs should be moved to a common (API?) class
-type Card = {
-  uuid: string,
-  front: string,
-  back: string,
-  needsReview: boolean,
-  position: number
-}
-
-type Deck = {
-  uuid: string,
-  name: string,
-  rating: number,
-  numRatings: number,
-  tags: Array<string>,
-  owner: string,
-  public: boolean,
-  deckVersion: number,
-  userDataVersion: number,
-  created: Date,
-  lastUpdate: Date,
-  lastUpdateDevice?: string,
-  shareCode?: string,
-  deleted: boolean,
-  cards: Array<Card>
-}
 
 const styles = {
   list: {
@@ -49,11 +26,17 @@ const SECTION_PRIVATE = 'Your Decks'
 const SECTION_SHARED = 'Shared With You'
 const SECTION_PUBLIC = 'Public'
 
-export default class LibraryListView extends React.Component {
-  props: {
-    navigator: Navigator,
-    decks: Array<Deck>
-  }
+type Props = {
+  navigator: Navigator,
+  decks: Array<Deck>,
+
+  // filled in by Redux
+  userId: string
+}
+
+class LibraryListView extends React.Component {
+  props: Props
+
   state: {
     dataSource: ListView.DataSource,
     deviceOrientation: string
@@ -67,7 +50,7 @@ export default class LibraryListView extends React.Component {
     })
   }
 
-  constructor(props: any) {
+  constructor(props: Props) {
     super(props)
 
     let ds = new ListView.DataSource({
@@ -76,27 +59,34 @@ export default class LibraryListView extends React.Component {
     })
 
     let data = { }
+    let addToData = (section, deck) => {
+      if (!data[section]) {
+        data[section] = []
+      }
+      data[section].push(deck)
+    }
+
     this.props.decks.forEach((deck) => {
-      if (!deck.public) {
-        if (!data[SECTION_PRIVATE]) {
-          data[SECTION_PRIVATE] = []
-        }
-        data[SECTION_PRIVATE].push(deck)
-      } else if (deck.shareCode) {
-        if (!data[SECTION_SHARED]) {
-          data[SECTION_SHARED] = []
-        }
-        data[SECTION_SHARED].push(deck)
+      if (deck.owner === this.props.userId) {
+        addToData(SECTION_PRIVATE, deck)
+      } else if (!deck.public && deck.share_code) {
+        addToData(SECTION_SHARED, deck)
       } else {
-        if (!data[SECTION_PUBLIC]) {
-          data[SECTION_PUBLIC] = []
-        }
-        data[SECTION_PUBLIC].push(deck)
+        addToData(SECTION_PUBLIC, deck)
       }
     })
 
+    // RN will throw an error if we specify a section header which doesn't
+    // have any elements in it, so only add the section headers which should
+    // appear.
+    let headers = [];
+    [SECTION_PRIVATE, SECTION_SHARED, SECTION_PUBLIC].forEach(header => {
+      if (data[header]) {
+        headers.push(header)
+      }
+    })
     this.state = {
-      dataSource: ds.cloneWithRowsAndSections(data),
+      dataSource: ds.cloneWithRowsAndSections(data, headers),
       deviceOrientation: 'UNKNOWN'
     }
   }
@@ -122,3 +112,11 @@ export default class LibraryListView extends React.Component {
       )
   }
 };
+
+function select(store) {
+  return {
+    userId: store.user.userId
+  }
+}
+
+module.exports = connect(select)(LibraryListView)

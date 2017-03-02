@@ -5,12 +5,14 @@
 import React from 'react'
 import { Text, TouchableOpacity, Dimensions, Navigator } from 'react-native'
 
+import type { Deck } from '../../api/types'
+
 import CueColors from '../../common/CueColors'
 
 export default class LibraryListViewItem extends React.Component {
   props: {
     navigator: Navigator,
-    deck: any
+    deck: Deck
   }
 
   render() {
@@ -42,15 +44,24 @@ export default class LibraryListViewItem extends React.Component {
       }
     }
 
+    let subText;
+    if (typeof this.props.deck.cards !== 'undefined') {
+      subText = (
+        <Text style={styles.cardNumber}>
+          {this.props.deck.cards.length
+           + (this.props.deck.cards.length == 1 ? " card" : " cards")}
+        </Text>
+      )
+    } else {
+      // Display "Updating..."?
+    }
+
     return (
       <TouchableOpacity style={styles.itemContainer} onPress={() => this.props.navigator.push({deck: this.props.deck})}>
         <Text style={styles.itemText} numberOfLines={2}>
           {this.props.deck.name}
         </Text>
-        <Text style={styles.cardNumber}>
-          {'' + this.props.deck.cards.length
-           + (this.props.deck.cards.length == 1 ? " card" : " cards")}
-        </Text>
+        {subText}
       </TouchableOpacity>
     )
   }
