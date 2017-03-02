@@ -16,6 +16,7 @@ module.exports = {
   share: require('./img/share.png'),
 
   // Images
+  cueDeck: require('./img/cue_deck.png'),
   emptyLibrary: require('./img/library_empty.png'),
 
   // Tabs
