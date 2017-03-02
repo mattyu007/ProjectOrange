@@ -227,11 +227,11 @@ BEGIN
         Deck.last_update,
         L.last_update_device,
         Deck.share_code
-    FROM Deck LEFT JOIN (
+    FROM Deck INNER JOIN (
         SELECT version, last_update_device, deck_id
         FROM Library WHERE deck_id=did AND user_id=uid
     ) AS L ON L.deck_id=Deck.uuid
-    WHERE Deck.uuid=did AND (Deck.owner=uid OR Deck.public=TRUE);
+    WHERE Deck.uuid=did AND (Deck.owner=uid OR Deck.public=TRUE OR Deck.share_code IS NOT NULL);
 END$$
 
 -- Fetch metadata for a page of decks
@@ -240,14 +240,14 @@ BEGIN
     DECLARE sort_criteria VARCHAR(20);
     DECLARE page_size INTEGER DEFAULT 50;
     DECLARE page_offset INTEGER;
-    
+
     SET page = IFNULL(page, 1);
 
     IF (type = 'top') THEN
         SET sort_criteria = 'Deck.rating';
     ELSEIF (type = 'new') THEN
         SET sort_criteria = 'Deck.created';
-    ELSE 
+    ELSE
 	SET sort_criteria = 'Deck.rating';
     END IF;
 
