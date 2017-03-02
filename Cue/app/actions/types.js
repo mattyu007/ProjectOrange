@@ -3,7 +3,7 @@
 import type {Deck} from '../api/types';
 
 export type Action =
-	{ type: 'LOADED_LIBRARY', library: Array<Deck> }
+	{ type: 'LOADED_LIBRARY', decks: Array<Deck> }
   |	{ type: 'LOADED_USERNAME', name: string }
   | { type: 'LOGGED_IN', data: { userId: string; accessToken: string; } }
   | { type: 'LOGGED_OUT' }
