@@ -133,6 +133,7 @@ styles = {
     color: 'white',
     fontSize: 18,
     fontWeight: "500", // medium
+    letterSpacing: 0.5
   }
 }
 

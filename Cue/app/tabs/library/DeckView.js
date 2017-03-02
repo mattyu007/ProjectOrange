@@ -3,9 +3,11 @@
 'use strict';
 
 import React from 'react'
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, Text, TouchableOpacity, Navigator } from 'react-native'
 
 import { connect } from 'react-redux'
+
+import type { Card, Deck } from '../../api/types'
 
 import CueColors from '../../common/CueColors'
 import CueHeader from '../../common/CueHeader'
@@ -27,10 +29,12 @@ const styles = {
 }
 
 export default class DeckView extends React.Component {
-  render() {
-    console.log('DeckView.props: ')
-    console.log(this.props)
+  props: {
+    navigator: Navigator,
+    deck: Deck
+  }
 
+  render() {
     const leftItem = {
       title: 'Back',
       icon: CueIcons.back,
@@ -41,7 +45,7 @@ export default class DeckView extends React.Component {
       <View style={styles.container}>
         <CueHeader
           leftItem={leftItem}
-          title={'Deck ' + this.props.deck} />
+          title={this.props.deck.name} />
         <View style={styles.bodyContainer}>
           <Text>Deck View</Text>
           <TouchableOpacity onPress={() => this.props.navigator.pop()}>
