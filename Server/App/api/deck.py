@@ -5,6 +5,8 @@ Also, handle the flagging of cards for review.
 
 import json
 import logging
+import string
+import random
 
 from config import StatusCode
 from utils.base_handler import BaseHandler
@@ -84,9 +86,9 @@ class DeckUUIDHandler(BaseHandler):
 
     @authorize_request_and_create_db_connector
     @extract_user_id
-    @require_params('parent_deck_version', 'parent_user_data_version')
+    @require_params('parent_deck_version', 'parent_user_data_version', 'device')
     @optional_params('name', 'public', 'tags', 'actions')
-    def put(self, name, public, tags, actions, parent_deck_version, parent_user_data_version,
+    def put(self, name, public, tags, actions, parent_deck_version, parent_user_data_version, device,
             user_id, connector, uuid):
         """Edit an existing deck."""
 
@@ -168,7 +170,7 @@ class DeckUUIDHandler(BaseHandler):
             # Increment both the deck version and the user data version.
             # TODO set last_update and last_update_device.
             connector.call_procedure('INCREMENT_DECK_VERSION', user_id, uuid)
-            connector.call_procedure('INCREMENT_USER_DATA_VERSION', user_id, uuid)
+            connector.call_procedure('INCREMENT_USER_DATA_VERSION', user_id, uuid, device)
 
             # Commit changes.
             connector.end_transaction()
@@ -194,8 +196,8 @@ class DeckUUIDHandler(BaseHandler):
 class DeckFlagHandler(BaseHandler):
     @authorize_request_and_create_db_connector
     @extract_user_id
-    @require_params('parent_deck_version', 'parent_user_data_version', 'actions')
-    def put(self, parent_deck_version, parent_user_data_version, actions, user_id, connector, uuid):
+    @require_params('parent_deck_version', 'parent_user_data_version', 'actions', 'device')
+    def put(self, parent_deck_version, parent_user_data_version, actions, device, user_id, connector, uuid):
         """Flag specific cards in an existing deck."""
 
         versions = connector.call_procedure('GET_VERSIONS', user_id, uuid)
@@ -221,7 +223,7 @@ class DeckFlagHandler(BaseHandler):
 
             # Increment the user data version and retrieve it.
             new_user_data_version = connector.call_procedure(
-                'INCREMENT_USER_DATA_VERSION', user_id, uuid)[0]
+                'INCREMENT_USER_DATA_VERSION', user_id, uuid, device)[0]
 
             # Commit the changes.
             connector.end_transaction()
@@ -256,10 +258,30 @@ class DeckRateHandler(BaseHandler):
         logging.info('{} rated deck {}'.format(user_id, uuid))
         return self.make_response(status=StatusCode.OK)
 
+class DeckShareHandler(BaseHandler):
+    @authorize_request_and_create_db_connector
+    @extract_user_id
+    def get(self, user_id, connector, uuid):
+        results = connector.call_procedure('FETCH_DECK', user_id, uuid)
+        if len(results) != 1:
+            return self.make_response(status=StatusCode.INTERNAL_SERVER_ERROR)
+        if results[0]['owner'] != user_id:
+            return self.make_response(status=StatusCode.FORBIDDEN)
+
+        while True:
+            share_code = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
+            set_code = connector.call_procedure('SET_SHARE_CODE', user_id, uuid, share_code)
+            # Check if code was successfully set
+            if (len(set_code) == 1):
+                break
+
+        return self.make_response(response=json.dumps(set_code[0]))
+
 
 routes = [
     ('/v1/deck/add', DeckAddHandler),
     ('/v1/deck/<string:uuid>', DeckUUIDHandler),
     ('/v1/deck/<string:uuid>/flag', DeckFlagHandler),
-    ('/v1/deck/<string:uuid>/rate', DeckRateHandler)
+    ('/v1/deck/<string:uuid>/rate', DeckRateHandler),
+    ('/v1/deck/<string:uuid>/code', DeckShareHandler)
 ]

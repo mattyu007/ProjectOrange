@@ -50,7 +50,7 @@ END$$
 -- Create a tag, return its ID
 CREATE PROCEDURE CREATE_TAG(IN t VARCHAR(255))
 BEGIN
-    INSERT IGNORE INTO Tag (tag) VALUES (t);
+    INSERT IGNORE INTO Tag (tag) VALUES (LOWER(t));
     SELECT id FROM Tag WHERE tag=t;
 END$$
 
@@ -149,9 +149,9 @@ END$$
 
 
 -- Increment user data version number.
-CREATE PROCEDURE INCREMENT_USER_DATA_VERSION(IN uid VARCHAR(36), IN did VARCHAR(36))
+CREATE PROCEDURE INCREMENT_USER_DATA_VERSION(IN uid VARCHAR(36), IN did VARCHAR(36), IN device VARCHAR(255))
 BEGIN
-    UPDATE Library SET version=(version + 1) WHERE user_id=uid AND deck_id=did;
+    UPDATE Library SET version=(version + 1), last_update_device=device WHERE user_id=uid AND deck_id=did;
     SELECT version FROM Library WHERE user_id=uid AND deck_id=did;
 END$$
 
@@ -159,8 +159,21 @@ END$$
 -- Increment deck version number. It will only be incremented if the user owns the deck.
 CREATE PROCEDURE INCREMENT_DECK_VERSION(IN uid VARCHAR(36), IN did VARCHAR(36))
 BEGIN
-    UPDATE Deck SET version=(version + 1) WHERE owner=uid AND uuid=did;
+    UPDATE Deck SET version=(version + 1), last_update=NOW() WHERE owner=uid AND uuid=did;
     SELECT version FROM Deck WHERE owner=uid AND uuid=did;
+END$$
+
+
+-- Generate share code for deck.
+CREATE PROCEDURE SET_SHARE_CODE(IN uid VARCHAR(36), IN did VARCHAR(36), IN code VARCHAR(8))
+BEGIN
+    SELECT share_code into @share_code FROM Deck WHERE share_code=code;
+
+    IF (@share_code IS NULL) THEN
+        UPDATE Deck SET share_code=code WHERE owner=uid AND uuid=did;
+    END IF;
+    
+    SELECT share_code FROM Deck WHERE owner=uid AND uuid=did;
 END$$
 
 
@@ -226,11 +239,13 @@ BEGIN
         Deck.created,
         Deck.last_update,
         L.last_update_device,
-        Deck.share_code
+        Deck.share_code,
+        User.name
     FROM Deck INNER JOIN (
         SELECT version, last_update_device, deck_id
         FROM Library WHERE deck_id=did AND user_id=uid
     ) AS L ON L.deck_id=Deck.uuid
+    LEFT JOIN User ON User.uuid=Deck.owner
     WHERE Deck.uuid=did AND (Deck.owner=uid OR Deck.public=TRUE OR Deck.share_code IS NOT NULL);
 END$$
 
@@ -265,11 +280,13 @@ BEGIN
         Deck.created,
         Deck.last_update,
         L.last_update_device,
-        Deck.share_code
+        Deck.share_code,
+        User.name
     FROM Deck LEFT JOIN (
         SELECT version, last_update_device, deck_id
         FROM Library
     ) AS L ON L.deck_id=Deck.uuid
+    LEFT JOIN User ON User.uuid=Deck.owner
     WHERE Deck.public=TRUE
     ORDER BY ', sort_criteria, ' DESC ',
     'LIMIT ', CAST(page_offset AS CHAR), ', ', page_size);
@@ -322,11 +339,13 @@ BEGIN
         Deck.created,
         Deck.last_update,
         L.last_update_device,
-        Deck.share_code
+        Deck.share_code,
+        User.name
     FROM Deck LEFT JOIN (
         SELECT version, last_update_device, deck_id
         FROM Library
     ) AS L ON L.deck_id=Deck.uuid
+    LEFT JOIN User ON User.uuid=Deck.owner
     WHERE Deck.public=TRUE
     AND (LOWER(Deck.name) like CONCAT('%',LOWER(query_string),'%')
         OR Deck.uuid IN (SELECT dt.deck_id FROM DeckTag dt
@@ -337,6 +356,7 @@ BEGIN
     ORDER BY Deck.rating desc;
 END$$
 
+-- Fetch metadata for user library
 CREATE PROCEDURE FETCH_LIBRARY(IN uid VARCHAR(36))
 BEGIN
     SELECT
@@ -351,19 +371,23 @@ BEGIN
         Deck.created,
         Deck.last_update,
         L.last_update_device,
-        Deck.share_code
+        Deck.share_code,
+        User.name
     FROM Deck INNER JOIN (
         SELECT version, last_update_device, deck_id
         FROM Library WHERE user_id=uid
     ) AS L ON L.deck_id=Deck.uuid
+    LEFT JOIN User ON User.uuid=Deck.owner
     WHERE Deck.owner=uid OR Deck.public=TRUE OR Deck.share_code IS NOT NULL;
 END$$
 
+-- Add deck to user library
 CREATE PROCEDURE LIBRARY_ADD(IN uid VARCHAR(36), IN did VARCHAR(36))
 BEGIN
     INSERT INTO Library (user_id, deck_id) VALUES (uid, did);
 END$$
 
+-- Remove deck from user library
 CREATE PROCEDURE LIBRARY_REMOVE(IN uid VARCHAR(36), IN did VARCHAR(36))
 BEGIN
     DELETE FROM Library WHERE user_id=uid AND deck_id=did;
