@@ -38,12 +38,12 @@ END$$
 
 
 -- Create a deck with a uuid, name, owner, and the current time.
-CREATE PROCEDURE CREATE_DECK(IN u VARCHAR(36), IN n VARCHAR(255), IN o VARCHAR(36))
+CREATE PROCEDURE CREATE_DECK(IN u VARCHAR(36), IN n VARCHAR(255), IN o VARCHAR(36), IN device VARCHAR(255))
 BEGIN
     DECLARE d DATETIME;
     SELECT NOW() INTO d;
     INSERT INTO Deck (uuid, name, owner, created, last_update) VALUES (u, n, o, d, d);
-    INSERT INTO Library (user_id, deck_id) VALUES (o, u);
+    INSERT INTO Library (user_id, deck_id, last_update_device) VALUES (o, u, device);
 END$$
 
 
@@ -133,6 +133,12 @@ BEGIN
     UPDATE Card SET position=(position - 1) WHERE deck_id=d AND position > p;
 END$$
 
+-- Delete a card by uuid and deck_id without changing positions.
+CREATE PROCEDURE DELETE_CARD(IN u VARCHAR(36), IN d VARCHAR(36))
+BEGIN
+    DELETE FROM Card WHERE uuid=u and deck_id=d;
+END$$
+
 
 -- Flag a card for a specific user.
 CREATE PROCEDURE FLAG_CARD(IN cid VARCHAR(36), IN uid VARCHAR(36))
@@ -164,12 +170,14 @@ BEGIN
 END$$
 
 
--- Generate share code for deck.
+-- Add share code if code doesn't already exist.
 CREATE PROCEDURE SET_SHARE_CODE(IN uid VARCHAR(36), IN did VARCHAR(36), IN code VARCHAR(8))
 BEGIN
-    SELECT share_code into @share_code FROM Deck WHERE share_code=code;
+	DECLARE s_code VARCHAR(255) DEFAULT NULL;
 
-    IF (@share_code IS NULL) THEN
+    SET s_code := (SELECT share_code FROM Deck WHERE share_code=code);
+
+    IF (s_code IS NULL) THEN
         UPDATE Deck SET share_code=code WHERE owner=uid AND uuid=did;
     END IF;
     

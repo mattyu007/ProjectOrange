@@ -88,6 +88,7 @@ POST /api/v1/deck/add
 {
     "name": "<deckname>",
     "tags": ["<tag1>", "<tag2>", ...],
+    "device": "<devicename>",
     "cards": [
         { "front": "<Q>", "back": "<A>" },
         ...
@@ -172,12 +173,14 @@ POST /api/v1/deck/<uuid>
 {
     "name": "<deckname>",
     "tags": ["<tag1>", "<tag2>", ...],
-    "public": true | false
+    "public": true | false,
+    "device": "<devicename>",
     "cards": [
         {
             "uuid": "<uuid>" | null,
             "front": "<Q>",
-            "back": "<A>"
+            "back": "<A>",
+            "position": "<P>"
         },
         ...
     ]
@@ -187,10 +190,12 @@ Request description:
 - `name`: the name of the deck
 - `tags`: a list of strings that can be searched on
 - `public`: describes whether the deck should be publicly discoverable or not
+- `device`: name of the device
 - `cards`: a list of objects representing cards. The order of the cards in the array will reflect their position in the deck.
     - `uuid`: the UUID for an existing card, if the card is new then `null`
     - `front`: the text on the front of the card
     - `back`: the text on the back of the card
+    - `position`: position of the card in the deck
 
 Response: [Standard Full Deck Response](#full-response)
 
