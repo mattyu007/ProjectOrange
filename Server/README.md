@@ -17,5 +17,6 @@ This section describes the targets in the `Makefile`
 - `system`: install system dependencies (e.g. MySQL, Python)
 - `venv`: create a virtual environment for python dependencies
 - `depends`: install python dependencies to the virtual environment
-- `init`: run a script that initializes the database
+- `schema`: run a script that initializes the database schema
+- `procedures`: run a script that creates the stored procedures in the database
 - `run`: starts the server

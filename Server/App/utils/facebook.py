@@ -6,7 +6,7 @@ See https://developers.facebook.com/docs/facebook-login/manually-build-a-login-f
 import json
 from urllib2 import urlopen, HTTPError
 
-from config import ServerConfig, FacebookConfig
+from config import FacebookConfig
 
 
 def request_facebook_token_validation(access_token):
