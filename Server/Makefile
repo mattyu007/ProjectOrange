@@ -6,7 +6,7 @@ VPIP = $(VENV)/bin/pip
 
 all: run
 
-everything: system venv depends init run
+everything: system venv depends schema procedures run
 
 depends:
 	$(VPIP) install -r requirements.txt -q
@@ -14,8 +14,11 @@ depends:
 run:
 	$(VPY) App/server.py
 
-init:
-	$(VPY) App/initdb.py
+schema:
+	$(VPY) App/init_schema.py
+
+procedures:
+	$(VPY) App/init_procedures.py
 
 venv:
 	python -m virtualenv $(VENV)
@@ -25,4 +28,4 @@ system:
 	sudo apt-get install mysql-server python-pip build-essential python-dev libmysqlclient-dev
 	pip install --user virtualenv
 
-.PHONY: depends run init system
+.PHONY: depends run schema procedures system venv everything all
