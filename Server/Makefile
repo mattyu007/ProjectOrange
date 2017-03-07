@@ -20,6 +20,9 @@ schema:
 procedures:
 	$(VPY) App/init_procedures.py
 
+testdata: schema procedures
+	$(VPY) App/init_test_data.py
+
 venv:
 	python -m virtualenv $(VENV)
 

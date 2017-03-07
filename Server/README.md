@@ -1,6 +1,7 @@
 # Cue Server
 Instructions for getting the server up and running.
 The `system` target is currently written for Debian/Ubuntu systems.
+On some systems, you may need to upgrade mysql-server to version 5.6 (or greater).
 
 **Note:** When setting up MySQL, use 'root' for the username and password.
 
@@ -19,4 +20,5 @@ This section describes the targets in the `Makefile`
 - `depends`: install python dependencies to the virtual environment
 - `schema`: run a script that initializes the database schema
 - `procedures`: run a script that creates the stored procedures in the database
+- `testdata`: run `schema` and `procedures`, then populate the DB with some test data
 - `run`: starts the server
