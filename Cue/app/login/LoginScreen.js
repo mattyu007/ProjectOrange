@@ -1,25 +1,71 @@
 // @flow
 
 import React from 'react'
+import { ActivityIndicator, View, Text, Image } from 'react-native'
+
 import { connect } from 'react-redux'
-import FacebookLoginButton from '../common/FacebookLoginButton';
 import { serverLogin } from '../actions';
-import { ActivityIndicator, View, Text } from 'react-native'
+
+import LinearGradient from 'react-native-linear-gradient'
+
+import CueColors from '../common/CueColors'
+import CueIcons from '../common/CueIcons'
+import FacebookLoginButton from '../common/FacebookLoginButton';
 
 
+const styles = {
+  container: {
+    flex: 1,
+    padding: 24,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  heroText: {
+    margin: 12,
+    backgroundColor: 'transparent',
+    color: 'white',
+    fontSize: 56,
+    fontWeight: '300',
+    textAlign: 'center'
+  },
+  taglineText: {
+    backgroundColor: 'transparent',
+    color: 'white',
+    fontSize: 24,
+    fontStyle: 'italic',
+    fontWeight: '400',
+    textAlign: 'center',
+    marginBottom: 64,
+  },
+  actionText: {
+    backgroundColor: 'transparent',
+    color: 'white',
+    fontSize: 20,
+    fontWeight: '500',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  loginContent: {
+  }
+}
 
 class LoginScreen extends React.Component {
+  state: {
+    loading: boolean
+  }
+
   constructor(props){
     super(props);
-    this.state = {loading: true};
+    this.state = {
+      loading: true };
   }
 
   render() {
     let loginContent = (
-      <View>
-        <Text>Let's get started</Text>
-        <FacebookLoginButton 
-          onLoginFinished= {(error, result) => {
+      <View style={styles.loginContent}>
+        <Text style={styles.actionText}>Let&rsquo;s get started.</Text>
+        <FacebookLoginButton
+          onLoginFinished={(error, result) => {
             if (error) {
               alert("Facebook login failed with errors " + result.error);
             } else if (result.isCancelled) {
@@ -37,17 +83,26 @@ class LoginScreen extends React.Component {
       </View>
     );
 
-    let spinner = <ActivityIndicator />;
+    let spinner = <ActivityIndicator color={'white'} />;
 
     let content = this.state.loading ? loginContent : spinner;
-    return (
-      <View>
-        <Text>Cue</Text>
 
-        <Text>Flashcards for the modern student.</Text>
+    return (
+      <LinearGradient
+        style={styles.container}
+        colors={[CueColors.primaryAccent, CueColors.primaryTintDarker]}>
+
+        <Image source={CueIcons.cueDeck} />
+        <Text style={styles.heroText}>
+          Cue
+        </Text>
+        <Text style={styles.taglineText}>
+          Flashcards for the modern student.
+        </Text>
 
         {content}
-      </View>
+
+      </LinearGradient>
     );
   }
 }

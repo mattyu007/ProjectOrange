@@ -18,6 +18,7 @@ module.exports = {
   share: require('./img/share.png'),
 
   // Images
+  cueDeck: require('./img/cue_deck.png'),
   deckInsetShared: require('./img/deck_inset_shared.png'),
   deckInsetPublic: require('./img/deck_inset_public.png'),
   emptyLibrary: require('./img/library_empty.png'),
