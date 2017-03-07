@@ -20,10 +20,11 @@ CREATE TABLE IF NOT EXISTS Deck
     owner VARCHAR(36) NOT NULL,
     rating INTEGER NOT NULL DEFAULT 0,
     public BOOLEAN NOT NULL DEFAULT FALSE,
-    deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    tags_delimited VARCHAR(500),
+    deleted BOOLEAN NOT NULL DEFAULT FALSE, 
     version INTEGER NOT NULL DEFAULT 0,
     share_code VARCHAR(8) UNIQUE,
-
+    FULLTEXT(name, tags_delimited),
     FOREIGN KEY (owner) REFERENCES User(uuid)
 );
 

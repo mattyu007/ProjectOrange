@@ -364,11 +364,10 @@ Response:
 ### Search
 Request:
 ```
-GET /api/v1/discover/search?query=<query>&tags=<tags>[&page=<page>]
+GET /api/v1/discover/search?query=<query>[&page=<page>]
 ```
 Response description:
 - `query`: String used to search by deck name.
-- `tags`: Serialized array of tags to search by.
 - `page`: is the page offset into the result set (1 by default).
 
 Response:
