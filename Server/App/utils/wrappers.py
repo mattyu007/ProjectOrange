@@ -63,6 +63,24 @@ def require_query_string_params(*params):
         return wrapper
     return func_wrapper
 
+def optional_query_string_params(*params):
+    """Extract optional parameters from a query string."""
+
+    def func_wrapper(func):
+        def wrapper(*args, **kwargs):
+            self = args[0]
+            param_vals = []
+            for param in params:
+                if param in self.request.args:
+                    param_vals.append(self.request.args[param])
+                else:
+                    param_vals.append(None)
+                
+            # Call wrapped function with extracted parameters
+            return func(self, *(param_vals + list(args)[1:]), **kwargs)
+        return wrapper
+    return func_wrapper
+
 
 def require_params(*params):
     """Extract parameters from a request payload."""

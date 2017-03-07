@@ -19,18 +19,12 @@ class StatusCode(object):
 
 
 class DBConfig(object):
-    USERNAME = 'root'
-    PASSWORD = 'root'
-    HOST = 'localhost'
+    USERNAME = os.getenv('DB_USERNAME', 'root')
+    PASSWORD = os.getenv('DB_PASSWORD', 'root')
+    HOST = os.getenv('DB_HOST', 'localhost')
     DB_NAME = 'Cue'
     SCHEMA_PATH = 'SQL/schema.sql'
     PROCEDURE_PATH = 'SQL/procedures.sql'
-
-
-class ServerConfig(object):
-    PUBLIC_URL = 'cue.ngrok.io'
-    PROTOCOL = 'http'
-    AUTH_ROUTE = '/api/v1/auth'
 
 
 class FacebookConfig(object):
@@ -40,8 +34,6 @@ class FacebookConfig(object):
 
     VERIFY_ACCESS_TOKEN_URL = ('https://graph.facebook.com/debug_token?' +
         'input_token={access_token}&access_token={app_token}')
-    APP_ACCESS_TOKEN_URL = ('https://graph.facebook.com/oauth/access_token?' +
-        'client_id={app_id}&client_secret={app_secret}&grant_type=client_credentials')
 
 
 class SecurityConfig(object):

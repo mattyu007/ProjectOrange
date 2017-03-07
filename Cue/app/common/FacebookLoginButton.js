@@ -10,7 +10,7 @@ class FacebookLoginButton extends React.Component {
   render() {
     return (
       <LoginButton
-        onLoginFinished = {this.props.onLoginFinished}
+        onLoginFinished={this.props.onLoginFinished}
         readPermissions={['public_profile']}
         onLogoutFinished={() => this.props.dispatch(logOut())}
       />
@@ -18,6 +18,5 @@ class FacebookLoginButton extends React.Component {
   }
 
 }
-
 
 module.exports = connect()(FacebookLoginButton);

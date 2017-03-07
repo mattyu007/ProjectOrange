@@ -7,7 +7,7 @@ export type State = {
   decks: Array<Deck>;
 };
 
-const initialState: State = { 
+const initialState: State = {
   decks: null,
 };
 
@@ -17,7 +17,7 @@ function library(state: State = initialState , action: Action): State {
   switch (action.type) {
     case 'LOADED_LIBRARY':
       return {
-        decks:action.decks,
+        decks: action.decks,
       };
   }
   return state;

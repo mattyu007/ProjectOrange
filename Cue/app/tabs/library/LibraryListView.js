@@ -50,14 +50,7 @@ class LibraryListView extends React.Component {
     })
   }
 
-  constructor(props: Props) {
-    super(props)
-
-    let ds = new ListView.DataSource({
-      rowHasChanged: (r1, r2) => r1 !== r2,
-      sectionHeaderHasChanged: (s1, s2) => s1 !== s2
-    })
-
+  _categorizeDecks(decks: Array<Deck>) {
     let data = { }
     let addToData = (section, deck) => {
       if (!data[section]) {
@@ -85,6 +78,19 @@ class LibraryListView extends React.Component {
         headers.push(header)
       }
     })
+
+    return { data, headers }
+  }
+
+  constructor(props: Props) {
+    super(props)
+
+    let ds = new ListView.DataSource({
+      rowHasChanged: (r1, r2) => r1 !== r2,
+      sectionHeaderHasChanged: (s1, s2) => s1 !== s2
+    })
+
+    let { data, headers } = this._categorizeDecks(this.props.decks)
     this.state = {
       dataSource: ds.cloneWithRowsAndSections(data, headers),
       deviceOrientation: 'UNKNOWN'

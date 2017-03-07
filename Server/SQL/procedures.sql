@@ -38,19 +38,19 @@ END$$
 
 
 -- Create a deck with a uuid, name, owner, and the current time.
-CREATE PROCEDURE CREATE_DECK(IN u VARCHAR(36), IN n VARCHAR(255), IN o VARCHAR(36))
+CREATE PROCEDURE CREATE_DECK(IN u VARCHAR(36), IN n VARCHAR(255), IN o VARCHAR(36), IN device VARCHAR(255))
 BEGIN
     DECLARE d DATETIME;
     SELECT NOW() INTO d;
     INSERT INTO Deck (uuid, name, owner, created, last_update) VALUES (u, n, o, d, d);
-    INSERT INTO Library (user_id, deck_id) VALUES (o, u);
+    INSERT INTO Library (user_id, deck_id, last_update_device) VALUES (o, u, device);
 END$$
 
 
 -- Create a tag, return its ID
 CREATE PROCEDURE CREATE_TAG(IN t VARCHAR(255))
 BEGIN
-    INSERT IGNORE INTO Tag (tag) VALUES (t);
+    INSERT IGNORE INTO Tag (tag) VALUES (LOWER(t));
     SELECT id FROM Tag WHERE tag=t;
 END$$
 
@@ -66,6 +66,12 @@ END$$
 CREATE PROCEDURE CLEAR_TAGS_FROM_DECK(IN did VARCHAR(36))
 BEGIN
     DELETE FROM DeckTag WHERE deck_id=did;
+END$$
+
+-- Clear all tags associated with a deck.
+CREATE PROCEDURE SET_DELIMITED_TAGS(IN did VARCHAR(36), IN tags VARCHAR(255))
+BEGIN
+    UPDATE Deck SET tags_delimited=tags WHERE uuid=did;
 END$$
 
 
@@ -133,6 +139,12 @@ BEGIN
     UPDATE Card SET position=(position - 1) WHERE deck_id=d AND position > p;
 END$$
 
+-- Delete a card by uuid and deck_id without changing positions.
+CREATE PROCEDURE DELETE_CARD(IN u VARCHAR(36), IN d VARCHAR(36))
+BEGIN
+    DELETE FROM Card WHERE uuid=u and deck_id=d;
+END$$
+
 
 -- Flag a card for a specific user.
 CREATE PROCEDURE FLAG_CARD(IN cid VARCHAR(36), IN uid VARCHAR(36))
@@ -149,9 +161,9 @@ END$$
 
 
 -- Increment user data version number.
-CREATE PROCEDURE INCREMENT_USER_DATA_VERSION(IN uid VARCHAR(36), IN did VARCHAR(36))
+CREATE PROCEDURE INCREMENT_USER_DATA_VERSION(IN uid VARCHAR(36), IN did VARCHAR(36), IN device VARCHAR(255))
 BEGIN
-    UPDATE Library SET version=(version + 1) WHERE user_id=uid AND deck_id=did;
+    UPDATE Library SET version=(version + 1), last_update_device=device WHERE user_id=uid AND deck_id=did;
     SELECT version FROM Library WHERE user_id=uid AND deck_id=did;
 END$$
 
@@ -159,8 +171,23 @@ END$$
 -- Increment deck version number. It will only be incremented if the user owns the deck.
 CREATE PROCEDURE INCREMENT_DECK_VERSION(IN uid VARCHAR(36), IN did VARCHAR(36))
 BEGIN
-    UPDATE Deck SET version=(version + 1) WHERE owner=uid AND uuid=did;
+    UPDATE Deck SET version=(version + 1), last_update=NOW() WHERE owner=uid AND uuid=did;
     SELECT version FROM Deck WHERE owner=uid AND uuid=did;
+END$$
+
+
+-- Add share code if code doesn't already exist.
+CREATE PROCEDURE SET_SHARE_CODE(IN uid VARCHAR(36), IN did VARCHAR(36), IN code VARCHAR(8))
+BEGIN
+	DECLARE s_code VARCHAR(255) DEFAULT NULL;
+
+    SET s_code := (SELECT share_code FROM Deck WHERE share_code=code);
+
+    IF (s_code IS NULL) THEN
+        UPDATE Deck SET share_code=code WHERE owner=uid AND uuid=did;
+    END IF;
+    
+    SELECT share_code FROM Deck WHERE owner=uid AND uuid=did;
 END$$
 
 
@@ -226,11 +253,13 @@ BEGIN
         Deck.created,
         Deck.last_update,
         L.last_update_device,
-        Deck.share_code
+        Deck.share_code,
+        User.name
     FROM Deck INNER JOIN (
         SELECT version, last_update_device, deck_id
         FROM Library WHERE deck_id=did AND user_id=uid
     ) AS L ON L.deck_id=Deck.uuid
+    LEFT JOIN User ON User.uuid=Deck.owner
     WHERE Deck.uuid=did AND (Deck.owner=uid OR Deck.public=TRUE OR Deck.share_code IS NOT NULL);
 END$$
 
@@ -265,11 +294,13 @@ BEGIN
         Deck.created,
         Deck.last_update,
         L.last_update_device,
-        Deck.share_code
+        Deck.share_code,
+        User.name
     FROM Deck LEFT JOIN (
         SELECT version, last_update_device, deck_id
         FROM Library
     ) AS L ON L.deck_id=Deck.uuid
+    LEFT JOIN User ON User.uuid=Deck.owner
     WHERE Deck.public=TRUE
     ORDER BY ', sort_criteria, ' DESC ',
     'LIMIT ', CAST(page_offset AS CHAR), ', ', page_size);
@@ -307,8 +338,14 @@ BEGIN
     ) AS DT ON DT.tag_id=Tag.id;
 END$$
 
-CREATE PROCEDURE SEARCH_DECKS(IN query_string VARCHAR(255), IN tags VARCHAR(255), IN num_tags Integer)
+CREATE PROCEDURE SEARCH_DECKS(IN query_string VARCHAR(255), IN page Integer)
 BEGIN
+    DECLARE page_size INTEGER DEFAULT 50;
+    DECLARE page_offset INTEGER;
+
+    SET page = IFNULL(page, 1);
+
+    SET page_offset = (page - 1) * page_size;
 
     SELECT
         Deck.uuid,
@@ -322,21 +359,19 @@ BEGIN
         Deck.created,
         Deck.last_update,
         L.last_update_device,
-        Deck.share_code
+        Deck.share_code,
+        User.name
     FROM Deck LEFT JOIN (
         SELECT version, last_update_device, deck_id
         FROM Library
     ) AS L ON L.deck_id=Deck.uuid
+    LEFT JOIN User ON User.uuid=Deck.owner
     WHERE Deck.public=TRUE
-    AND (LOWER(Deck.name) like CONCAT('%',LOWER(query_string),'%')
-        OR Deck.uuid IN (SELECT dt.deck_id FROM DeckTag dt
-	    LEFT JOIN Tag t ON dt.tag_id=t.id
-	    WHERE FIND_IN_SET(LOWER(t.tag),LOWER(tags))
-	    GROUP BY dt.deck_id
-	    HAVING COUNT(dt.tag_id) = num_tags))
-    ORDER BY Deck.rating desc;
+    AND MATCH(Deck.name, Deck.tags_delimited) AGAINST(query_string IN NATURAL LANGUAGE MODE)
+    LIMIT page_offset, page_size;
 END$$
 
+-- Fetch metadata for user library
 CREATE PROCEDURE FETCH_LIBRARY(IN uid VARCHAR(36))
 BEGIN
     SELECT
@@ -351,19 +386,23 @@ BEGIN
         Deck.created,
         Deck.last_update,
         L.last_update_device,
-        Deck.share_code
+        Deck.share_code,
+        User.name
     FROM Deck INNER JOIN (
         SELECT version, last_update_device, deck_id
         FROM Library WHERE user_id=uid
     ) AS L ON L.deck_id=Deck.uuid
+    LEFT JOIN User ON User.uuid=Deck.owner
     WHERE Deck.owner=uid OR Deck.public=TRUE OR Deck.share_code IS NOT NULL;
 END$$
 
+-- Add deck to user library
 CREATE PROCEDURE LIBRARY_ADD(IN uid VARCHAR(36), IN did VARCHAR(36))
 BEGIN
     INSERT INTO Library (user_id, deck_id) VALUES (uid, did);
 END$$
 
+-- Remove deck from user library
 CREATE PROCEDURE LIBRARY_REMOVE(IN uid VARCHAR(36), IN did VARCHAR(36))
 BEGIN
     DELETE FROM Library WHERE user_id=uid AND deck_id=did;
