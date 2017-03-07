@@ -21,6 +21,7 @@ module.exports = {
   cueDeck: require('./img/cue_deck.png'),
   deckInsetShared: require('./img/deck_inset_shared.png'),
   deckInsetPublic: require('./img/deck_inset_public.png'),
+  deckPlaceholder: require('./img/deck_placeholder.png'),
   emptyLibrary: require('./img/library_empty.png'),
 
   // Tabs
