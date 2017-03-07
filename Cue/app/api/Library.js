@@ -9,6 +9,7 @@ var LibraryApi = {
 	fetchLibrary(state) {
 		let url = serverURL + '/api/v1/library';
 		let user = state.user;
+		console.info('Fetching Library from URL: ' + url)
 		return fetch(url, {
 			headers: {
 				'X-CUE-USER-ID' : user.userId,
@@ -25,6 +26,7 @@ var LibraryApi = {
 	fetchDeck(uuid : string, state) {
 		let url = serverURL + '/api/v1/deck/' + uuid;
 		let user = state.user;
+		console.info('Fetching deck "' + uuid + '" from URL: ' + url)
 		return fetch(url, {
 			headers: {
 				'X-CUE-USER-ID' : user.userId,
@@ -43,6 +45,7 @@ var checkStatus = function(response) {
 	if (response.status >= 200 && response.status < 300) {
 		return response;
 	} else {
+		console.warn('Fetch failed due to bad status ' + response.status + '. Response: ', response)
 		let error = new Error(response.statusText);
 		error.response = response;
 		throw error;

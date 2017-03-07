@@ -114,6 +114,8 @@ styles = {
   },
   rightItemContainer: {
     flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
     alignItems: 'flex-end',
   },
   headerItem: {
@@ -121,13 +123,13 @@ styles = {
     justifyContent: 'center',
     minHeight: 44,
     minWidth: 44,
-    paddingLeft: 8,
-    paddingRight: 8
+    paddingHorizontal: 8,
   },
   textItem: {
     color: 'white',
     fontSize: 18,
-    fontWeight: "400" // regular
+    fontWeight: "400", // regular
+    paddingHorizontal: 8,
   },
   titleTextItem: {
     color: 'white',

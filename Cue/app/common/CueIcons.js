@@ -9,7 +9,9 @@ module.exports = {
   cancelDark: require('./img/cancel_dark.png'),
   done: require('./img/done.png'),
   edit: require('./img/edit.png'),
+  filterToggle: require('./img/filter_toggle.png'),
   menu: require('./img/menu.png'),
+  play: require('./img/play.png'),
   overflow: require('./img/overflow.png'),
   plus: require('./img/plus.png'),
   plusDark: require('./img/plus_dark.png'),
@@ -17,6 +19,8 @@ module.exports = {
 
   // Images
   cueDeck: require('./img/cue_deck.png'),
+  deckInsetShared: require('./img/deck_inset_shared.png'),
+  deckInsetPublic: require('./img/deck_inset_public.png'),
   emptyLibrary: require('./img/library_empty.png'),
 
   // Tabs
