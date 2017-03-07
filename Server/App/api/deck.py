@@ -34,6 +34,8 @@ class DeckAddHandler(BaseHandler):
                 tag_id = connector.call_procedure('CREATE_TAG', tag)[0]['id']
                 connector.call_procedure('ADD_TAG_TO_DECK', tag_id, deck_id)
 
+            connector.call_procedure('SET_DELIMITED_TAGS', deck_id, ",".join(tags))
+
             # Create cards for the deck.
             for index in xrange(len(cards)):
                 if not isinstance(cards[index], dict):
@@ -139,6 +141,8 @@ class DeckUUIDHandler(BaseHandler):
                     tag_id = connector.call_procedure('CREATE_TAG', tag)[0]['id']
                     connector.call_procedure('ADD_TAG_TO_DECK', tag_id, uuid)
 
+                connector.call_procedure('SET_DELIMITED_TAGS', uuid, ",".join(tags))
+
             # Edit cards.
             if actions is not None:
                 for action in actions:
@@ -168,7 +172,6 @@ class DeckUUIDHandler(BaseHandler):
                             connector.call_procedure('UNFLAG_CARD', action['card_id'], user_id)
 
             # Increment both the deck version and the user data version.
-            # TODO set last_update and last_update_device.
             connector.call_procedure('INCREMENT_DECK_VERSION', user_id, uuid)
             connector.call_procedure('INCREMENT_USER_DATA_VERSION', user_id, uuid, device)
 
@@ -243,6 +246,8 @@ class DeckUUIDHandler(BaseHandler):
                     raise TypeError
                 tag_id = connector.call_procedure('CREATE_TAG', tag)[0]['id']
                 connector.call_procedure('ADD_TAG_TO_DECK', tag_id, uuid)
+
+            connector.call_procedure('SET_DELIMITED_TAGS', uuid, ",".join(tags))
 
             originalCards = connector.call_procedure('FETCH_CARDS', uuid)
 

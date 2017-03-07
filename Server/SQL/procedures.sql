@@ -68,6 +68,12 @@ BEGIN
     DELETE FROM DeckTag WHERE deck_id=did;
 END$$
 
+-- Clear all tags associated with a deck.
+CREATE PROCEDURE SET_DELIMITED_TAGS(IN did VARCHAR(36), IN tags VARCHAR(255))
+BEGIN
+    UPDATE Deck SET tags_delimited=tags WHERE uuid=did;
+END$$
+
 
 -- Create a card with a uuid, deck_id, front, back, and position.
 CREATE PROCEDURE CREATE_CARD
@@ -332,8 +338,14 @@ BEGIN
     ) AS DT ON DT.tag_id=Tag.id;
 END$$
 
-CREATE PROCEDURE SEARCH_DECKS(IN query_string VARCHAR(255), IN tags VARCHAR(255), IN num_tags Integer)
+CREATE PROCEDURE SEARCH_DECKS(IN query_string VARCHAR(255), IN page Integer)
 BEGIN
+    DECLARE page_size INTEGER DEFAULT 50;
+    DECLARE page_offset INTEGER;
+
+    SET page = IFNULL(page, 1);
+
+    SET page_offset = (page - 1) * page_size;
 
     SELECT
         Deck.uuid,
@@ -355,13 +367,8 @@ BEGIN
     ) AS L ON L.deck_id=Deck.uuid
     LEFT JOIN User ON User.uuid=Deck.owner
     WHERE Deck.public=TRUE
-    AND (LOWER(Deck.name) like CONCAT('%',LOWER(query_string),'%')
-        OR Deck.uuid IN (SELECT dt.deck_id FROM DeckTag dt
-	    LEFT JOIN Tag t ON dt.tag_id=t.id
-	    WHERE FIND_IN_SET(LOWER(t.tag),LOWER(tags))
-	    GROUP BY dt.deck_id
-	    HAVING COUNT(dt.tag_id) = num_tags))
-    ORDER BY Deck.rating desc;
+    AND MATCH(Deck.name, Deck.tags_delimited) AGAINST(query_string IN NATURAL LANGUAGE MODE)
+    LIMIT page_offset, page_size;
 END$$
 
 -- Fetch metadata for user library
