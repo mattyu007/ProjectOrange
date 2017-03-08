@@ -15,14 +15,16 @@ const styles = {
   frontText: {
     fontSize: 17,
     fontWeight: '500',
+    color: CueColors.primaryText,
     marginBottom: 12,
   },
   backText: {
     fontSize: 17,
+    color: CueColors.primaryText,
   }
 }
 
-export default class DeckViewRow extends React.Component {
+export default class CardListViewRow extends React.Component {
   props: {
     card: Card
   }

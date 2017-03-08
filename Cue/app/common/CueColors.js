@@ -12,9 +12,9 @@ module.exports = {
   primaryText: '#53585F',
   lightText: 'rgba(0, 0, 0, 0.4)',
 
-  mediumGrey: 'rgba(0, 0, 0, 0.4)',
-  lightGrey: 'rgba(0, 0, 0, 0.3)',
-  veryLightGrey: 'rgba(0, 0, 0, 0.1)',
+  mediumGrey: 'hsl(0, 0%, 60%)',
+  lightGrey: 'hsl(0, 0%, 75%)',
+  veryLightGrey: 'hsl(0, 0%, 90%)',
 
   sharedInsetTint: '#70BF41',
   publicInsetTint: '#51A7F9',

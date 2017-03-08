@@ -3,15 +3,16 @@
 'use strict';
 
 import React from 'react'
-import { Navigator, View, Text, ListView, Dimensions } from 'react-native'
+import { Navigator, View, Text, Platform, ListView, Dimensions } from 'react-native'
 
 import { connect } from 'react-redux'
 
 import type { Deck, Card } from '../../api/types'
 
+import CueIcons from '../../common/CueIcons'
+import EmptyView from '../../common/EmptyView'
 import ListViewHeader from '../../common/ListViewHeader'
 import LibraryListViewItem from './LibraryListViewItem'
-import LibraryEmptyView from './LibraryEmptyView'
 
 const styles = {
   list: {
@@ -100,7 +101,12 @@ class LibraryListView extends React.Component {
   render() {
     if (this.state.dataSource.getRowCount() == 0) {
       return (
-        <LibraryEmptyView />
+        <EmptyView
+          icon={CueIcons.emptyLibrary}
+          titleText={'You don&rsquo;t have any decks yet.'}
+          subtitleText={Platform.OS === 'android'
+            ? 'Create one or add one to your Library from Discover in the menu.'
+            : 'Create one or add one to your Library from the Discover tab.'} />
       )
     }
     return (

@@ -26,7 +26,8 @@ type Props = {
   // customTitleRenderer?: (any) => any,
   leftItem?: HeaderItem,
   rightItems?: Array<HeaderItem>,
-  overflowItems?: Array<HeaderItem>
+  overflowItems?: Array<HeaderItem>,
+  containerStyles?: Object
 }
 
 let styles = {}
@@ -38,7 +39,7 @@ class CueHeader extends React.Component {
     const { title, leftItem, rightItems } = this.props;
 
     return (
-      <View style={styles.headerContainer}>
+      <View style={[styles.headerContainer, this.props.containerStyles]}>
         <View style={styles.leftItemContainer}>
           <HeaderItemIOS item={leftItem} />
         </View>
@@ -123,13 +124,13 @@ styles = {
     justifyContent: 'center',
     minHeight: 44,
     minWidth: 44,
-    paddingHorizontal: 8,
+    paddingHorizontal: 6,
   },
   textItem: {
     color: 'white',
     fontSize: 18,
     fontWeight: "400", // regular
-    paddingHorizontal: 8,
+    paddingHorizontal: 6,
   },
   titleTextItem: {
     color: 'white',
