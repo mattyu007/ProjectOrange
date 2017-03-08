@@ -4,8 +4,10 @@ import AuthenticationApi from '../api/Authentication';
 import FacebookApi from '../api/Facebook';
 import { LoginManager, AccessToken,  } from 'react-native-fbsdk';
 import { loadLibrary } from './library';
+import CueApi from '../api/CueApi';
 
 function logIn(cueUserId: string, cueAccessToken: string): Action {
+  CueApi.setAuthHeader(cueUserId, cueAccessToken);
   return {
     type: 'LOGGED_IN',
     data: {
@@ -16,6 +18,7 @@ function logIn(cueUserId: string, cueAccessToken: string): Action {
 }
 
 function logOut(): Action {
+  CueApi.setAuthHeader(null, null);
   return {
     type: 'LOGGED_OUT',
   };
@@ -38,7 +41,7 @@ function serverLogin(): ThunkAction {
     login.then(
       (result) => {
         dispatch(result[0]);
-        dispatch(loadLibrary(getState()));
+        dispatch(loadLibrary());
         FacebookApi.getName(data=>{dispatch(loadUsername(data.name))});
       }
     ).catch(

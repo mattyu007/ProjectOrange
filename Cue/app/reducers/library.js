@@ -4,7 +4,7 @@ import type {Action} from '../actions/types';
 import type {Deck} from '../api/types';
 
 export type State = {
-  decks: Array<Deck>;
+  decks: ?Array<Deck>;
 };
 
 const initialState: State = {
