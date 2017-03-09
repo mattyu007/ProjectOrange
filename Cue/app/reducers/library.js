@@ -19,8 +19,6 @@ function library(state: State = initialState , action: Action): State {
       return {
         decks: action.decks,
       };
-    case 'LOGGED_OUT':
-    	return initialState;
    	default:
    		return state;
   }
