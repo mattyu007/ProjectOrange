@@ -1,4 +1,5 @@
 USE Cue;
+DELETE FROM mysql.proc WHERE db LIKE 'Cue' AND type='PROCEDURE';
 DELIMITER $$
 
 
@@ -31,47 +32,42 @@ END$$
 
 
 -- Retrieve the name of a user with their UUID.
-CREATE PROCEDURE GET_USER_NAME(IN u VARCHAR(36))
+CREATE PROCEDURE GET_USER(IN u VARCHAR(36))
 BEGIN
-    SELECT name FROM User WHERE uuid=u;
+    SELECT uuid, fb_user_id, access_token, name FROM User WHERE uuid=u;
 END$$
 
 
 -- Create a deck with a uuid, name, owner, and the current time.
-CREATE PROCEDURE CREATE_DECK(IN u VARCHAR(36), IN n VARCHAR(255), IN o VARCHAR(36), IN device VARCHAR(255))
+CREATE PROCEDURE CREATE_DECK (
+    IN u VARCHAR(36),
+    IN n VARCHAR(255),
+    IN o VARCHAR(36),
+    IN device VARCHAR(255),
+    IN tags VARCHAR(500)
+)
 BEGIN
     DECLARE d DATETIME;
     SELECT NOW() INTO d;
-    INSERT INTO Deck (uuid, name, owner, created, last_update) VALUES (u, n, o, d, d);
-    INSERT INTO Library (user_id, deck_id, last_update_device) VALUES (o, u, device);
-END$$
 
-
--- Create a tag, return its ID
-CREATE PROCEDURE CREATE_TAG(IN t VARCHAR(255))
-BEGIN
-    INSERT IGNORE INTO Tag (tag) VALUES (LOWER(t));
-    SELECT id FROM Tag WHERE tag=t;
-END$$
-
-
--- Add a tag to a deck by its ID.
-CREATE PROCEDURE ADD_TAG_TO_DECK(IN tid INTEGER, IN did VARCHAR(36))
-BEGIN
-    INSERT INTO DeckTag (tag_id, deck_id) VALUES (tid, did);
+    INSERT INTO Deck (uuid, name, owner, created, last_update, tags_delimited)
+        VALUES (u, n, o, d, d, tags);
+    INSERT INTO Library (user_id, deck_id, last_update_device)
+        VALUES (o, u, device);
 END$$
 
 
 -- Clear all tags associated with a deck.
-CREATE PROCEDURE CLEAR_TAGS_FROM_DECK(IN did VARCHAR(36))
-BEGIN
-    DELETE FROM DeckTag WHERE deck_id=did;
-END$$
-
--- Clear all tags associated with a deck.
-CREATE PROCEDURE SET_DELIMITED_TAGS(IN did VARCHAR(36), IN tags VARCHAR(255))
+CREATE PROCEDURE SET_DELIMITED_TAGS(IN did VARCHAR(36), IN tags VARCHAR(500))
 BEGIN
     UPDATE Deck SET tags_delimited=tags WHERE uuid=did;
+END$$
+
+
+-- Get all delimited tags associated with a deck.
+CREATE PROCEDURE GET_DELIMITED_TAGS(IN did VARCHAR(36))
+BEGIN
+    SELECT tags_delimited FROM Deck WHERE uuid=did;
 END$$
 
 
@@ -168,26 +164,32 @@ BEGIN
 END$$
 
 
--- Increment deck version number. It will only be incremented if the user owns the deck.
-CREATE PROCEDURE INCREMENT_DECK_VERSION(IN uid VARCHAR(36), IN did VARCHAR(36))
+-- Increment deck version number.
+CREATE PROCEDURE INCREMENT_DECK_VERSION(IN did VARCHAR(36))
 BEGIN
-    UPDATE Deck SET version=(version + 1), last_update=NOW() WHERE owner=uid AND uuid=did;
-    SELECT version FROM Deck WHERE owner=uid AND uuid=did;
+    UPDATE Deck SET version=(version + 1), last_update=NOW() WHERE uuid=did;
+    SELECT version FROM Deck WHERE uuid=did;
+END$$
+
+
+-- Retrieve a deck's existing share code
+CREATE PROCEDURE GET_SHARE_CODE(IN did VARCHAR(36))
+BEGIN
+    SELECT share_code FROM Deck WHERE uuid=did;
 END$$
 
 
 -- Add share code if code doesn't already exist.
-CREATE PROCEDURE SET_SHARE_CODE(IN uid VARCHAR(36), IN did VARCHAR(36), IN code VARCHAR(8))
+CREATE PROCEDURE SET_SHARE_CODE(IN did VARCHAR(36), IN code VARCHAR(8))
 BEGIN
-	DECLARE s_code VARCHAR(255) DEFAULT NULL;
-
-    SET s_code := (SELECT share_code FROM Deck WHERE share_code=code);
+	DECLARE s_code VARCHAR(8) DEFAULT NULL;
+    SELECT share_code INTO s_code FROM Deck WHERE share_code=code;
 
     IF (s_code IS NULL) THEN
-        UPDATE Deck SET share_code=code WHERE owner=uid AND uuid=did;
+        UPDATE Deck SET share_code=code WHERE uuid=did;
     END IF;
-    
-    SELECT share_code FROM Deck WHERE owner=uid AND uuid=did;
+
+    SELECT share_code FROM Deck WHERE uuid=did;
 END$$
 
 
@@ -238,6 +240,20 @@ BEGIN
 END$$
 
 
+-- Fetch all cards for a given deck.
+CREATE PROCEDURE FETCH_CARDS(IN uid VARCHAR(36), IN did VARCHAR(36))
+BEGIN
+    SELECT
+        uuid,
+        front,
+        back,
+        position,
+        (SELECT COUNT(*) FROM NeedReview WHERE card_id=Card.uuid AND user_id=uid) AS needs_review
+    FROM Card
+    WHERE Card.deck_id=did ORDER BY Card.position ASC;
+END$$
+
+
 -- Fetch a deck's metadata.
 CREATE PROCEDURE FETCH_DECK(IN uid VARCHAR(36), IN did VARCHAR(36))
 BEGIN
@@ -254,17 +270,18 @@ BEGIN
         Deck.last_update,
         L.last_update_device,
         Deck.share_code,
-        User.name
-    FROM Deck INNER JOIN (
+        User.name AS author
+    FROM Deck LEFT JOIN (
         SELECT version, last_update_device, deck_id
-        FROM Library WHERE deck_id=did AND user_id=uid
+        FROM Library WHERE user_id=uid and deck_id=did
     ) AS L ON L.deck_id=Deck.uuid
     LEFT JOIN User ON User.uuid=Deck.owner
-    WHERE Deck.uuid=did AND (Deck.owner=uid OR Deck.public=TRUE OR Deck.share_code IS NOT NULL);
+    WHERE Deck.uuid=did;
 END$$
 
+
 -- Fetch metadata for a page of decks
-CREATE PROCEDURE FETCH_DECKS(IN type VARCHAR(10), IN page Integer)
+CREATE PROCEDURE FETCH_DECK_UUIDS(IN type VARCHAR(10), IN page Integer)
 BEGIN
     DECLARE sort_criteria VARCHAR(20);
     DECLARE page_size INTEGER DEFAULT 50;
@@ -283,24 +300,8 @@ BEGIN
     SET page_offset = (page - 1) * page_size;
 
     SET @sql_statement = CONCAT('SELECT
-        Deck.uuid,
-        Deck.name,
-        Deck.rating,
-        (SELECT COUNT(*) FROM Rating WHERE deck_id=Deck.uuid) AS num_ratings,
-        Deck.owner,
-        Deck.public,
-        Deck.version AS deck_version,
-        L.version AS user_data_version,
-        Deck.created,
-        Deck.last_update,
-        L.last_update_device,
-        Deck.share_code,
-        User.name
-    FROM Deck LEFT JOIN (
-        SELECT version, last_update_device, deck_id
-        FROM Library
-    ) AS L ON L.deck_id=Deck.uuid
-    LEFT JOIN User ON User.uuid=Deck.owner
+        Deck.uuid
+    FROM Deck
     WHERE Deck.public=TRUE
     ORDER BY ', sort_criteria, ' DESC ',
     'LIMIT ', CAST(page_offset AS CHAR), ', ', page_size);
@@ -310,33 +311,6 @@ BEGIN
 
 END$$
 
--- Fetch the cards for a particular deck.
-CREATE PROCEDURE FETCH_CARDS(IN did VARCHAR(36))
-BEGIN
-    SELECT
-        uuid,
-        front,
-        back,
-        position,
-        CASE
-            WHEN NR.user_id IS NULL THEN FALSE
-            ELSE TRUE
-        END AS needs_review
-    FROM Card LEFT JOIN (
-        SELECT user_id, card_id FROM NeedReview
-    ) AS NR ON Card.uuid=NR.card_id
-    WHERE deck_id=did;
-END$$
-
-
--- Get tags for a particular deck.
-CREATE PROCEDURE GET_TAGS(IN did VARCHAR(36))
-BEGIN
-    SELECT tag FROM Tag
-    INNER JOIN (
-        SELECT tag_id FROM DeckTag WHERE deck_id=did
-    ) AS DT ON DT.tag_id=Tag.id;
-END$$
 
 CREATE PROCEDURE SEARCH_DECKS(IN query_string VARCHAR(255), IN page Integer)
 BEGIN
@@ -348,24 +322,8 @@ BEGIN
     SET page_offset = (page - 1) * page_size;
 
     SELECT
-        Deck.uuid,
-        Deck.name,
-        Deck.rating,
-        (SELECT COUNT(*) FROM Rating WHERE deck_id=Deck.uuid) AS num_ratings,
-        Deck.owner,
-        Deck.public,
-        Deck.version AS deck_version,
-        L.version AS user_data_version,
-        Deck.created,
-        Deck.last_update,
-        L.last_update_device,
-        Deck.share_code,
-        User.name
-    FROM Deck LEFT JOIN (
-        SELECT version, last_update_device, deck_id
-        FROM Library
-    ) AS L ON L.deck_id=Deck.uuid
-    LEFT JOIN User ON User.uuid=Deck.owner
+        Deck.uuid
+    FROM Deck
     WHERE Deck.public=TRUE
     AND MATCH(Deck.name, Deck.tags_delimited) AGAINST(query_string IN NATURAL LANGUAGE MODE)
     LIMIT page_offset, page_size;
@@ -375,25 +333,9 @@ END$$
 CREATE PROCEDURE FETCH_LIBRARY(IN uid VARCHAR(36))
 BEGIN
     SELECT
-        Deck.uuid,
-        Deck.name,
-        Deck.rating,
-        (SELECT COUNT(*) FROM Rating WHERE deck_id=Deck.uuid) AS num_ratings,
-        Deck.owner,
-        Deck.public,
-        Deck.version AS deck_version,
-        L.version AS user_data_version,
-        Deck.created,
-        Deck.last_update,
-        L.last_update_device,
-        Deck.share_code,
-        User.name
-    FROM Deck INNER JOIN (
-        SELECT version, last_update_device, deck_id
-        FROM Library WHERE user_id=uid
-    ) AS L ON L.deck_id=Deck.uuid
-    LEFT JOIN User ON User.uuid=Deck.owner
-    WHERE Deck.owner=uid OR Deck.public=TRUE OR Deck.share_code IS NOT NULL;
+        Library.deck_id
+    FROM Library
+    WHERE Library.user_id=uid;
 END$$
 
 -- Add deck to user library
@@ -413,7 +355,6 @@ BEGIN
     IF (@owner=uid) THEN
         UPDATE Deck SET deleted=true WHERE Deck.uuid=did;
         DELETE FROM Card WHERE deck_id=did;
-        DELETE FROM DeckTag WHERE deck_id=did;
     END IF;
 END$$
 

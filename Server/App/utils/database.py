@@ -4,7 +4,6 @@ Includes convience functions and common SQL statements.
 """
 
 import MySQLdb
-import logging
 
 from config import DBConfig
 
@@ -13,10 +12,11 @@ class DatabaseConnector(object):
     """Connector object for the DB."""
 
     def __init__(self, host=DBConfig.HOST, user=DBConfig.USERNAME, password=DBConfig.PASSWORD,
-            db=DBConfig.DB_NAME):
+                 db=DBConfig.DB_NAME):
         """Initialize with parameters for a DB connection."""
         super(DatabaseConnector, self).__init__()
         self.connector = MySQLdb.connect(host=host, user=user, passwd=password, db=db)
+        self.num_nested_transactions = 0
 
     def __del__(self):
         """Close the connector."""
@@ -25,22 +25,33 @@ class DatabaseConnector(object):
     def begin_transaction(self):
         """Start a transaction by disabling autocommit."""
         self.connector.autocommit(False)
+        self.num_nested_transactions += 1
 
     def end_transaction(self):
         """Commit and then reset the autocommit to True."""
+        self.num_nested_transactions -= 1
+        if self.num_nested_transactions > 0:
+            return
         self.connector.commit()
         self.connector.autocommit(True)
 
     def abort_transaction(self):
         """Abort the transaction and reset the autocommit to True."""
+        self.num_nested_transactions -= 1
+        if self.num_nested_transactions > 0:
+            return
         self.connector.rollback()
         self.connector.autocommit(True)
 
     def call_procedure_transactionally(self, proc_name, *params):
         """Call a stored procedure in the database and JSON-ify the results."""
-        self.begin_transaction()
-        result = self.call_procedure(proc_name, *params)
-        self.end_transaction()
+        try:
+            self.begin_transaction()
+            result = self.call_procedure(proc_name, *params)
+            self.end_transaction()
+        except:
+            self.abort_transaction()
+            raise
         return result
 
     def call_procedure(self, proc_name, *params):
@@ -78,7 +89,11 @@ class DatabaseConnector(object):
         return results
 
     def query_transactionally(self, query, *params):
-        self.begin_transaction()
-        results = self.query(query, *params)
-        self.end_transaction()
+        try:
+            self.begin_transaction()
+            results = self.query(query, *params)
+            self.end_transaction()
+        except:
+            self.abort_transaction()
+            raise
         return results

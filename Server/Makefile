@@ -26,6 +26,9 @@ testdata: schema procedures
 venv:
 	python -m virtualenv $(VENV)
 
+lint:
+	$(VPY) -m flake8 . --exclude=venv --max-line-length=120
+
 # Only works on debian/ubuntu
 system:
 	sudo apt-get install mysql-server python-pip build-essential python-dev libmysqlclient-dev

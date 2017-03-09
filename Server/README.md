@@ -21,4 +21,5 @@ This section describes the targets in the `Makefile`
 - `schema`: run a script that initializes the database schema
 - `procedures`: run a script that creates the stored procedures in the database
 - `testdata`: run `schema` and `procedures`, then populate the DB with some test data
+- `lint`: run a linter that checks for syntax errors
 - `run`: starts the server

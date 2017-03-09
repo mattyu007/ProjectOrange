@@ -8,7 +8,7 @@ app = flask.Flask(__name__)
 
 # Collect all modules from api directory
 modules = ['api.' + os.path.basename(f)[:-3]
-    for f in glob.glob(os.path.join(os.path.dirname(__file__), 'api/*.py'))]
+           for f in glob.glob(os.path.join(os.path.dirname(__file__), 'api/*.py'))]
 
 # Register module routes with flask
 for module in modules:

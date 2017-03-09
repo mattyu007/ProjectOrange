@@ -4,7 +4,7 @@ See https://developers.facebook.com/docs/facebook-login/manually-build-a-login-f
 """
 
 import json
-from urllib2 import urlopen, HTTPError
+from urllib2 import urlopen
 
 from config import FacebookConfig
 
@@ -26,9 +26,9 @@ def facebook_token_is_valid(token_validation_response):
     Verify that a token is both valid and intended to be used with our app.
     """
     if not isinstance(token_validation_response, dict):
-        return false
+        return False
 
     return (token_validation_response.get('app_id') == FacebookConfig.APP_ID and
-        token_validation_response.get('application') == FacebookConfig.APP_NAME and
-        token_validation_response.get('is_valid') is True and
-        token_validation_response.get('user_id') is not None)
+            token_validation_response.get('application') == FacebookConfig.APP_NAME and
+            token_validation_response.get('is_valid') is True and
+            token_validation_response.get('user_id') is not None)

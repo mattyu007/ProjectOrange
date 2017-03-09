@@ -26,6 +26,7 @@ class DBConfig(object):
     SCHEMA_PATH = 'SQL/schema.sql'
     PROCEDURE_PATH = 'SQL/procedures.sql'
     TEST_DATA_FILES = ['SQL/test.sql']
+    MIGRATION_DIRECTORY = 'SQL/Migrations'
 
 
 class FacebookConfig(object):
@@ -34,10 +35,11 @@ class FacebookConfig(object):
     APP_SECRET = os.getenv('APP_SECRET', '????')
 
     VERIFY_ACCESS_TOKEN_URL = ('https://graph.facebook.com/debug_token?' +
-        'input_token={access_token}&access_token={app_token}')
+                               'input_token={access_token}&access_token={app_token}')
 
 
 class SecurityConfig(object):
     ACCESS_TOKEN_HEADER = 'X-CUE-ACCESS-TOKEN'
     USER_ID_HEADER = 'X-CUE-USER-ID'
     ACCESS_TOKEN_RAW_BYTES = 120
+    SHARE_CODE_LENGTH = 8

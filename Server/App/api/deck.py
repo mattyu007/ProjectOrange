@@ -5,15 +5,15 @@ Also, handle the flagging of cards for review.
 
 import json
 import logging
-import string
-import random
 
 from config import StatusCode
+from model.card import Card
+from model.deck import Deck
+from policy.card import CardPolicy
+from policy.deck import DeckPolicy
 from utils.base_handler import BaseHandler
-from utils.identity import generate_uuid
-from utils.serializer import serializer
 from utils.wrappers import authorize_request_and_create_db_connector, require_params, \
-    require_query_string_params, extract_user_id, optional_params
+    extract_user_id, optional_params, optional_query_string_params
 
 
 class DeckAddHandler(BaseHandler):
@@ -22,69 +22,36 @@ class DeckAddHandler(BaseHandler):
     @require_params('name', 'tags', 'cards', 'device')
     def post(self, name, tags, cards, device, user_id, connector):
         """Create a new deck."""
-        deck_id = generate_uuid()
+        deck = None
         try:
-            connector.begin_transaction()
-            connector.call_procedure('CREATE_DECK', deck_id, name, user_id, device)
-
-            # Create tags and associate them with the deck.
-            for tag in tags:
-                if not isinstance(tag, (str, unicode)):
-                    raise TypeError
-                tag_id = connector.call_procedure('CREATE_TAG', tag)[0]['id']
-                connector.call_procedure('ADD_TAG_TO_DECK', tag_id, deck_id)
-
-            connector.call_procedure('SET_DELIMITED_TAGS', deck_id, ",".join(tags))
-
-            # Create cards for the deck.
-            for index in xrange(len(cards)):
-                if not isinstance(cards[index], dict):
-                    raise TypeError
-
-                # Create a new card.
-                connector.call_procedure('CREATE_CARD', generate_uuid(), deck_id,
-                    cards[index].get('front'), cards[index].get('back'), index)
-
-            # Commit the deck.
-            connector.end_transaction()
-
+            deck = Deck.create(name, user_id, device, tags, cards, connector)
         except TypeError:
-            connector.abort_transaction()
             return self.make_response(response='Invalid argument format',
-                status=StatusCode.UNSUPPORTED_MEDIA_TYPE)
+                                      status=StatusCode.UNSUPPORTED_MEDIA_TYPE)
         except:
-            connector.abort_transaction()
             logging.error('Could not create new deck', exc_info=True)
             return self.make_response(status=StatusCode.INTERNAL_SERVER_ERROR)
 
-        logging.info('{} created new deck {}'.format(user_id, deck_id))
-
-        # Retrieve the deck as stored in the DB.
-        deck = connector.call_procedure('FETCH_DECK', user_id, deck_id)[0]
-        deck['cards'] = connector.call_procedure('FETCH_CARDS', deck_id)
-        deck['tags'] = map(lambda x: x['tag'], connector.call_procedure('GET_TAGS', deck_id))
+        logging.info('{} created new deck {}'.format(user_id, deck.uuid))
 
         # Return the deck to the user.
-        return self.make_response(response=json.dumps(deck, default=serializer),
-            status=StatusCode.CREATED)
+        return self.make_response(response=deck.full_deck_to_json(user_id),
+                                  status=StatusCode.CREATED)
 
 
 class DeckUUIDHandler(BaseHandler):
     @authorize_request_and_create_db_connector
     @extract_user_id
-    def get(self, user_id, connector, uuid):
+    @optional_query_string_params('share_code')
+    def get(self, share_code, user_id, connector, uuid):
         """Retrieve a full deck via its UUID."""
-        results = connector.call_procedure('FETCH_DECK', user_id, uuid)
-        if len(results) != 1:
+        deck = (DeckPolicy.can_view(uuid, user_id, share_code, connector=connector) or
+                DeckPolicy.in_library(uuid, user_id, connector=connector))
+        if deck is None:
             return self.make_response(status=StatusCode.NOT_FOUND)
 
-        deck = results[0]
-        deck['cards'] = connector.call_procedure('FETCH_CARDS', uuid)
-        deck['tags'] = map(lambda x: x['tag'], connector.call_procedure('GET_TAGS', uuid))
-
-        # Return the full deck to the user.
-        return self.make_response(response=json.dumps(deck, default=serializer),
-            status=StatusCode.OK)
+        # Return the full deck
+        return self.make_response(response=deck.full_deck_to_json(user_id))
 
     @authorize_request_and_create_db_connector
     @extract_user_id
@@ -94,90 +61,61 @@ class DeckUUIDHandler(BaseHandler):
             user_id, connector, uuid):
         """Edit an existing deck."""
 
-        # Ensure this user actually owns the deck.
-        results = connector.call_procedure('FETCH_DECK', user_id, uuid)
-        if len(results) != 1:
-            return self.make_response(status=StatusCode.INTERNAL_SERVER_ERROR)
-        if results[0]['owner'] != user_id:
-            return self.make_response(status=StatusCode.FORBIDDEN)
-
-        # Make sure the deck version are consistent.
-        versions = connector.call_procedure('GET_VERSIONS', user_id, uuid)
-        if len(versions) != 1:
+        deck = DeckPolicy.can_edit(uuid, user_id, connector)
+        if deck is None:
             return self.make_response(status=StatusCode.NOT_FOUND)
-        if (versions[0]['user_data_version'] != parent_user_data_version or
-                versions[0]['deck_version'] != parent_deck_version):
-            return self.make_response(response=json.dumps(versions[0]), status=StatusCode.CONFLICT)
+
+        # Make sure there are no version conflicts.
+        metadata = deck.get_metadata(user_id)
+        if (metadata['user_data_version'] != parent_user_data_version or
+                metadata['deck_version'] != parent_deck_version):
+            return self.make_response(
+                response=json.dumps({
+                    'user_data_version': metadata['user_data_version'],
+                    'deck_version': metadata['deck_version']
+                }),
+                status=StatusCode.CONFLICT)
 
         # Begin deck edits
         try:
             connector.begin_transaction()
 
-            # Collect and validate metadata updates.
-            metadata_edits = {}
+            # Set metadata attributes
             if name is not None:
-                if not isinstance(name, (str, unicode)):
-                    raise TypeError
-                metadata_edits['name'] = name
+                deck.set_name(name)
             if public is not None:
-                if not isinstance(public, bool):
-                    raise TypeError
-                metadata_edits['public'] = public
-
-            # Update metadata.
-            query_str = 'UPDATE Deck SET {key}=%s WHERE uuid=%s'
-            for k, v in metadata_edits.iteritems():
-                connector.query(query_str.format(key=k), v, uuid)
-
-            # Update tags.
+                deck.set_public(public)
             if tags is not None:
+                deck.set_tags(tags)
 
-                # Clear existing tags from the deck.
-                connector.call_procedure('CLEAR_TAGS_FROM_DECK', uuid)
-
-                for tag in tags:
-                    if not isinstance(tag, (str, unicode)):
-                        raise TypeError
-                    tag_id = connector.call_procedure('CREATE_TAG', tag)[0]['id']
-                    connector.call_procedure('ADD_TAG_TO_DECK', tag_id, uuid)
-
-                connector.call_procedure('SET_DELIMITED_TAGS', uuid, ",".join(tags))
-
-            # Edit cards.
+            # Complete card actions
             if actions is not None:
                 for action in actions:
                     if action['action'] == 'add':
-                        connector.call_procedure(
-                            'CREATE_CARD_AND_UPDATE_POSITIONS', generate_uuid(), uuid,
-                            action['front'], action['back'], action['position'])
+                        Card.create(deck.uuid, action['front'], action['back'], action['position'],
+                                    connector=connector)
                     elif action['action'] == 'edit':
-                        connector.call_procedure('EDIT_CARD', action['card_id'], uuid,
-                            action['front'], action['back'], action['position'])
+                        card = CardPolicy.belongs_to(action['card_id'], deck.uuid, connector)
+                        if card is None:
+                            raise ValueError  # card does not belong to deck
+                        card.edit(deck.uuid, action['front'], action['back'], action['position'])
                     elif action['action'] == 'delete':
-                        connector.call_procedure('DELETE_CARD_AND_UPDATE_POSITIONS', action['card_id'], uuid)
-                        connector.call_procedure('UNFLAG_CARD', action['card_id'], user_id)
+                        card = CardPolicy.belongs_to(action['card_id'], deck.uuid, connector)
+                        if card is None:
+                            raise ValueError  # card does not belong to deck
+                        card.delete(deck.uuid)
                     else:
                         raise TypeError  # no valid action specified
 
-                    # Check if the card should be marked for review.
-                    needs_review = action.get('needs_review')
-                    if needs_review is not None:
-                        if not isinstance(needs_review, bool):
-                            raise TypeError
+                    if action.get('needs_review') is not None:
+                        Card(action['card_id'], connector=connector).needs_review(action['needs_review'], user_id)
 
-                        # Flag/Unflag cards accordingly
-                        if needs_review is True:
-                            connector.call_procedure('FLAG_CARD', action['card_id'], user_id)
-                        else:
-                            connector.call_procedure('UNFLAG_CARD', action['card_id'], user_id)
-
-            # Increment both the deck version and the user data version.
-            connector.call_procedure('INCREMENT_DECK_VERSION', user_id, uuid)
-            connector.call_procedure('INCREMENT_USER_DATA_VERSION', user_id, uuid, device)
-
-            # Commit changes.
+            # Update deck versions.
+            deck.update_deck_version()
+            deck.update_user_version(user_id, device)
             connector.end_transaction()
-        except (KeyError, TypeError):
+
+        except (KeyError, TypeError, ValueError):
             connector.abort_transaction()
             return self.make_response(status=StatusCode.BAD_REQUEST)
         except:
@@ -187,93 +125,60 @@ class DeckUUIDHandler(BaseHandler):
 
         logging.info('{} edited deck {}'.format(user_id, uuid))
 
-        deck = results[0]
-        deck['cards'] = connector.call_procedure('FETCH_CARDS', uuid)
-        deck['tags'] = map(lambda x: x['tag'], connector.call_procedure('GET_TAGS', uuid))
-
         # Return the full deck to the user.
-        return self.make_response(response=json.dumps(deck, default=serializer),
-            status=StatusCode.OK)
+        return self.make_response(response=deck.full_deck_to_json(user_id))
 
     @authorize_request_and_create_db_connector
     @extract_user_id
     @require_params('name', 'public', 'tags', 'cards', 'device')
-    def post(self, name, public, tags, cards, device,
-            user_id, connector, uuid):
+    def post(self, name, public, tags, cards, device, user_id, connector, uuid):
         """Overwrite an existing deck."""
 
-        # Ensure this user actually owns the deck.
-        results = connector.call_procedure('FETCH_DECK', user_id, uuid)
-        if len(results) != 1:
-            return self.make_response(status=StatusCode.INTERNAL_SERVER_ERROR)
-        if results[0]['owner'] != user_id:
-            return self.make_response(status=StatusCode.FORBIDDEN)
-
-        # Make sure the deck version are consistent.
-        versions = connector.call_procedure('GET_VERSIONS', user_id, uuid)
-        if len(versions) != 1:
+        deck = DeckPolicy.can_edit(uuid, user_id, connector)
+        if deck is None:
             return self.make_response(status=StatusCode.NOT_FOUND)
 
-        # Begin deck edits
+        # Begin deck edits.
         try:
             connector.begin_transaction()
 
             # Collect and validate metadata updates.
-            metadata_edits = {}
-            if name is None or not isinstance(name, (str, unicode)):
+            if not isinstance(name, (str, unicode)):
                 raise TypeError
-                
-            if public is None or not isinstance(public, bool):
+            if not isinstance(public, bool):
                 raise TypeError
-
-            metadata_edits['name'] = name
-            metadata_edits['public'] = public
-
-            # Update metadata.
-            query_str = 'UPDATE Deck SET {key}=%s WHERE uuid=%s'
-            for k, v in metadata_edits.iteritems():
-                connector.query(query_str.format(key=k), v, uuid)
-
-            # Update tags.
             if not isinstance(tags, list):
-                raise TypeError()
+                raise TypeError
 
-            # Clear existing tags from the deck.
-            connector.call_procedure('CLEAR_TAGS_FROM_DECK', uuid)
+            deck.set_name(name)
+            deck.set_public(public)
+            deck.set_tags(tags)
 
-            for tag in tags:
-                if not isinstance(tag, (str, unicode)):
-                    raise TypeError
-                tag_id = connector.call_procedure('CREATE_TAG', tag)[0]['id']
-                connector.call_procedure('ADD_TAG_TO_DECK', tag_id, uuid)
-
-            connector.call_procedure('SET_DELIMITED_TAGS', uuid, ",".join(tags))
-
-            originalCards = connector.call_procedure('FETCH_CARDS', uuid)
-
-            originalIds = [card['uuid'] for card in originalCards]
-            newIds = [card['uuid'] for card in cards]
-            
-            deletedIds = set(originalIds).difference(newIds)
-
-            for deleted in deletedIds:
-                connector.call_procedure('DELETE_CARD', deleted, uuid)
+            # Determine which cards need to be deleted.
+            original_cards = deck.get_cards(user_id)
+            original_ids = [card['uuid'] for card in original_cards]
+            new_ids = [card['uuid'] for card in cards]
+            deleted_ids = set(original_ids).difference(new_ids)
+            for deleted_id in deleted_ids:
+                Card(deleted_id).delete(deck.uuid)
 
             # Edit cards.
             for card in cards:
                 if (card['uuid'] is None):
-                    connector.call_procedure('CREATE_CARD', generate_uuid(), uuid,
-                        card['front'], card['back'], card['position'])
+                    Card.create(deck.uuid, card['front'], card['back'], card['position'],
+                                connector=connector)
                 else:
-                    connector.call_procedure('EDIT_CARD', card['uuid'], uuid,
-                        card['front'], card['back'], card['position'])
-                
-            connector.call_procedure('INCREMENT_DECK_VERSION', user_id, uuid)
-            connector.call_procedure('INCREMENT_USER_DATA_VERSION', user_id, uuid, device)
+                    existing = CardPolicy.belongs_to(card['uuid'], deck.uuid, connector)
+                    if existing is None:
+                        raise ValueError  # not allowed to edit this card
+                    existing.edit(deck.uuid, card['front'], card['back'], card['position'])
 
-            # Commit changes.
+            # Update deck versions.
+            deck.update_deck_version()
+            deck.update_user_version(user_id, device)
             connector.end_transaction()
-        except (KeyError, TypeError):
+
+        except (KeyError, TypeError, ValueError):
             connector.abort_transaction()
             return self.make_response(status=StatusCode.BAD_REQUEST)
         except:
@@ -283,13 +188,8 @@ class DeckUUIDHandler(BaseHandler):
 
         logging.info('{} overwrote deck {}'.format(user_id, uuid))
 
-        deck = results[0]
-        deck['cards'] = connector.call_procedure('FETCH_CARDS', uuid)
-        deck['tags'] = map(lambda x: x['tag'], connector.call_procedure('GET_TAGS', uuid))
-
         # Return the full deck to the user.
-        return self.make_response(response=json.dumps(deck, default=serializer),
-            status=StatusCode.OK)
+        return self.make_response(response=deck.full_deck_to_json(user_id))
 
 
 class DeckFlagHandler(BaseHandler):
@@ -299,30 +199,31 @@ class DeckFlagHandler(BaseHandler):
     def put(self, parent_deck_version, parent_user_data_version, actions, device, user_id, connector, uuid):
         """Flag specific cards in an existing deck."""
 
-        versions = connector.call_procedure('GET_VERSIONS', user_id, uuid)
-        if len(versions) != 1:
+        deck = DeckPolicy.in_library(uuid, user_id, connector=connector)
+        if deck is None:
             return self.make_response(status=StatusCode.NOT_FOUND)
 
-        if (versions[0]['user_data_version'] != parent_user_data_version or
-                versions[0]['deck_version'] != parent_deck_version):
-            return self.make_response(response=json.dumps(versions[0]), status=StatusCode.CONFLICT)
+        # Make sure there are no version conflicts.
+        metadata = deck.get_metadata(user_id)
+        if (metadata['user_data_version'] != parent_user_data_version or
+                metadata['deck_version'] != parent_deck_version):
+            return self.make_response(
+                response=json.dumps({
+                    'user_data_version': metadata['user_data_version'],
+                    'deck_version': metadata['deck_version']
+                }),
+                status=StatusCode.CONFLICT)
 
-        new_user_data_version = None
         try:
             connector.begin_transaction()
             for action in actions:
-                if not isinstance(action, dict) or not isinstance(action.get('needs_review'), bool):
-                    raise TypeError
+                card = CardPolicy.belongs_to(action['card_id'], deck.uuid, connector=connector)
+                if card is None:
+                    raise ValueError  # card is not from this deck
+                card.needs_review(action['needs_review'], user_id)
 
-                # Mark and unmark cards as necessary.
-                if action['needs_review'] is True:
-                    connector.call_procedure('FLAG_CARD', action['card_id'], user_id)
-                else:
-                    connector.call_procedure('UNFLAG_CARD', action['card_id'], user_id)
-
-            # Increment the user data version and retrieve it.
-            new_user_data_version = connector.call_procedure(
-                'INCREMENT_USER_DATA_VERSION', user_id, uuid, device)[0]
+            # Increment the user data version.
+            deck.update_user_version(user_id, device)
 
             # Commit the changes.
             connector.end_transaction()
@@ -336,7 +237,10 @@ class DeckFlagHandler(BaseHandler):
             return self.make_response(status=StatusCode.INTERNAL_SERVER_ERROR)
 
         # Return the new user data version.
-        return self.make_response(response=json.dumps(new_user_data_version))
+        metadata = deck.get_metadata(user_id)
+        return self.make_response(response=json.dumps({
+            'user_data_version': metadata['user_data_version']
+        }))
 
 
 class DeckRateHandler(BaseHandler):
@@ -345,37 +249,42 @@ class DeckRateHandler(BaseHandler):
     @require_params('rating')
     def post(self, rating, user_id, connector, uuid):
         """Rate existing decks."""
-        if not isinstance(rating, int) or (rating != -1 and rating != 1):
-            return self.make_response(response='Invalid rating', status=StatusCode.BAD_REQUEST)
 
-        # Undo any existing old rating before applying a new one.
-        connector.begin_transaction()
-        connector.call_procedure('UNRATE_DECK', user_id, uuid)
-        connector.call_procedure('RATE_DECK', user_id, uuid, rating)
-        connector.end_transaction()
+        deck = (DeckPolicy.can_view(uuid, user_id, connector=connector) or
+                DeckPolicy.in_library(uuid, user_id, connector=connector))
+        if deck is None:
+            return self.make_response(status=StatusCode.NOT_FOUND)
+
+        if not isinstance(rating, int) or (rating != -1 and rating != 1):
+            return self.make_response(status=StatusCode.BAD_REQUEST)
+
+        deck.rate(user_id, rating)
 
         logging.info('{} rated deck {}'.format(user_id, uuid))
         return self.make_response(status=StatusCode.OK)
+
 
 class DeckShareHandler(BaseHandler):
     @authorize_request_and_create_db_connector
     @extract_user_id
     def get(self, user_id, connector, uuid):
-        results = connector.call_procedure('FETCH_DECK', user_id, uuid)
-        if len(results) != 1:
-            return self.make_response(status=StatusCode.INTERNAL_SERVER_ERROR)
-        if results[0]['owner'] != user_id:
-            return self.make_response(status=StatusCode.FORBIDDEN)
+        """Generate a share code for a deck."""
 
-        while True:
-            share_code = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
+        deck = DeckPolicy.owned_by(uuid, user_id, connector=connector)
+        share_code = deck.get_share_code()
+        return self.make_response(response=json.dumps({'share_code': share_code}))
 
-            result = connector.call_procedure('SET_SHARE_CODE', user_id, uuid, share_code)[0]
-            # Check if code was successfully set
-            if (result['share_code'] is not None):
-                break
 
-        return self.make_response(response=json.dumps(result))
+class DeckShareCodeFetchHandler(BaseHandler):
+    @authorize_request_and_create_db_connector
+    @extract_user_id
+    def get(self, user_id, connector, code):
+        """Retrieve a deck UUID via share code."""
+
+        deck = Deck.get_by_share_code(code, connector)
+        if deck is None:
+            return self.make_response(status=StatusCode.NOT_FOUND)
+        return self.make_response(response=json.dumps({'uuid': deck.uuid}))
 
 
 routes = [
@@ -383,5 +292,6 @@ routes = [
     ('/v1/deck/<string:uuid>', DeckUUIDHandler),
     ('/v1/deck/<string:uuid>/flag', DeckFlagHandler),
     ('/v1/deck/<string:uuid>/rate', DeckRateHandler),
-    ('/v1/deck/<string:uuid>/code', DeckShareHandler)
+    ('/v1/deck/<string:uuid>/code', DeckShareHandler),
+    ('/v1/deck/uuid/<string:code>', DeckShareCodeFetchHandler)
 ]
