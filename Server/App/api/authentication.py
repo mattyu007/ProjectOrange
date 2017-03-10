@@ -5,11 +5,11 @@ Handle requests to update authentication tokens and create users.
 import json
 import logging
 
-from config import DBConfig, StatusCode
+from config import StatusCode
+from model.user import User
 from utils.base_handler import BaseHandler
 from utils.database import DatabaseConnector
 from utils.facebook import request_facebook_token_validation, facebook_token_is_valid
-from utils.identity import generate_access_token, generate_uuid
 from utils.wrappers import require_params
 
 
@@ -24,31 +24,30 @@ class AuthHandler(BaseHandler):
         response = request_facebook_token_validation(access_token)
         if not facebook_token_is_valid(response) or response['user_id'] != user_id:
             logging.info(
-                'Received invalid access token update request from user ID {}'.format(user_id))
+                'Received invalid access token update request from Facebook user ID {}'.format(user_id))
             return self.make_response(status=StatusCode.UNAUTHORIZED)
 
         # Check if the DB already has this user registered.
         connector = DatabaseConnector()
-        result = connector.call_procedure('GET_CREDENTIALS_BY_FACEBOOK_ID', user_id)
+        user = User.get_by_facebook_id(user_id, connector=connector)
 
         # Return existing credentials.
-        if len(result) == 1:
-            user = result[0]
+        if user is not None:
+            user_json = user.get()
             return self.make_response(response=json.dumps({
-                'user-id': user['uuid'],
-                'access-token': user['access_token']
+                'user-id': user_json['uuid'],
+                'access-token': user_json['access_token']
             }))
 
         # Create a new user.
-        cue_uuid = generate_uuid()
-        cue_access_token = generate_access_token()
-        connector.call_procedure_transactionally('CREATE_USER', cue_uuid, cue_access_token, user_id)
-        logging.info('Updated access token for user ID {}'.format(user_id))
+        user = User.create(user_id, connector=connector)
+        logging.info('Created new user with ID {}'.format(user.uuid))
 
         # Return newly created credentials.
+        user_json = user.get()
         return self.make_response(response=json.dumps({
-            'user-id': cue_uuid,
-            'access-token': cue_access_token
+            'user-id': user_json['uuid'],
+            'access-token': user_json['access_token']
         }), status=StatusCode.CREATED)
 
 

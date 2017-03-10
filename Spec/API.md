@@ -10,6 +10,7 @@ Server-side API routes.
     - [Deck Overwrites](#deck-overwrites)
     - [Flagging Cards For Review](#flagging-cards-for-review)
     - [Share Code Generation](#share-code-generation)
+    - [Fetch Deck UUID by Share Code](#fetch-deck-uuid-by-share-code)
 - [Synchronization](#synchronization)
     - [Deck Fetch](#deck-fetch)
 - [Library Management](#library-management)
@@ -251,15 +252,32 @@ Response:
 }
 ```
 
+### Fetch Deck UUID by Share Code
+Get a Deck's UUID via its share code.
+
+Request:
+```
+GET /api/v1/deck/uuid/<share_code>
+```
+
+Response
+```
+{
+    "uuid": "<uuid>"
+}
+```
+
 ## Synchronization
 Synchronize decks.
 
 ### Deck Fetch
 Request:
 ```
-GET /api/v1/deck/<uuid>
+GET /api/v1/deck/<uuid>[?share_code=<share_code>]
 ```
 Where `<uuid>` is the unique identifier for the deck being fetched.
+If a non-public deck that the user does not own is being requested, the deck's share code must be
+provided otherwise the user will not be authorized to view it.
 
 Response: [Standard Full Deck Response](#full-response)
 
@@ -287,10 +305,13 @@ Request:
 ```
 POST /api/v1/library/add
 {
-    "uuid": "<uuid>"
+    "uuid": "<uuid>"[,
+    "share_code": "<share_code>"]
 }
 ```
 Where `<uuid>` is the unique identifier for the deck being added.
+If a deck is not public, it can be added via share code by passing the share code in the payload.
+Note that `share_code` is only required for non-public decks.
 
 Response: [Standard Metadata Deck Response](#metadata-response)
 

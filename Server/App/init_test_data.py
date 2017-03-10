@@ -3,7 +3,6 @@ import subprocess
 
 from config import DBConfig
 
-
 """
 Simple script that inserts test data into the database.
 """
