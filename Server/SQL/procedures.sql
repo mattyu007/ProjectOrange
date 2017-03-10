@@ -1,4 +1,5 @@
 USE Cue;
+START TRANSACTION;
 DELETE FROM mysql.proc WHERE db LIKE 'Cue' AND type='PROCEDURE';
 DELIMITER $$
 
@@ -52,8 +53,7 @@ BEGIN
 
     INSERT INTO Deck (uuid, name, owner, created, last_update, tags_delimited)
         VALUES (u, n, o, d, d, tags);
-    INSERT INTO Library (user_id, deck_id, last_update_device)
-        VALUES (o, u, device);
+    CALL LIBRARY_ADD(o, u, device, 'private');
 END$$
 
 
@@ -270,9 +270,10 @@ BEGIN
         Deck.last_update,
         L.last_update_device,
         Deck.share_code,
-        User.name AS author
+        User.name AS author,
+        L.accession
     FROM Deck LEFT JOIN (
-        SELECT version, last_update_device, deck_id
+        SELECT version, last_update_device, deck_id, accession
         FROM Library WHERE user_id=uid and deck_id=did
     ) AS L ON L.deck_id=Deck.uuid
     LEFT JOIN User ON User.uuid=Deck.owner
@@ -339,9 +340,14 @@ BEGIN
 END$$
 
 -- Add deck to user library
-CREATE PROCEDURE LIBRARY_ADD(IN uid VARCHAR(36), IN did VARCHAR(36))
+CREATE PROCEDURE LIBRARY_ADD(
+    IN uid VARCHAR(36),
+    IN did VARCHAR(36),
+    IN dev VARCHAR(255),
+    IN acc VARCHAR(7))
 BEGIN
-    INSERT INTO Library (user_id, deck_id) VALUES (uid, did);
+    INSERT INTO Library (user_id, deck_id, last_update_device, accession)
+    VALUES (uid, did, dev, acc);
 END$$
 
 -- Remove deck from user library
@@ -359,3 +365,4 @@ BEGIN
 END$$
 
 DELIMITER ;
+COMMIT;

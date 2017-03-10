@@ -305,11 +305,12 @@ Request:
 ```
 POST /api/v1/library/add
 {
-    "uuid": "<uuid>"[,
+    "uuid": "<uuid>",
+    "device": "<device_name>"[,
     "share_code": "<share_code>"]
 }
 ```
-Where `<uuid>` is the unique identifier for the deck being added.
+Where `<uuid>` is the unique identifier for the deck being added and `<device_name>` is the name of the device that made the request.
 If a deck is not public, it can be added via share code by passing the share code in the payload.
 Note that `share_code` is only required for non-public decks.
 
@@ -319,10 +320,11 @@ Response: [Standard Metadata Deck Response](#metadata-response)
 ```
 POST /api/v1/library/copy
 {
-    "uuid": "<uuid>"
+    "uuid": "<uuid>",
+    "device": "<device_name>"
 }
 ```
-Where `<uuid>` is the unique identifier for the deck being copied.
+Where `<uuid>` is the unique identifier for the deck being copied and `<device_name>` is the name of the device that made the request.
 
 Response: [Standard Full Deck Response](#full-response)
 
@@ -415,14 +417,16 @@ This response only contains metadata (does not include the cards in the deck).
     "num_ratings": "<num-ratings>",
     "tags": ["<tag1>", "<tag2>", ...],
     "owner": "<userid>",
+    "author": "<author>" | null,
     "public": true | false,
     "deck_version": "<deck-version>",
-    "user_data_version": "<user-data-version>",
+    "user_data_version": "<user-data-version>" | null,
     "created": "<created>"
     "last_update": "<last-update>",
-    "last_update_device": "<last-update-device>",
-    "share_code": "<share-code>",
-    "deleted": true | false
+    "last_update_device": "<last-update-device>" | null,
+    "share_code": "<share-code>" | null,
+    "deleted": true | false,
+    "accession": "public" | "private" | "shared" | null
 }
 ```
 
@@ -433,14 +437,16 @@ Response description:
 - `num_ratings`: the number of ratings this deck has
 - `tags`: a list of strings describing the contents of the deck
 - `owner`: the user id of the owner of the deck
+- `author`: the name of the owner of the deck (or null if not set)
 - `public`: describes whether or not the deck is publicly accessible (i.e. via discovery)
 - `deck_version`: the current deck version
-- `user_data_version`: the current version for user information (e.g. cards marked "needs review")
+- `user_data_version`: the current version for user information (null if deck is not a part of the user's library)
 - `created`: ISO format UTC datetime string describing the creation time of the deck
 - `last_update`: ISO format UTC datetime string describing the time of the most recent deck update
-- `last_update_device`: the name of the device that last modified the deck (this is only available for decks that are owned by the requester)
-- `share_code`: the code that can be entered by users to gain access to a remote private deck
+- `last_update_device`: the name of the device that last modified the deck (null if the deck is not in the user's library)
+- `share_code`: the code that can be entered by users to gain access to a remote private deck (null if a code has not been requested yet)
 - `deleted`: boolean indicating whether or not a deck has been deleted by the owner
+- `accession`: string indicating how the deck became part of the user's library (null if the deck is not a part of the user's library)
 
 *Note*: if the `deleted` flag is set to true in the response, the client should not expect to receive any other metadata about the deck (with the exception of `name` and `uuid`).
 

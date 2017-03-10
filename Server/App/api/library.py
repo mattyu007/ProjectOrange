@@ -1,7 +1,7 @@
 import logging
 
 from config import StatusCode
-from model.library import Library
+from model.library import Library, Accession
 from policy.deck import DeckPolicy
 from utils.base_handler import BaseHandler
 from utils.wrappers import authorize_request_and_create_db_connector, extract_user_id, \
@@ -19,18 +19,20 @@ class LibraryHandler(BaseHandler):
 
 class LibraryAddHandler(BaseHandler):
     @authorize_request_and_create_db_connector
-    @require_params('uuid')
+    @require_params('uuid', 'device')
     @optional_params('share_code')
     @extract_user_id
-    def post(self, user_id, share_code, uuid, connector):
+    def post(self, user_id, share_code, uuid, device, connector):
         """Add a remote deck to a user's library."""
 
         deck = DeckPolicy.can_view(uuid, user_id, share_code, connector=connector)
         if deck is None:
             return self.make_response(status=StatusCode.NOT_FOUND)
 
+        # We are making an assumption here that if the share_code is not None, then the share code
+        # is in fact the correct share code for the deck, and we mark the accession as SHARED.
         library = Library(user_id, connector=connector)
-        library.add(deck.uuid)
+        library.add(deck.uuid, device, Accession.PUBLIC if share_code is None else Accession.SHARED)
 
         return self.make_response(status=StatusCode.OK)
 

@@ -29,6 +29,9 @@ venv:
 lint:
 	$(VPY) -m flake8 . --exclude=venv --max-line-length=120
 
+migration:
+	cp SQL/migration_template.sql SQL/Migrations/`$(VPY) -c "from datetime import datetime; print(datetime.now().strftime('%Y-%m-%d_%H-%M'))"`.sql
+
 # Only works on debian/ubuntu
 system:
 	sudo apt-get install mysql-server python-pip build-essential python-dev libmysqlclient-dev
