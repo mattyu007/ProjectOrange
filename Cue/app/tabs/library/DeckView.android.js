@@ -136,7 +136,7 @@ class DeckView extends React.Component {
           leftItem={leftItem}
           rightItems={rightItems}
           key={this.state.scrollPosition}
-          containerStyles={{elevation: this.state.scrollPosition > this.state.headerHeight ? 4 : 0}}/>
+          containerStyles={{elevation: this.state.scrollPosition > this.state.headerHeight ? 4 : 0}} />
         <ScrollView
           style={{flex: 1}}
           onScroll={this._onScroll}>

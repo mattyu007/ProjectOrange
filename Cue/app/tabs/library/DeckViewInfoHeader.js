@@ -22,7 +22,7 @@ const styles = {
     marginTop: Platform.OS === 'android' ? 0 : -1 * Dimensions.get('window').height,
   },
   titleText: {
-    fontSize: Platform.OS === 'android' ? 34 : 28,
+    fontSize: Platform.OS === 'android' ? 24 : 28,
     backgroundColor: 'transparent',
     color: 'white',
   },
@@ -31,9 +31,9 @@ const styles = {
     alignItems: 'flex-end',
   },
   subtitleText: {
-    marginTop: 6,
+    marginTop: 12,
     color: 'white',
-    fontSize: 12,
+    fontSize: 13,
     paddingLeft: 2,
     paddingBottom: 2,
   },
@@ -44,7 +44,7 @@ const styles = {
     borderRadius: 2,
     overflow: 'hidden',
     color: 'white',
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '600',
     letterSpacing: 0.1,
   },
@@ -55,7 +55,7 @@ const styles = {
     borderRadius: 2,
     overflow: 'hidden',
     color: 'white',
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '600',
     letterSpacing: 0.1,
   }
