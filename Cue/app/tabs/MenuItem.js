@@ -7,10 +7,11 @@ import CueColors from '../common/CueColors'
 
 class MenuItem extends React.Component {
   props: {
-    selected: boolean;
-    title: string;
-    icon: number;
-    onPress: () => void;
+    selected: boolean,
+    title: string,
+    icon: number,
+    extraStyles?: Object,
+    onPress: () => void,
   };
 
   render() {
@@ -18,17 +19,19 @@ class MenuItem extends React.Component {
     const selectedIconStyle = this.props.selected ? styles.selectedIcon : undefined
 
     return (
-      <TouchableNativeFeedback
-        onPress={this.props.onPress}
-        background={TouchableNativeFeedback.SelectableBackground()}>
-        <View style={styles.container}>
-          <Image style={[styles.icon, selectedIconStyle]}
-            source={this.props.icon} />
-          <Text style={[styles.title, selectedTitleStyle]}>
-            {this.props.title}
-          </Text>
-        </View>
-      </TouchableNativeFeedback>
+      <View style={this.props.extraStyles}>
+        <TouchableNativeFeedback
+          onPress={this.props.onPress}
+          background={TouchableNativeFeedback.SelectableBackground()}>
+          <View style={styles.container}>
+            <Image style={[styles.icon, selectedIconStyle]}
+              source={this.props.icon} />
+            <Text style={[styles.title, selectedTitleStyle]}>
+              {this.props.title}
+            </Text>
+          </View>
+        </TouchableNativeFeedback>
+      </View>
     );
   }
 }

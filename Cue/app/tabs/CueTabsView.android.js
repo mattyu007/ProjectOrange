@@ -7,15 +7,18 @@ import { connect } from 'react-redux'
 import { switchTab } from '../actions/tabs'
 import { logOut } from '../actions/login'
 
+import CueColors from '../common/CueColors'
 import CueIcons from '../common/CueIcons'
+import ListViewHairlineSeparator from '../common/ListViewHairlineSeparator'
 import MenuItem from './MenuItem'
+import MenuCreditsItem from './MenuCreditsItem'
+import MenuProfileItem from './MenuProfileItem'
 import CueDrawerLayout from '../common/CueDrawerLayout'
 import LibraryHome from './library/LibraryHome'
 import DiscoverHome from './discover/DiscoverHome'
 import SearchHome from './search/SearchHome'
 
 import type { Tab } from '../reducers/tabs';
-import FacebookLoginButton from '../common/FacebookLoginButton';
 
 
 class CueTabsView extends React.Component {
@@ -51,11 +54,16 @@ class CueTabsView extends React.Component {
   renderNavigationView() {
     return (
       <View style={styles.drawer}>
+        <MenuProfileItem
+          name={this.props.user.name || 'Welcome to Cue'} />
+        <ListViewHairlineSeparator
+          style={styles.separator} />
         <MenuItem
           title="Library"
           icon={CueIcons.tabLibrary}
           selected={this.props.tab === 'library'}
           onPress={this.onTabSelect.bind(this, 'library')}
+          extraStyles={styles.sectionFirstItem}
         />
         <MenuItem
           title="Discover"
@@ -68,8 +76,12 @@ class CueTabsView extends React.Component {
           icon={CueIcons.tabSearch}
           selected={this.props.tab === 'search'}
           onPress={this.onTabSelect.bind(this, 'search')}
+          extraStyles={styles.sectionLastItem}
         />
-        <FacebookLoginButton />
+        <ListViewHairlineSeparator
+          style={styles.separator} />
+        <MenuCreditsItem
+          version={'0.1'} />
       </View>
     );
   }
@@ -142,6 +154,16 @@ var styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  separator: {
+    flex: 0,
+    marginLeft: 0,
+  },
+  sectionFirstItem: {
+    paddingTop: 8,
+  },
+  sectionLastItem: {
+    paddingBottom: 8,
   },
 });
 
