@@ -12,6 +12,7 @@ import CueIcons from '../common/CueIcons'
 import LibraryHome from './library/LibraryHome';
 import DiscoverHome from './discover/DiscoverHome'
 import SearchHome from './search/SearchHome'
+import AccountHome from './account/AccountHome'
 
 import type {Tab} from '../reducers/tabs';
 
@@ -60,6 +61,14 @@ class CueTabsView extends React.Component {
           <SearchHome
             navigator={this.props.navigator}
           />
+        </TabBarIOS.Item>
+        <TabBarIOS.Item
+          title="Account"
+          icon={CueIcons.tabAccount}
+          selectedIcon={CueIcons.tabAccountSelected}
+          selected={this.props.tab === 'account'}
+          onPress={this.onTabSelect.bind(this, 'account')}>
+          <AccountHome />
         </TabBarIOS.Item>
       </TabBarIOS>
     );

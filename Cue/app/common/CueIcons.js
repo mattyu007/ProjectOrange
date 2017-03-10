@@ -31,5 +31,6 @@ module.exports = {
   tabDiscoverSelected: require('./img/tab_discover_selected.png'),
   tabSearch: require('./img/tab_search.png'),
   tabSearchSelected: require('./img/tab_search_selected.png'),
-
+  tabAccount: require('./img/tab_account.png'),
+  tabAccountSelected: require('./img/tab_account_selected.png'),
 }
