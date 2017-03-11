@@ -7,15 +7,20 @@ module.exports = {
   back: require('./img/back.png'),
   cancel: require('./img/cancel.png'),
   copy: require('./img/copy.png'),
+  checkSmall: require('./img/check18.png'),
   done: require('./img/done.png'),
+  down: require('./img/down.png'),
   dropdown: require('./img/dropdown.png'),
   edit: require('./img/edit.png'),
   filterToggle: require('./img/filter_toggle.png'),
   filterToggleSelected: require('./img/filter_toggle_selected.png'),
+  forward: require('./img/forward.png'),
   menu: require('./img/menu.png'),
   overflow: require('./img/overflow.png'),
   play: require('./img/play.png'),
   plus: require('./img/plus.png'),
+  radioChecked: require('./img/radio_checked.png'),
+  radioUnchecked: require('./img/radio_unchecked.png'),
   share: require('./img/share.png'),
 
   // Images
@@ -26,6 +31,12 @@ module.exports = {
   emptyDeck: require('./img/deck_empty.png'),
   emptyFilteredDeck: require('./img/deck_empty_filtered.png'),
   emptyLibrary: require('./img/library_empty.png'),
+
+  // Deck Play Mode Indicators
+  indicatorBack: require('./img/indicator_back.png'),
+  indicatorFlag: require('./img/indicator_flag.png'),
+  indicatorUnflag: require('./img/indicator_unflag.png'),
+  indicatorNext: require('./img/indicator_next.png'),
 
   // Tabs
   tabLibrary: require('./img/tab_library.png'),

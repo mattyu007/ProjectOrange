@@ -87,6 +87,9 @@ class DeckView extends React.Component {
       },
       {
         icon: CueIcons.play,
+        onPress: () => {
+          this.props.navigator.push({ playDeckSetup: this.props.deck })
+        }
       },
       {
         icon: CueIcons.share
