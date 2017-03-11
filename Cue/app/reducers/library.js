@@ -19,8 +19,9 @@ function library(state: State = initialState , action: Action): State {
       return {
         decks: action.decks,
       };
+   	default:
+   		return state;
   }
-  return state;
 }
 
 
