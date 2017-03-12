@@ -78,13 +78,17 @@ class DeckViewInfoHeader extends React.Component {
 
       subtitleText = this.props.deck.owner === this.props.userId
             ? " by you."
-            : " by someone else."
+            : (this.props.deck.author
+                  ? (" by " + this.props.deck.author + ".")
+                  : " by someone else.")
     } else if (this.props.deck.share_code) {
       tag = <Text style={styles.sharedTag}>SHARED</Text>
 
       subtitleText = this.props.deck.owner === this.props.userId
           ? " by you."
-          : " with you."
+          : (this.props.deck.author
+                ? (" by " + this.props.deck.author + ".")
+                : " with you.")
     }
 
     let subtitleContainer
