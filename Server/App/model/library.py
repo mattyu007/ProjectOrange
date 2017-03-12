@@ -5,6 +5,13 @@ from utils.database import DatabaseConnector
 from utils.serializer import serializer
 
 
+class Accession(object):
+    """Constants specifying how a deck was added to the library."""
+    PRIVATE = 'private'
+    PUBLIC = 'public'
+    SHARED = 'shared'
+
+
 class Library(object):
     def __init__(self, user_id, connector=None):
         self.user_id = user_id
@@ -19,8 +26,9 @@ class Library(object):
 
         return json.dumps(deck_metadata, default=serializer)
 
-    def add(self, deck_id):
-        self.connector.call_procedure_transactionally('LIBRARY_ADD', self.user_id, deck_id)
+    def add(self, deck_id, device, accession):
+        self.connector.call_procedure_transactionally(
+            'LIBRARY_ADD', self.user_id, deck_id, device, accession)
 
     def copy(self, deck, device):
         deck_json = deck.get_full_deck(self.user_id)

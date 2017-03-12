@@ -12,13 +12,13 @@ VALUES (
     '3e7a9be3-1429-401f-878a-7acce8e9c249',
     '109418406250675',
     'YiJdo/TOK85ox7PTN/fdc2KJ9fzxzwV2i0V/nMdccyksE/Bc8OyN6eykXHpEDctIPpvIhekesbyOF9d502Ebgrom0RXoSZXUQFW6Od4ubZAKpyoBH9/0oZ2oldzwK4TWk4B5JR8B89Gs0p3yiNRPD+rYRI6tWLbm',
-    NULL
+    'Test User'
 ),
 (
     '8229472c-1fb8-4d2c-931a-fdadc5b76c92',
     '10155462234176111',
     'DjHmg+KhbWxKwnW8H6ZZLmflKMKxOXk46vXhg8qDWpDzKnKKAkLL57Nkk60tV81yr5vixo7I1IheeTK3yzDb3Moe1LEtDLZmE9rlaHB/4C6SoehBz8Bsv1VkJth8zG9EUxWYomDmAe4yAzAwb3pltnYuu7n2JJXE',
-    NULL
+    'Payton Classmore'
 ),
 (
     'd90168bd-6617-4ef1-af0b-27350cfd515f',
@@ -111,60 +111,69 @@ VALUES (
 
 
 INSERT INTO `Library`
-    (user_id, deck_id, version, last_update_device)
+    (user_id, deck_id, version, last_update_device, accession)
 VALUES (
     '3e7a9be3-1429-401f-878a-7acce8e9c249',
     '0a9ef729-c87f-4ad8-9b27-24ffd9f6ef1a',
     0,
-    NULL
+    'Test\'s iPhone',
+    'private'
 ),
 (
     '3e7a9be3-1429-401f-878a-7acce8e9c249',
     '4710da55-0a17-4b0e-9f89-8d9c8b280e35',
     0,
-    NULL
+    'Test\'s iPhone',
+    'public'
 ),
 (
     '3e7a9be3-1429-401f-878a-7acce8e9c249',
     'a1abcf63-ee50-44dc-8987-d768fb9f263d',
     0,
-    NULL
+    'Test\'s iPhone',
+    'public'
 ),
 (
     '3e7a9be3-1429-401f-878a-7acce8e9c249',
     'a398bc4e-5370-47cf-955e-dc5ffe9ef73e',
     0,
-    NULL
+    'Test\'s iPad',
+    'shared'
 ),
 (
     '3e7a9be3-1429-401f-878a-7acce8e9c249',
     'd4f5c753-e605-4a06-a4e4-b960b00ef460',
     0,
-    NULL
+    'Test\'s iPhone',
+    'private'
 ),
 (
     '3e7a9be3-1429-401f-878a-7acce8e9c249',
     'e772e6ea-e498-41b2-8bcf-ef6bff71b262',
     0,
-    NULL
+    'Test\'s iPad',
+    'private'
 ),
 (
     '8229472c-1fb8-4d2c-931a-fdadc5b76c92',
     '4710da55-0a17-4b0e-9f89-8d9c8b280e35',
     0,
-    NULL
+    'PostMan',
+    'private'
 ),
 (
     '8229472c-1fb8-4d2c-931a-fdadc5b76c92',
     'a1abcf63-ee50-44dc-8987-d768fb9f263d',
     0,
-    NULL
+    'PostMan',
+    'private'
 ),
 (
     '8229472c-1fb8-4d2c-931a-fdadc5b76c92',
     'a398bc4e-5370-47cf-955e-dc5ffe9ef73e',
     0,
-    NULL
+    'Payton\'s iPhone',
+    'private'
 );
 
 INSERT INTO `Card`
