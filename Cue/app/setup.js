@@ -4,6 +4,7 @@ var CueApp = require('./CueApp');
 var React = require('React');
 var { Provider } = require('react-redux');
 var configureStore = require('./store/configureStore');
+import CueApi from './api/CueApi'
 const FBSDK = require('react-native-fbsdk');
 
 
@@ -22,7 +23,11 @@ function setup(): ReactClass<{}> {
       super();
       this.state = {
         isLoading: true,
-        store: configureStore(() => this.setState({isLoading: false})),
+        store: configureStore(() => {
+          let user = this.state.store.getState().user
+          CueApi.setAuthHeader(user.userId, user.accessToken);
+          this.setState({isLoading: false})
+        }),
       };
     }
     render() {
