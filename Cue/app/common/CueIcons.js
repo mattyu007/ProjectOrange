@@ -7,6 +7,7 @@ module.exports = {
   back: require('./img/back.png'),
   cancel: require('./img/cancel.png'),
   done: require('./img/done.png'),
+  dropdown: require('./img/dropdown.png'),
   edit: require('./img/edit.png'),
   filterToggle: require('./img/filter_toggle.png'),
   filterToggleSelected: require('./img/filter_toggle_selected.png'),

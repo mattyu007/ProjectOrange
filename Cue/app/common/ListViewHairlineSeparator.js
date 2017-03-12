@@ -16,9 +16,9 @@ const styles = {
 
 export default class ListViewHairlineSeparator extends React.Component {
   props: {
-    styles?: any
+    style?: any
   }
   render() {
-    return <View style={[styles.separator, this.props.styles]} />
+    return <View style={[styles.separator, this.props.style]} />
   }
 }
