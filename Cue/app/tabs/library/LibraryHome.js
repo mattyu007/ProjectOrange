@@ -6,6 +6,7 @@ import React from 'react'
 import { View, Text, TouchableOpacity, Navigator, Platform } from 'react-native'
 
 import { connect } from 'react-redux'
+import { loadLibrary } from '../../actions'
 
 import type { Deck } from '../../api/types'
 
@@ -34,6 +35,32 @@ type Props = {
 
 class LibraryHome extends React.Component {
   props: Props
+
+  state: {
+    refreshing: boolean
+  }
+
+  _refresh = () => {
+    this.setState({
+      ...this.state,
+      refreshing: true
+    });
+    this.props.dispatch(loadLibrary());
+  }
+
+  componentWillReceiveProps(newProps: Props) {
+    this.setState({
+      ...this.state,
+      refreshing: false
+    });
+  }
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      refreshing: false
+    };
+  }
 
   render() {
     let leftItem
@@ -77,7 +104,9 @@ class LibraryHome extends React.Component {
         <LibraryListView
           style={styles.bodyContainer}
           navigator={this.props.navigator}
-          decks={this.props.decks || []} />
+          decks={this.props.decks || []}
+          refreshing={this.state.refreshing}
+          onSwipeToRefresh={this._refresh} />
       </View>
     )
   }
@@ -89,9 +118,4 @@ function select(store) {
   }
 }
 
-function actions(dispatch) {
-  return {
-  }
-}
-
-module.exports = connect(select, actions)(LibraryHome)
+module.exports = connect(select)(LibraryHome)

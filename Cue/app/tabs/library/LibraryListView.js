@@ -3,12 +3,11 @@
 'use strict';
 
 import React from 'react'
-import { Navigator, View, Text, Platform, ListView, Dimensions } from 'react-native'
-
-import { connect } from 'react-redux'
+import { Navigator, View, Text, Platform, ListView, Dimensions, RefreshControl } from 'react-native'
 
 import type { Deck, Card } from '../../api/types'
 
+import CueColors from '../../common/CueColors'
 import CueIcons from '../../common/CueIcons'
 import EmptyView from '../../common/EmptyView'
 import ListViewHeader from '../../common/ListViewHeader'
@@ -30,9 +29,8 @@ const SECTION_PUBLIC = 'Public'
 type Props = {
   navigator: Navigator,
   decks: Array<Deck>,
-
-  // filled in by Redux
-  userId: string
+  refreshing: boolean,
+  onSwipeToRefresh: () => void
 }
 
 class LibraryListView extends React.Component {
@@ -52,7 +50,7 @@ class LibraryListView extends React.Component {
   }
 
   _categorizeDecks(decks: Array<Deck>) {
-    let data = { }
+    let data = {}
     let addToData = (section, deck) => {
       if (!data[section]) {
         data[section] = []
@@ -61,9 +59,9 @@ class LibraryListView extends React.Component {
     }
 
     decks.forEach((deck) => {
-      if (deck.owner === this.props.userId) {
+      if (deck.accession === 'private') {
         addToData(SECTION_PRIVATE, deck)
-      } else if (!deck.public && deck.share_code) {
+      } else if (deck.accession === 'shared') {
         addToData(SECTION_SHARED, deck)
       } else {
         addToData(SECTION_PUBLIC, deck)
@@ -100,7 +98,6 @@ class LibraryListView extends React.Component {
     }
   }
 
-
   componentWillReceiveProps(newProps: Props) {
     this.setState({
       ...this.state,
@@ -129,16 +126,17 @@ class LibraryListView extends React.Component {
         dataSource={this.state.dataSource}
         initialListSize={8}
         pageSize={2}
+        refreshControl={
+          <RefreshControl
+            colors={[CueColors.primaryTint]}
+            refreshing={this.props.refreshing}
+            onRefresh={this.props.onSwipeToRefresh}
+          />
+        }
         renderSectionHeader={(decks, category) => <ListViewHeader section={category} />}
         renderRow={deck => <LibraryListViewItem navigator={this.props.navigator} deck={deck} />} />
       )
   }
 };
 
-function select(store) {
-  return {
-    userId: store.user.userId
-  }
-}
-
-module.exports = connect(select)(LibraryListView)
+module.exports = LibraryListView;
