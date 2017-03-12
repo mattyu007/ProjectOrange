@@ -1,7 +1,7 @@
 // @flow
 
 import React from 'react'
-import { View, Text, Image, TouchableOpacity } from 'react-native'
+import { View, Dimensions, Platform, Text, Image, TouchableOpacity } from 'react-native'
 
 import { connect } from 'react-redux'
 
@@ -12,99 +12,99 @@ import CueIcons from '../../common/CueIcons'
 
 const styles = {
   container: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: CueColors.lightGrey,
-  },
-  titleContainer: {
-    flex: 1,
-    flexDirection: 'column',
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    backgroundColor: CueColors.primaryTint,
+    elevation: 4,
+
+    // Prevent overscroll from leaking underlying colour
+    paddingTop: Platform.OS === 'android' ? 0 : Dimensions.get('window').height,
+    marginTop: Platform.OS === 'android' ? 0 : -1 * Dimensions.get('window').height,
   },
   titleText: {
-    color: CueColors.primaryText,
-    fontSize: 28,
+    fontSize: Platform.OS === 'android' ? 24 : 28,
+    backgroundColor: 'transparent',
+    color: 'white',
+  },
+  subtitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
   },
   subtitleText: {
-    marginTop: 8,
-    color: CueColors.lightText,
-    fontSize: 17
+    marginTop: 12,
+    color: 'white',
+    fontSize: 13,
+    paddingLeft: 2,
+    paddingBottom: 2,
   },
-  rightAccessoriesContainer: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
+  sharedTag: {
+    backgroundColor: CueColors.sharedInsetTint,
+    paddingVertical: 2,
+    paddingHorizontal: 6,
+    borderRadius: 2,
+    overflow: 'hidden',
+    color: 'white',
+    fontSize: 13,
+    fontWeight: '600',
+    letterSpacing: 0.1,
   },
-  iconContainer: {
-    padding: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  icon: {
-    tintColor: CueColors.primaryTint,
-  },
-  sharedInset: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    tintColor: CueColors.sharedInsetTint,
-  },
-  publicInset: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    tintColor: CueColors.publicInsetTint
+  publicTag: {
+    backgroundColor: CueColors.publicInsetTint,
+    paddingVertical: 2,
+    paddingHorizontal: 6,
+    borderRadius: 2,
+    overflow: 'hidden',
+    color: 'white',
+    fontSize: 13,
+    fontWeight: '600',
+    letterSpacing: 0.1,
   }
 }
 
 type Props = {
   deck: Deck,
+
+  // Set by Redux:
   userId: string
 }
 class DeckViewInfoHeader extends React.Component {
   props: Props
 
   render() {
+    let tag
     let subtitleText
-    let insetImage
     if (this.props.deck.public) {
-      insetImage = <Image style={styles.publicInset} source={CueIcons.deckInsetPublic} />
+      tag = <Text style={styles.publicTag}>PUBLIC</Text>
 
-      subtitleText = "Shared with the public by"
-        + (this.props.deck.owner === this.props.userId
-            ? " you."
-            : " someone else.")
+      subtitleText = this.props.deck.owner === this.props.userId
+            ? " by you."
+            : " by someone else."
     } else if (this.props.deck.share_code) {
-      insetImage = <Image style={styles.sharedInset} source={CueIcons.deckInsetShared} />
+      tag = <Text style={styles.sharedTag}>SHARED</Text>
 
-      subtitleText = "Shared"
-        + (this.props.deck.owner === this.props.userId
+      subtitleText = this.props.deck.owner === this.props.userId
           ? " by you."
-          : " with you.")
+          : " with you."
     }
 
+    let subtitleContainer
     if (subtitleText) {
-      subtitleText = (
+      subtitleContainer = <View style={styles.subtitleContainer}>
+        {tag}
         <Text style={styles.subtitleText}>
           {subtitleText}
         </Text>
-      )
+      </View>
     }
 
     return (
-      <View style={styles.container}>
-        <View style={styles.titleContainer}>
-          <Text style={styles.titleText} numberOfLines={2}>
-            {this.props.deck.name}
-          </Text>
-          {subtitleText}
-        </View>
-        <View style={styles.rightAccessoriesContainer}>
-          {insetImage}
-          <TouchableOpacity style={styles.iconContainer}>
-            <Image style={styles.icon} source={CueIcons.play} />
-          </TouchableOpacity>
-        </View>
+      <View
+        style={styles.container}
+        {...this.props}>
+        <Text style={styles.titleText} numberOfLines={2}>
+          {this.props.deck.name}
+        </Text>
+        {subtitleContainer}
       </View>
     )
   }

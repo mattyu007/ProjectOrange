@@ -1,7 +1,7 @@
 // @flow
 
 import React from 'react'
-import { View, Text } from 'react-native'
+import { View, Text, Platform } from 'react-native'
 
 import type { Card } from '../../api/types'
 
@@ -13,16 +13,18 @@ const styles = {
     paddingVertical: 12,
   },
   frontText: {
-    fontSize: 17,
-    fontWeight: '500',
+    fontSize: Platform.OS === 'android' ? 14 : 17,
+    fontWeight: Platform.OS === 'android' ? '500' : '600',
+    color: CueColors.primaryText,
     marginBottom: 12,
   },
   backText: {
-    fontSize: 17,
+    fontSize: Platform.OS === 'android' ? 14 : 17,
+    color: CueColors.primaryText,
   }
 }
 
-export default class DeckViewRow extends React.Component {
+export default class CardListViewRow extends React.Component {
   props: {
     card: Card
   }

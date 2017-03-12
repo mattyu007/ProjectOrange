@@ -10,6 +10,7 @@ module.exports = {
   done: require('./img/done.png'),
   edit: require('./img/edit.png'),
   filterToggle: require('./img/filter_toggle.png'),
+  filterToggleSelected: require('./img/filter_toggle_selected.png'),
   menu: require('./img/menu.png'),
   play: require('./img/play.png'),
   overflow: require('./img/overflow.png'),
@@ -22,6 +23,8 @@ module.exports = {
   deckInsetShared: require('./img/deck_inset_shared.png'),
   deckInsetPublic: require('./img/deck_inset_public.png'),
   deckPlaceholder: require('./img/deck_placeholder.png'),
+  emptyDeck: require('./img/deck_empty.png'),
+  emptyFilteredDeck: require('./img/deck_empty_filtered.png'),
   emptyLibrary: require('./img/library_empty.png'),
 
   // Tabs

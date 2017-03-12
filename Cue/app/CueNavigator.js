@@ -66,7 +66,7 @@ var CueNavigator = React.createClass({
           if (Platform.OS === 'android') {
             return Navigator.SceneConfigs.FloatFromBottomAndroid;
           } else {
-            return Navigator.SceneConfigs.FloatFromRight;
+            return Navigator.SceneConfigs.PushFromRight;
           }
         }}
         initialRoute={{}}

@@ -27,7 +27,8 @@ type Props = {
   // customTitleRenderer?: (any) => any,
   leftItem?: HeaderItem,
   rightItems?: Array<HeaderItem>,
-  overflowItems?: Array<HeaderItem>
+  overflowItems?: Array<HeaderItem>,
+  containerStyles?: Object,
 }
 
 let styles = {}
@@ -71,7 +72,7 @@ class CueHeader extends React.Component {
     }
 
     return (
-      <View style={styles.toolbarContainer}>
+      <View style={[styles.toolbarContainer, this.props.containerStyles]}>
         <ToolbarAndroid
           navIcon={leftItem && leftItem.icon}
           onIconClicked={leftItem && leftItem.onPress}
@@ -81,6 +82,7 @@ class CueHeader extends React.Component {
           actions={actions}
           onActionSelected={this._onActionSelectedHandler.bind(this)}
           style={styles.toolbar} />
+        {this.props.children}
       </View>
     )
   }
