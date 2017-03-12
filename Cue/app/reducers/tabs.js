@@ -1,7 +1,7 @@
 // @flow
 import type {Action} from '../actions/types';
 
-export type Tab = 'library' | 'discover' | 'search';
+export type Tab = 'library' | 'discover' | 'search' | 'account';
 
 type State = {
   tab: Tab;
