@@ -17,13 +17,15 @@ export type Deck = {
   owner: string,
   public: boolean,
   deck_version: number,
-  user_data_version: number,
+  user_data_version?: number,
   created: Date,
   last_update: Date,
   last_update_device?: string,
   share_code?: string,
   deleted: boolean,
-  cards: Array<Card>
+  author?: string,
+  accession?: string,
+  cards: ?Array<Card>
 };
 
 export type Library = {
