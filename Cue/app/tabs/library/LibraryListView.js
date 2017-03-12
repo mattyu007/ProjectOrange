@@ -60,7 +60,7 @@ class LibraryListView extends React.Component {
       data[section].push(deck)
     }
 
-    this.props.decks.forEach((deck) => {
+    decks.forEach((deck) => {
       if (deck.owner === this.props.userId) {
         addToData(SECTION_PRIVATE, deck)
       } else if (!deck.public && deck.share_code) {
@@ -83,19 +83,29 @@ class LibraryListView extends React.Component {
     return { data, headers }
   }
 
-  constructor(props: Props) {
-    super(props)
-
+  _getDataSource (decks: Array<Deck>) {
     let ds = new ListView.DataSource({
       rowHasChanged: (r1, r2) => r1 !== r2,
       sectionHeaderHasChanged: (s1, s2) => s1 !== s2
     })
+    let { data, headers } = this._categorizeDecks(decks)
+    return ds.cloneWithRowsAndSections(data, headers)
+  }
 
-    let { data, headers } = this._categorizeDecks(this.props.decks)
+  constructor(props: Props) {
+    super(props)
     this.state = {
-      dataSource: ds.cloneWithRowsAndSections(data, headers),
+      dataSource: this._getDataSource(props.decks),
       deviceOrientation: 'UNKNOWN'
     }
+  }
+
+
+  componentWillReceiveProps(newProps: Props) {
+    this.setState({
+      ...this.state,
+      dataSource: this._getDataSource(newProps.decks)
+    })
   }
 
   render() {
