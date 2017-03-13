@@ -41,7 +41,7 @@ VALUES (
     'ancient,greek,mythology',
     0,
     0,
-    NULL
+    'FEDCBA'
 ),
 (
     '4710da55-0a17-4b0e-9f89-8d9c8b280e35',
@@ -102,7 +102,7 @@ VALUES (
     'Cold War Russia',
     '3e7a9be3-1429-401f-878a-7acce8e9c249',
     0,
-    0,
+    1,
     'history,espionage',
     0,
     0,
