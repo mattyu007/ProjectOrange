@@ -54,17 +54,28 @@ class DeckView extends React.Component {
       onPress: () => { this.props.navigator.pop() }
     }
 
-    const rightItems = [
-      {
-        title: 'Add Card',
-        icon: CueIcons.plus,
-        display: 'icon'
-      },
-      {
-        title: 'Edit',
-        display: 'text',
-      }
-    ]
+    let rightItems;
+    if (this.props.deck.accession === 'private') {
+      rightItems = [
+        {
+          title: 'Add Card',
+          icon: CueIcons.plus,
+          display: 'icon'
+        },
+        {
+          title: 'Edit',
+          display: 'text'
+        }
+      ];
+    }
+    else {
+      rightItems = [
+        {
+          title: 'Copy',
+          display: 'text'
+        }
+      ];
+    }
 
     let toolbarIcons = [
       {
@@ -80,7 +91,7 @@ class DeckView extends React.Component {
       {
         icon: CueIcons.share
       }
-    ]
+    ];
 
     return (
       <View style={styles.container}>
