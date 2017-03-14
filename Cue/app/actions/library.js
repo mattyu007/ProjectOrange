@@ -41,10 +41,10 @@ function createDeck(name: string) : Action {
   }
 }
 
-function editDeck(deck) : Action {
+function editDeck(change) : Action {
   return {
     type: 'DECK_EDITED',
-    deck
+    change
   }
 }
 

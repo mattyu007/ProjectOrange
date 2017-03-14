@@ -82,8 +82,8 @@ class LibraryHome extends React.Component {
              this.props.navigator.push({deck})
            }},
           ],
-          type: 'plain-text',
-          placeholder: 'My Great Deck',
+          'plain-text',
+          'My Great Deck',
         )
       }
     }]
