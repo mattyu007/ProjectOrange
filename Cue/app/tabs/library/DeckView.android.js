@@ -98,27 +98,43 @@ class DeckView extends React.Component {
       onPress: () => { this.props.navigator.pop() }
     }
 
-    const rightItems = [
+    let rightItems = [
       {
         title: 'Filter flagged cards',
         icon: this.state.isFiltering ? CueIcons.filterToggleSelected : CueIcons.filterToggle,
         onPress: () => this.setState({
           isFiltering: !this.state.isFiltering
         })
-      },
-      {
-        title: 'Add card',
-        icon: CueIcons.plus
-      },
-      {
-        title: 'Deck sharing options',
-        icon: CueIcons.share,
-      },
-      {
-        title: 'Edit',
-        icon: CueIcons.edit
-      },
+      }
     ]
+
+    let shareItem = {
+      title: 'Deck sharing options',
+      icon: CueIcons.share
+    }
+
+    if (this.props.deck.accession === 'private') {
+      rightItems = rightItems.concat([
+        {
+          title: 'Add card',
+          icon: CueIcons.plus
+        },
+        shareItem,
+        {
+          title: 'Edit',
+          icon: CueIcons.edit
+        }
+      ]);
+    }
+    else {
+      rightItems = rightItems.concat([
+        shareItem,
+        {
+          title: 'Copy',
+          icon: CueIcons.copy
+        }
+      ]);
+    }
 
     const PrimaryFAB = MKButton.coloredFab()
       .withBackgroundColor(CueColors.primaryTint)
