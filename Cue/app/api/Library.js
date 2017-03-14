@@ -26,7 +26,7 @@ var LibraryApi = {
     let body = JSON.stringify ({
       name,
       tags: tags,
-      device: DeviceInfo.getUniqueID(),
+      device: DeviceInfo.getDeviceName(),
       cards: cards,
     })
 		console.info('Creating deck "' + name + '" at endpoint ' + endpoint)
@@ -36,7 +36,7 @@ var LibraryApi = {
   editDeck (change){
     let endpoint = 'api/v1/deck/' + change.uuid
     let body = JSON.stringify({
-      device: DeviceInfo.getUniqueID(),
+      device: DeviceInfo.getDeviceName(),
 			parent_deck_version: change.parent_deck_version,
 			parent_user_data_version: change.parent_user_data_version,
 			name: change.name,
