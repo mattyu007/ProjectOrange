@@ -3,7 +3,7 @@
 'use strict';
 
 import React from 'react'
-import { Navigator, View, Text, Platform, ListView, Dimensions, RefreshControl } from 'react-native'
+import { Navigator, View, Text, Platform, ListView, Dimensions, RefreshControl, StyleSheet } from 'react-native'
 
 import type { Deck, Card } from '../../api/types'
 
@@ -106,16 +106,32 @@ class LibraryListView extends React.Component {
   }
 
   render() {
+    let refreshControl = (
+      <RefreshControl
+        colors={[CueColors.primaryTint]}
+        refreshing={this.props.refreshing}
+        onRefresh={this.props.onSwipeToRefresh}
+      />
+    )
+
     if (this.state.dataSource.getRowCount() == 0) {
       return (
-        <EmptyView
-          icon={CueIcons.emptyLibrary}
-          titleText={'You don&rsquo;t have any decks yet.'}
-          subtitleText={Platform.OS === 'android'
-            ? 'Create one or add one to your Library from Discover in the menu.'
-            : 'Create one or add one to your Library from the Discover tab.'} />
+        <View style={{flex: 1}}>
+          <EmptyView
+            icon={CueIcons.emptyLibrary}
+            titleText={'You don’t have any decks yet.'}
+            subtitleText={Platform.OS === 'android'
+              ? 'Create one or add one to your Library from Discover in the menu.'
+              : 'Create one or add one to your Library from the Discover tab.'} />
+          <ListView
+            style={StyleSheet.absoluteFill}
+            dataSource={this.state.dataSource}
+            renderRow={() => {}}
+            refreshControl={refreshControl} />
+        </View>
       )
     }
+
     return (
       <ListView
         key={this.state.deviceOrientation}
@@ -126,16 +142,10 @@ class LibraryListView extends React.Component {
         dataSource={this.state.dataSource}
         initialListSize={8}
         pageSize={2}
-        refreshControl={
-          <RefreshControl
-            colors={[CueColors.primaryTint]}
-            refreshing={this.props.refreshing}
-            onRefresh={this.props.onSwipeToRefresh}
-          />
-        }
+        refreshControl={refreshControl}
         renderSectionHeader={(decks, category) => <ListViewHeader section={category} />}
         renderRow={deck => <LibraryListViewItem navigator={this.props.navigator} deck={deck} />} />
-      )
+    )
   }
 };
 
