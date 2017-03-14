@@ -84,11 +84,11 @@ export default class LibraryListViewItem extends React.Component {
 
     return (
       <TouchableOpacity style={styles.itemContainer} onPress={() => this.props.navigator.push({deck: this.props.deck})}>
-        {inset}
         <Text style={styles.itemText} numberOfLines={2}>
           {this.props.deck.name}
         </Text>
         {subText}
+        {inset}
       </TouchableOpacity>
     )
   }
