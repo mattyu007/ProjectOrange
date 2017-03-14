@@ -8,6 +8,10 @@ export type Action =
   | { type: 'LOGGED_IN', data: { userId: string; accessToken: string; } }
   | { type: 'LOGGED_OUT' }
   | { type: 'SWITCH_TAB', tab: 'library' | 'discover' | 'search' }
+  | { type: 'DECK_CREATED', deck: {} }
+  | { type: 'DECK_DELETED', uuid: string }
+  | { type: 'DECK_SYNCED', serverDeck: Deck, change: {} }
+  | { type: 'DECK_EDITED', change: {} }
   ;
 
 export type Dispatch = (action: Action | ThunkAction | PromiseAction | Array<Action>) => any;

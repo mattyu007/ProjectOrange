@@ -6,6 +6,8 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
 import com.facebook.react.ReactApplication;
+import im.shimo.react.prompt.RNPromptPackage;
+import com.learnium.RNDeviceInfo.RNDeviceInfo;
 import com.BV.LinearGradient.LinearGradientPackage;
 import com.github.xinthink.rnmk.ReactMaterialKitPackage;
 import com.facebook.reactnative.androidsdk.FBSDKPackage;
@@ -36,6 +38,8 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNPromptPackage(),
+            new RNDeviceInfo(),
           new LinearGradientPackage(),
           new ReactMaterialKitPackage(),
           new FBSDKPackage(mCallbackManager)
