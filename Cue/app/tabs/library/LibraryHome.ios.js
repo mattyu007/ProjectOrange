@@ -82,10 +82,8 @@ class LibraryHome extends React.Component {
              this.props.navigator.push({deck})
            }},
           ],
-          {
-            type: 'plain-text',
-            placeholder: 'My Great Deck',
-          },
+          type: 'plain-text',
+          placeholder: 'My Great Deck',
         )
       }
     }]
@@ -95,8 +93,7 @@ class LibraryHome extends React.Component {
       <CueHeader
         leftItem={leftItem}
         title='Library'
-        rightItems={rightItems}
-        overflowItems={overflowItems} />
+        rightItems={rightItems} />
       <LibraryListView
         style={styles.bodyContainer}
         navigator={this.props.navigator}

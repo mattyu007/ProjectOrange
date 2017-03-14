@@ -63,6 +63,8 @@ function library(state: State = initialState, action: Action): State {
       if (deck.uuid = change.uuid)
         return localChanges.splice(i,1)
     })
+  } else {
+    return state
   }
 
   return {
