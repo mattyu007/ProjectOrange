@@ -1,8 +1,7 @@
 package com.cue;
 
 import android.app.Application;
-import android.util.Log;
-
+import com.BV.LinearGradient.LinearGradientPackage;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
@@ -14,7 +13,7 @@ import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
-import com.facebook.soloader.SoLoader;
+import com.facebook.reactnative.androidsdk.FBSDKPackage;
 
 import java.util.Arrays;
 import java.util.List;

@@ -9,6 +9,8 @@ import { switchTab } from './actions/tabs'
 import CueColors from './common/CueColors'
 import CueTabsView from './tabs/CueTabsView'
 import DeckView from './tabs/library/DeckView'
+import PlayDeckSetupView from './tabs/library/play/PlayDeckSetupView'
+import PlayDeckView from './tabs/library/play/PlayDeckView'
 
 var CueNavigator = React.createClass({
   _handlers: ([]: Array<() => boolean>),
@@ -63,11 +65,21 @@ var CueNavigator = React.createClass({
         ref="navigator"
         style={styles.container}
         configureScene={(route) => {
+          if (route.playDeck) {
+            return Navigator.SceneConfigs.FloatFromBottom
+          }
+
           if (Platform.OS === 'android') {
             return Navigator.SceneConfigs.FloatFromBottomAndroid;
-          } else {
-            return Navigator.SceneConfigs.PushFromRight;
           }
+
+          if (route.playDeckSetup) {
+            return {
+              ...Navigator.SceneConfigs.FloatFromBottom,
+              gestures: {}}
+          }
+
+          return Navigator.SceneConfigs.PushFromRight;
         }}
         initialRoute={{}}
         renderScene={this.renderScene}
@@ -78,6 +90,10 @@ var CueNavigator = React.createClass({
   renderScene: function(route, navigator) {
     if (route.deck) {
       return <DeckView navigator={navigator} deck={route.deck}/>
+    } else if (route.playDeckSetup) {
+      return <PlayDeckSetupView navigator={navigator} deck={route.playDeckSetup} {...route} />
+    } else if (route.playDeck) {
+      return <PlayDeckView navigator={navigator} deck={route.playDeck} {...route} />
     }
     return <CueTabsView navigator={navigator} />;
   },

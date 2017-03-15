@@ -139,6 +139,9 @@ class DeckView extends React.Component {
     const PrimaryFAB = MKButton.coloredFab()
       .withBackgroundColor(CueColors.primaryTint)
       .withStyle(styles.fab)
+      .withOnPress(() => {
+        this.props.navigator.push({ playDeckSetup: this.props.deck })
+      })
       .build()
 
     const SecondaryFAB = MKButton.coloredFab()

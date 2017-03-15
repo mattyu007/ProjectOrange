@@ -13,12 +13,19 @@ module.exports = {
   primaryText: '#53585F',
   lightText: 'rgba(0, 0, 0, 0.4)',
 
+  darkGrey: 'hsl(0, 0%, 40%)',
   mediumGrey: 'hsl(0, 0%, 60%)',
   lightGrey: 'hsl(0, 0%, 75%)',
   veryLightGrey: 'hsl(0, 0%, 90%)',
 
+  coolLightGrey: '#F5F5FA',
+
   sharedInsetTint: '#70BF41',
   publicInsetTint: '#51A7F9',
+
+  nextIndicatorTint: '#70BF41',
+  flagIndicatorTint: '#F39019',
+  backIndicatorTint: '#51A7F9',
 
   positiveTint: '#4AA45A',
   negativeTint: '#DA3832'
