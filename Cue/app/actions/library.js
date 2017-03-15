@@ -50,34 +50,42 @@ function editDeck(change) : Action {
 
 //attempts to sync each deck once, returns list of failed syncs
 function syncLibrary(localChanges): ThunkAction {
-  let failedSyncs = []
   return (dispatch, getState) => {
+    let failedSyncs = []
     let promises = []
     localChanges.forEach(change =>{
       promises.push(dispatch(syncDeck(change))
         .catch(e => {
-          console.info('sync failed : ', change)
           failedSyncs.push(change)
         }))
     })
-    Promise.all(promises).then(() => {
+    return Promise.all(promises).then(() => {
+      console.info('failed syncs:  ', failedSyncs)
       if (failedSyncs.length == 0) dispatch(loadLibrary())
+      return failedSyncs;
     })
-    console.log('failed syncs:  ', failedSyncs)
-    return failedSyncs
   };
 }
 
-// deck should only contain changes in the deck to avoid sending excess data
-// ex: { uuid: string, action 'add', name: string } if a deck was added
-// ex: { uuid: string, action 'edit', cards: [{action: 'edit', card-id: string, front: "fox"}] } if 1 card in deck was changed
+// change should only contain changes in the deck to avoid sending excess data
+// ex: { uuid: string, action: 'add', name: string } if a deck was added
+// ex: { uuid: string, action: 'edit', cards: [{action: 'edit', uuid: string, front: "fox", back: "20XX"}] } if 1 card in deck was changed
 async function syncDeck(change) : PromiseAction {
   let serverDeck
   try {
     if (change.action == "add"){
       serverDeck = await LibraryApi.createDeck(change.name, change.tags, change.cards);
-      // TODO: if you edit an added deck, the action will remain 'add',
-      // so need to determine if extra changes need to be synced as well
+      // check if any other changes need to be synced
+      for (let key in change) {
+        if((key === 'cards' && change.cards.length > 0) || (change[key] != serverDeck[key] && !key.match("^(?:cards|uuid|action)$"))) {
+          serverDeck = await LibraryApi.editDeck({
+            ...change,
+            uuid: serverDeck.uuid,
+            parent_deck_version: serverDeck.user_data_version,
+            parent_user_data_version: serverDeck.deck_version})
+          break
+        }
+      }
     } else if (change.action == "edit") {
       serverDeck = await LibraryApi.editDeck(change)
     } else if (change.action == "delete") {
@@ -85,6 +93,7 @@ async function syncDeck(change) : PromiseAction {
     }
   } catch (e) {
     //TODO: handle no connection and conflict
+    // handled by syncLibrary?
     console.warn(e)
     throw e
   }

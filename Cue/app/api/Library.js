@@ -42,7 +42,7 @@ var LibraryApi = {
 			name: change.name,
 			public: change.public,
 			tags: change.tags,
-			actions: change.cards
+			actions: change.cards //TODO: api expects card_id, not uuid
     })
     console.info('editing deck' + body + ' at endpoint ' + endpoint)
     return CueApi.fetch(endpoint, 'PUT', body)

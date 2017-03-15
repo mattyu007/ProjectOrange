@@ -62,7 +62,10 @@ class LibraryHome extends React.Component {
       ...this.state,
       refreshing: true
    });
-   this.props.onSyncLibrary(this.props.localChanges);
+   this.props.onSyncLibrary(this.props.localChanges).then(failedSyncs =>{
+     //TODO: issue #65
+     // will need promise to return serverDeck version of the failedSync
+   })
   }
 
   componentWillReceiveProps(newProps: Props) {

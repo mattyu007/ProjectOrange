@@ -18,51 +18,62 @@ const initialState: State = {
 function library(state: State = initialState, action: Action): State {
   let decks: Array<Deck> = state.decks == null ? [] : state.decks.slice()
   let localChanges = state.localChanges.slice()
-  if (action.type == 'LOADED_LIBRARY') {
+
+  if (action.type === 'LOADED_LIBRARY') {
     decks = action.decks
 
-  } else if (action.type == 'DECK_CREATED') {
+  } else if (action.type === 'DECK_CREATED') {
     decks.push(action.deck)
     localChanges.push({...action.deck, action: "add"})
 
-  } else if (action.type == 'DECK_DELETED') {
-    let uuid = action.uuid
-    decks.find( (deck, i) => {
-      if (deck.uuid == uuid)
-        return decks.splice(i,1)
-    })
-    if (!localChanges.find( (localChange, i) => {
-      if (localChange.uuid == uuid && localChange.action == 'add')
-        return localChanges.splice(i,1)
-    })) {
-      localChanges.push({uuid, action: 'delete'})
+  } else if (action.type === 'DECK_DELETED') {
+    let deckIndex = decks.findIndex(deck => deck.uuid == action.uuid)
+    if (deckIndex >= 0)
+      decks.splice(deckIndex,1)
+    let changeIndex = localChanges.findIndex(deck => deck.uuid == action.uuid)
+    if (changeIndex >= 0) {
+      if (localChanges[changeIndex].action === 'add')
+        localChanges.splice(changeIndex,1)
+      else
+        localChanges[changeIndex] = {uuid: action.uuid, action: 'delete'}
+    } else {
+      localChanges.push({uuid: action.uuid, action: 'delete'})
     }
 
-  } else if (action.type == 'DECK_EDITED') {
+  } else if (action.type === 'DECK_EDITED') {
     let change = action.change
-    decks.find( (deck, i) => {
-      if (deck.uuid == change.uuid)
-        return decks[i] = { ...deck, change }
-    })
-    if (!localChanges.find( (deck, i) => {
-      if (deck.uuid == change.uuid)
-        return localChanges[i] = { ...deck, change, action: deck.action }
-    })) {
-      localChanges.push({change, action: 'edit'})
+    //update decks
+    let deckIndex = decks.findIndex(deck => deck.uuid == change.uuid)
+    if (deckIndex >= 0) {
+      decks[deckIndex] = {
+        ...decks[deckIndex],
+        ...change,
+        cards: _mergeCards(decks[deckIndex].cards, change.cards),
+        action: undefined
+      }
+    }
+    //update localChanges
+    let changeIndex = localChanges.findIndex(deck => deck.uuid == change.uuid)
+    if (changeIndex >= 0) {
+      localChanges[changeIndex] = {
+        ...localChanges[changeIndex],
+        ...change,
+        cards: _mergeCardsChanged(localChanges[changeIndex].cards, change.cards),
+        action: localChanges[changeIndex].action
+      }
+    } else {
+      localChanges.push({...change, action: 'edit'})
     }
 
-  } else if (action.type == 'DECK_SYNCED') {
+  } else if (action.type === 'DECK_SYNCED') {
     let change = action.change
     let serverDeck = action.serverDeck
-    decks.find( (deck, i) => {
-      if (deck.uuid == change.uuid || deck.uuid == serverDeck.uuid) {
-        return decks[i] = serverDeck
-      }
-    })
-    localChanges.find( (deck, i) => {
-      if (deck.uuid = change.uuid)
-        return localChanges.splice(i,1)
-    })
+    let deckIndex = decks.findIndex(deck => deck.uuid == change.uuid || deck.uuid == serverDeck.uuid)
+    if (deckIndex >= 0)
+      decks[deckIndex] = serverDeck
+    let changeIndex = localChanges.findIndex(deck => deck.uuid == change.uuid)
+    if (changeIndex >= 0)
+      localChanges.splice(changeIndex,1)
   } else {
     return state
   }
@@ -73,5 +84,44 @@ function library(state: State = initialState, action: Action): State {
   }
 }
 
+//merges card edits for a deck's cards
+function _mergeCards(cards, cardsChanged) {
+  if (!cards) return []
+  if (!cardsChanged) return cards
+  let mergedCards = cards.slice();
+  cardsChanged.forEach(cardChange => {
+    let index = mergedCards.findIndex(card => card.uuid == cardChange.uuid)
+    if (index >= 0) {
+      if (cardChange.action === 'delete')
+        mergedCards.splice(index,1)
+      else
+        mergedCards[index] = {...mergedCards[index], ...cardChange, action: undefined}
+    } else {
+      mergedCards.push({...cardChange, action: undefined})
+    }
+  })
+  return mergedCards
+}
+
+//merge card edits for a localChange's cards
+function _mergeCardsChanged(cards, cardsChanged) {
+  if (! cards && !cardsChanged) return []
+  if (!cards) return cardsChanged
+  if (!cardsChanged) return cards
+  let mergedCards = cards.slice();
+  cardsChanged.forEach(cardChange => {
+    let index = mergedCards.findIndex(card => card.uuid == cardChange.uuid)
+    if (index >= 0) {
+      if (cardChange.action === 'delete' && cards[index].action === 'add')
+        mergedCards.splice(index,1)
+      else {
+        mergedCards[index] = {...mergedCards[index], ...cardChange, action: cards[index].action}
+      }
+    } else {
+      mergedCards.push(cardChange)
+    }
+  })
+  return mergedCards
+}
 
 module.exports = library;
