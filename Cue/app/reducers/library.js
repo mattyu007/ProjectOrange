@@ -28,10 +28,10 @@ function library(state: State = initialState, action: Action): State {
 
   } else if (action.type === 'DECK_DELETED') {
     let deckIndex = decks.findIndex(deck => deck.uuid == action.uuid)
-    if (deckIndex >= 0)
+    if (decks[deckIndex])
       decks.splice(deckIndex,1)
     let changeIndex = localChanges.findIndex(deck => deck.uuid == action.uuid)
-    if (changeIndex >= 0) {
+    if (localChanges[changeIndex]) {
       if (localChanges[changeIndex].action === 'add')
         localChanges.splice(changeIndex,1)
       else
@@ -44,35 +44,43 @@ function library(state: State = initialState, action: Action): State {
     let change = action.change
     //update decks
     let deckIndex = decks.findIndex(deck => deck.uuid == change.uuid)
-    if (deckIndex >= 0) {
+    if (decks[deckIndex]) {
       decks[deckIndex] = {
         ...decks[deckIndex],
         ...change,
-        cards: _mergeCards(decks[deckIndex].cards, change.cards),
+        cards: _mergeCardChanges(decks[deckIndex].cards, change.cards),
         action: undefined
       }
     }
     //update localChanges
     let changeIndex = localChanges.findIndex(deck => deck.uuid == change.uuid)
-    if (changeIndex >= 0) {
+    if (localChanges[changeIndex]) {
       localChanges[changeIndex] = {
         ...localChanges[changeIndex],
         ...change,
-        cards: _mergeCardsChanged(localChanges[changeIndex].cards, change.cards),
-        action: localChanges[changeIndex].action
+        cards: localChanges[changeIndex].cards.concat(change.cards),
+        action: localChanges[changeIndex].action,
       }
     } else {
-      localChanges.push({...change, action: 'edit'})
+      if (decks[deckIndex])
+        console.error("Error finding deck version for edit")
+      else
+        localChanges.push({
+          ...change,
+          action: 'edit',
+          parent_deck_version: decks[deckIndex].deck_version,
+          parent_user_data_version: decks[deckIndex].user_data_version
+        })
     }
 
   } else if (action.type === 'DECK_SYNCED') {
     let change = action.change
     let serverDeck = action.serverDeck
     let deckIndex = decks.findIndex(deck => deck.uuid == change.uuid || deck.uuid == serverDeck.uuid)
-    if (deckIndex >= 0)
+    if (decks[deckIndex])
       decks[deckIndex] = serverDeck
     let changeIndex = localChanges.findIndex(deck => deck.uuid == change.uuid)
-    if (changeIndex >= 0)
+    if (localChanges[changeIndex])
       localChanges.splice(changeIndex,1)
   } else {
     return state
@@ -84,41 +92,21 @@ function library(state: State = initialState, action: Action): State {
   }
 }
 
-//merges card edits for a deck's cards
-function _mergeCards(cards, cardsChanged) {
+//merges card changes for a deck's cards
+function _mergeCardChanges(cards, changes) {
+  if (! cards && !changes) return []
   if (!cards) return []
-  if (!cardsChanged) return cards
+  if (!changes) return cards
   let mergedCards = cards.slice();
-  cardsChanged.forEach(cardChange => {
-    let index = mergedCards.findIndex(card => card.uuid == cardChange.uuid)
-    if (index >= 0) {
-      if (cardChange.action === 'delete')
-        mergedCards.splice(index,1)
-      else
-        mergedCards[index] = {...mergedCards[index], ...cardChange, action: undefined}
-    } else {
-      mergedCards.push({...cardChange, action: undefined})
-    }
-  })
-  return mergedCards
-}
-
-//merge card edits for a localChange's cards
-function _mergeCardsChanged(cards, cardsChanged) {
-  if (! cards && !cardsChanged) return []
-  if (!cards) return cardsChanged
-  if (!cardsChanged) return cards
-  let mergedCards = cards.slice();
-  cardsChanged.forEach(cardChange => {
-    let index = mergedCards.findIndex(card => card.uuid == cardChange.uuid)
-    if (index >= 0) {
-      if (cardChange.action === 'delete' && cards[index].action === 'add')
-        mergedCards.splice(index,1)
-      else {
-        mergedCards[index] = {...mergedCards[index], ...cardChange, action: cards[index].action}
-      }
-    } else {
-      mergedCards.push(cardChange)
+  changes.forEach(change => {
+    let index = mergedCards.findIndex(card => card.uuid == change.uuid)
+    if (change.action === 'add') {
+      mergedCards.push({...change, action: undefined})
+    } else if (change.action === 'delete' && mergedCards[index]) {
+      mergedCards.splice(index,1)
+    } else if (change.action === 'edit' && mergedCards[index]) {
+      //TODO: update the position of every card
+      mergedCards[index] = {...mergedCards[index], ...change, action: undefined}
     }
   })
   return mergedCards

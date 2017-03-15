@@ -37,12 +37,12 @@ var LibraryApi = {
     let endpoint = 'api/v1/deck/' + change.uuid
     let body = JSON.stringify({
       device: DeviceInfo.getDeviceName(),
-			parent_deck_version: change.parent_deck_version,
-			parent_user_data_version: change.parent_user_data_version,
-			name: change.name,
-			public: change.public,
-			tags: change.tags,
-			actions: change.cards //TODO: api expects card_id, not uuid
+      parent_deck_version: change.parent_deck_version,
+      parent_user_data_version: change.parent_user_data_version,
+      name: change.name,
+      public: change.public,
+      tags: change.tags,
+      actions: change.cards //TODO: api expects card_id, not uuid
     })
     console.info('editing deck' + body + ' at endpoint ' + endpoint)
     return CueApi.fetch(endpoint, 'PUT', body)
@@ -50,7 +50,7 @@ var LibraryApi = {
 
   deleteDeck(uuid: string) {
     let endpoint = 'api/v1/library/' + uuid
-		console.info('deleteing deck at endpoint ' + endpoint)
+    console.info('deleteing deck at endpoint ' + endpoint)
     return CueApi.fetch(endpoint, 'DELETE')
   }
 }
