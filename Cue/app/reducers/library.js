@@ -39,16 +39,16 @@ function library(state: State = initialState, action: Action): State {
     }
 
   } else if (action.type == 'DECK_EDITED') {
-    let editedDeck = action.deck
+    let change = action.change
     decks.find( (deck, i) => {
-      if (deck.uuid == editedDeck.uuid)
-        return decks[i] = { ...deck, editedDeck }
+      if (deck.uuid == change.uuid)
+        return decks[i] = { ...deck, change }
     })
     if (!localChanges.find( (deck, i) => {
-      if (deck.uuid == editedDeck.uuid)
-        return localChanges[i] = { ...deck, editedDeck }
+      if (deck.uuid == change.uuid)
+        return localChanges[i] = { ...deck, change, action: deck.action }
     })) {
-      localChanges.push({editedDeck, action: 'edit'})
+      localChanges.push({change, action: 'edit'})
     }
 
   } else if (action.type == 'DECK_SYNCED') {
