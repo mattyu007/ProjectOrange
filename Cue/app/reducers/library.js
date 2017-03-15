@@ -63,7 +63,7 @@ function library(state: State = initialState, action: Action): State {
       }
     } else {
       if (decks[deckIndex])
-        console.error("Error finding deck version for edit")
+        console.error("Could not find existing deck for edit action", change)
       else
         localChanges.push({
           ...change,
@@ -105,7 +105,7 @@ function _mergeCardChanges(cards, changes) {
     } else if (change.action === 'delete' && mergedCards[index]) {
       mergedCards.splice(index,1)
     } else if (change.action === 'edit' && mergedCards[index]) {
-      //TODO: update the position of every card
+      //TODO: update the position of every card if position changed
       mergedCards[index] = {...mergedCards[index], ...change, action: undefined}
     }
   })

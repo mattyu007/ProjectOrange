@@ -57,7 +57,7 @@ class LibraryHome extends React.Component {
     refreshing: boolean
   }
 
-  _refresh() {
+  _refresh = () => {
     this.setState({
       ...this.state,
       refreshing: true
@@ -80,7 +80,6 @@ class LibraryHome extends React.Component {
    this.state = {
      refreshing: false
    };
-   this._refresh = this._refresh.bind(this)
   }
 
   render() {
@@ -100,14 +99,16 @@ class LibraryHome extends React.Component {
       .withStyle(styles.fab)
       .withOnPress(() => {
         prompt(
-          'Create New Deck',
+          'Create new deck',
           '',
           [
-           {text: 'Cancel', style: 'cancel'},
-           {text: 'Create', onPress: (deckName) => {
-             let deck = this.props.onCreateDeck(deckName).deck
-             this.props.navigator.push({deck})
-           }},
+            {text: 'Cancel', style: 'cancel'},
+            {text: 'Create', onPress: (deckName) => {
+              if (deckName && deckName.length) {
+                let deck = this.props.onCreateDeck(deckName).deck
+                this.props.navigator.push({deck})
+              }
+            }},
           ],
           {
             type: 'plain-text',

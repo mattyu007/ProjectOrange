@@ -58,7 +58,6 @@ class LibraryHome extends React.Component {
    this.state = {
      refreshing: false
    };
-   this._refresh = this._refresh.bind(this)
   }
 
   render() {
@@ -76,11 +75,13 @@ class LibraryHome extends React.Component {
           'Create New Deck',
           'Enter a name for the new deck.',
           [
-           {text: 'Cancel', style: 'cancel'},
-           {text: 'Create', onPress: (deckName) => {
-             let deck = this.props.onCreateDeck(deckName).deck
-             this.props.navigator.push({deck})
-           }},
+            {text: 'Cancel', style: 'cancel'},
+            {text: 'Create', onPress: (deckName) => {
+              if (deckName && deckName.length) {
+                let deck = this.props.onCreateDeck(deckName).deck
+                this.props.navigator.push({deck})
+              }
+            }},
           ],
           'plain-text',
           'My Great Deck',
