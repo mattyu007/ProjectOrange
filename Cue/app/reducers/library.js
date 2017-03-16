@@ -44,9 +44,12 @@ function library(state: State = initialState, action: Action): State {
     }
 
   } else if (action.type === 'DECK_EDITED') {
+    console.info('Processing DECK_EDITED action', action)
     let change = action.change
+    console.info('Change: ', change)
     //update decks
     let deckIndex = decks.findIndex(deck => deck.uuid == change.uuid)
+    console.info('deckIndex: ', deckIndex)
     if (decks[deckIndex]) {
       decks[deckIndex] = {
         ...decks[deckIndex],
@@ -65,7 +68,7 @@ function library(state: State = initialState, action: Action): State {
         action: localChanges[changeIndex].action,
       }
     } else {
-      if (decks[deckIndex])
+      if (!decks[deckIndex])
         console.error("Could not find existing deck for edit action", change)
       else
         localChanges.push({
@@ -97,6 +100,7 @@ function library(state: State = initialState, action: Action): State {
 
 //merges card changes for a deck's cards
 function _mergeCardChanges(cards, changes) {
+  console.info('Merging card changes', cards, changes)
   if (! cards && !changes) return []
   if (!cards) return []
   if (!changes) return cards
