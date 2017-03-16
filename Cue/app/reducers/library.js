@@ -44,12 +44,9 @@ function library(state: State = initialState, action: Action): State {
     }
 
   } else if (action.type === 'DECK_EDITED') {
-    console.info('Processing DECK_EDITED action', action)
     let change = action.change
-    console.info('Change: ', change)
     //update decks
     let deckIndex = decks.findIndex(deck => deck.uuid == change.uuid)
-    console.info('deckIndex: ', deckIndex)
     if (decks[deckIndex]) {
       decks[deckIndex] = {
         ...decks[deckIndex],
