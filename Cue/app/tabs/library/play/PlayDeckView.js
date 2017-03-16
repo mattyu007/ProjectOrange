@@ -103,7 +103,8 @@ class PlayDeckView extends React.Component {
   constructor(props: Props) {
     super(props)
 
-    let cards = this.props.deck.cards || []
+    // Take a snapshot of the Deck in props
+    let cards = (this.props.deck.cards || []).slice(0)
     cards = this.props.shuffle ? this._shuffled(cards) : cards
 
     this.state = {
@@ -253,8 +254,12 @@ class PlayDeckView extends React.Component {
   }
 
   _commitFlagAction = () => {
+    // Update the local snapshot of the deck state
     let card = this.state.cards[this.state.index]
-    this.props.flagCard(this.props.deck.uuid, card.uuid, !card.needs_review)
+    card.needs_review = !card.needs_review
+
+    // Flag the card in the Redux store
+    this.props.flagCard(this.props.deck.uuid, card.uuid, card.needs_review)
 
     this._setCurrentCard(this.state.index + 1)
   }
