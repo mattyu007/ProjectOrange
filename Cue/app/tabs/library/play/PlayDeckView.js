@@ -3,6 +3,9 @@
 import React from 'react'
 import { Navigator, Animated, Easing, View, Text, Image, TouchableOpacity, PanResponder, Platform, Dimensions, StatusBar } from 'react-native'
 
+import { connect } from 'react-redux'
+import { editDeck } from '../../../actions'
+
 import type { Deck, Card } from '../../../api/types'
 
 import CueColors from '../../../common/CueColors'
@@ -67,11 +70,14 @@ type Props = {
   deck: Deck,
   shuffle?: boolean,
   startIndex?: number,
+
+  // From Redux:
+  flagCard: (deckUuid: string, cardUuid: string, flag: boolean) => any
 }
 
 type TriggeredAction = 'next' | 'flag' | 'back' | 'none'
 
-export default class PlayDeckView extends React.Component {
+class PlayDeckView extends React.Component {
   props: Props
 
   state: {
@@ -247,7 +253,8 @@ export default class PlayDeckView extends React.Component {
   }
 
   _commitFlagAction = () => {
-    // TODO Dispatch a Redux action?
+    let card = this.state.cards[this.state.index]
+    this.props.flagCard(this.props.deck.uuid, card.uuid, !card.needs_review)
 
     this._setCurrentCard(this.state.index + 1)
   }
@@ -485,3 +492,23 @@ export default class PlayDeckView extends React.Component {
       </View>)
   }
 }
+
+function actions(dispatch) {
+  return {
+    flagCard: (deckUuid: string, cardUuid: string, flag: boolean) => {
+      let change = {
+        uuid: deckUuid,
+        cards: [
+          {
+            action: 'edit',
+            uuid: cardUuid,
+            needs_review: flag,
+          }
+        ]
+      }
+      return dispatch(editDeck(change))
+    }
+  }
+}
+
+module.exports = connect(undefined, actions)(PlayDeckView)
