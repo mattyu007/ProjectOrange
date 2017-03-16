@@ -38,6 +38,7 @@ var checkStatus = function(response) {
 	if (response.ok) {
 		return response;
 	} else {
+		console.warn('Cue API request returned bad status code', response)
 		let error = new Error(response.statusText);
 		error.response = response;
 		throw error;
