@@ -52,7 +52,7 @@ export default class CardListView extends React.Component {
   }
 
   render() {
-    if (!this.props.cards) {
+    if (!this.props.cards || this.props.cards.length == 0) {
       return (
         <EmptyView
           icon={CueIcons.emptyDeck}

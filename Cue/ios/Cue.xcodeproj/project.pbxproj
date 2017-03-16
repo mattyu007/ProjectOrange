@@ -43,6 +43,7 @@
 		92A3A5E4782E4571A6F6AD28 /* libRCTMaterialKit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E8BACE58911044D3970B9DC0 /* libRCTMaterialKit.a */; };
 		A173DCBA737447A9B77CEC71 /* libRCTFBSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DE8488EEF25F4D35897BA63B /* libRCTFBSDK.a */; };
 		FA237481E14346D5B7A7ED7E /* libBVLinearGradient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D97F73332EA245CFA8B86759 /* libBVLinearGradient.a */; };
+		819B6AA9A62940E9A487A93C /* libRNDeviceInfo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59A10FD97B8C4E4097D3C4A3 /* libRNDeviceInfo.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -293,6 +294,8 @@
 		D97F73332EA245CFA8B86759 /* libBVLinearGradient.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libBVLinearGradient.a; sourceTree = "<group>"; };
 		DE8488EEF25F4D35897BA63B /* libRCTFBSDK.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRCTFBSDK.a; sourceTree = "<group>"; };
 		E8BACE58911044D3970B9DC0 /* libRCTMaterialKit.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRCTMaterialKit.a; sourceTree = "<group>"; };
+		851B83C53E0649F483752FF5 /* RNDeviceInfo.xcodeproj */ = {isa = PBXFileReference; name = "RNDeviceInfo.xcodeproj"; path = "../node_modules/react-native-device-info/RNDeviceInfo.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		59A10FD97B8C4E4097D3C4A3 /* libRNDeviceInfo.a */ = {isa = PBXFileReference; name = "libRNDeviceInfo.a"; path = "libRNDeviceInfo.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -326,6 +329,7 @@
 				A173DCBA737447A9B77CEC71 /* libRCTFBSDK.a in Frameworks */,
 				FA237481E14346D5B7A7ED7E /* libBVLinearGradient.a in Frameworks */,
 				92A3A5E4782E4571A6F6AD28 /* libRCTMaterialKit.a in Frameworks */,
+				819B6AA9A62940E9A487A93C /* libRNDeviceInfo.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -530,6 +534,7 @@
 				2E8228CA2F684E548C05C94B /* RCTFBSDK.xcodeproj */,
 				97FA658BEFC8430E8691C75D /* BVLinearGradient.xcodeproj */,
 				44BF9B82EE454CBAAF0BA06C /* RCTMaterialKit.xcodeproj */,
+				851B83C53E0649F483752FF5 /* RNDeviceInfo.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -1088,6 +1093,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -1109,6 +1115,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
@@ -1176,6 +1183,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -1205,6 +1213,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
@@ -1237,6 +1246,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.facebook.REACT.Cue-tvOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1261,6 +1271,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 				);

@@ -14,7 +14,7 @@ const rootReducer = (state, action) => {
 	if (action.type === 'LOGGED_OUT') {
 		state = undefined;
 	}
-	return appReducer(state, action);
+  return appReducer(state, action);
 }
 
 module.exports = rootReducer;
