@@ -45,7 +45,7 @@ export default class CardListView extends React.Component {
     cards = cards || []
 
     let rows = isFiltering
-      ? cards.filter((card: Card) => { card.needs_review })
+      ? cards.filter((card: Card) => card.needs_review )
       : cards
 
     return ds.cloneWithRows(rows)
