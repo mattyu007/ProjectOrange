@@ -1,7 +1,7 @@
 // @flow
 
 import React from 'react'
-import { View, Text, Dimensions, Platform } from 'react-native'
+import { View, Image, Text, Dimensions, Platform } from 'react-native'
 import FlipCard from 'react-native-flip-card'
 
 import type { Card } from '../../../api/types'
@@ -45,6 +45,12 @@ const styles = {
     left: 0,
     right: 0,
   },
+  flag: {
+    tintColor: CueColors.flagIndicatorTint,
+    position: 'absolute',
+    top: 12,
+    right: 12,
+  },
   cardTextContainer: {
     flex: 1,
     padding: 16,
@@ -68,7 +74,8 @@ class CardFace extends React.Component {
     text: string,
     side: 'front' | 'back',
     position: number,
-    count: number
+    count: number,
+    flagged: boolean,
   }
 
   render() {
@@ -78,11 +85,14 @@ class CardFace extends React.Component {
 
     let extraTextStyle = this.props.side === 'front' ? styles.frontText : styles.backText
 
+    let flag = this.props.flagged ? <Image style={styles.flag} source={CueIcons.indicatorFlag} /> : undefined
+
     return (
       <View style={[styles.cardFace, extraCardFaceStyle]}>
         <Text style={styles.cardCount}>
           {this.props.position} of {this.props.count}
         </Text>
+        {flag}
         <View style={styles.cardTextContainer}>
           <Text style={[styles.text, extraTextStyle]}>
             {this.props.text}
@@ -115,14 +125,16 @@ export default class FloatingCard extends React.PureComponent {
             text={this.props.card.front}
             side={'front'}
             position={this.props.position}
-            count={this.props.count} />
+            count={this.props.count}
+            flagged={this.props.card.needs_review} />
 
           {/* Back Face */}
           <CardFace
             text={this.props.card.back}
             side={'back'}
             position={this.props.position}
-            count={this.props.count} />
+            count={this.props.count}
+            flagged={this.props.card.needs_review} />
         </FlipCard>
       </View>
     )
