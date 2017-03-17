@@ -10,6 +10,8 @@ import CueIcons from '../../common/CueIcons'
 import DiscoverDeckCarousel from './DiscoverDeckCarousel'
 import ListViewHeader from '../../common/ListViewHeader'
 
+import DiscoverApi from '../../api/Discover'
+
 const styles = {
   container: {
     flex: 1,
@@ -40,22 +42,19 @@ class DiscoverHome extends React.Component {
       sectionHeaderHasChanged: (s1, s2) => s1 !== s2
     })
 
-    // TODO Remove this and change dataSource to pull from props or API
-    let placeholders = [
-      {uuid: 'dummy'},
-      {uuid: 'dummy'},
-      {uuid: 'dummy'},
-      {uuid: 'dummy'},
-      {uuid: 'dummy'},
-    ]
-    
-    let data = {
-      'Top Decks': [placeholders],
-      'New Decks': [placeholders],
-    }
+    Promise.all([DiscoverApi.fetchTop(), DiscoverApi.fetchNew()])
+      .then((decks) => {
+        this.setState({
+          ...this.state,
+          dataSource: ds.cloneWithRowsAndSections({
+            'Top Decks': [decks[0]],
+            'New Decks': [decks[1]],
+          })
+        })
+      })
 
     this.state = {
-      dataSource: ds.cloneWithRowsAndSections(data)
+      dataSource: ds.cloneWithRowsAndSections({})
     }
   }
 

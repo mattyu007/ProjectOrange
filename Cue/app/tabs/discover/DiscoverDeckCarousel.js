@@ -7,14 +7,11 @@ import { Image, ListView, Navigator } from 'react-native'
 
 import CueIcons from '../../common/CueIcons'
 
+import DiscoverListViewItem from './DiscoverListViewItem'
+
 const styles = {
   list: {
-    paddingLeft: 16,
-  },
-  deck: {
-    marginRight: 16,
-    marginBottom: 16,
-    opacity: 0.25,
+    paddingLeft: 8,
   },
 }
 
@@ -43,16 +40,13 @@ export default class DiscoverDeckCarousel extends React.Component {
   }
 
   render() {
-    console.log('DiscoverDeckCarousel: render. state:')
-    console.log(this.state)
     return (
-      // TODO Change the rendering to actually render the decks
       <ListView
         automaticallyAdjustContentInsets={false}
         horizontal={true}
         contentContainerStyle={styles.list}
         dataSource={this.state.dataSource}
-        renderRow={deck => <Image style={styles.deck} source={CueIcons.deckPlaceholder} />} />
+        renderRow={deck => <DiscoverListViewItem navigator={this.props.navigator} deck={deck} />} />
     )
   }
 

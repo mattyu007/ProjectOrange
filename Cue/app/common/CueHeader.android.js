@@ -23,8 +23,7 @@ type HeaderItem = {
 
 type Props = {
   title?: string,
-  // TODO Support rendering custom title elements (e.g., a Search box)
-  // customTitleRenderer?: (any) => any,
+  customTitleComponent?: React.Component,
   leftItem?: HeaderItem,
   rightItems?: Array<HeaderItem>,
   overflowItems?: Array<HeaderItem>,
@@ -81,7 +80,9 @@ class CueHeader extends React.Component {
           overflowIcon={CueIcons.overflow}
           actions={actions}
           onActionSelected={this._onActionSelectedHandler.bind(this)}
-          style={styles.toolbar} />
+          style={styles.toolbar}>
+            {this.props.customTitleComponent}
+          </ToolbarAndroid>
         {this.props.children}
       </View>
     )

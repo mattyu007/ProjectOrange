@@ -52,7 +52,18 @@ var LibraryApi = {
     let endpoint = 'api/v1/library/' + uuid
     console.info('deleteing deck at endpoint ' + endpoint)
     return CueApi.fetch(endpoint, 'DELETE')
-  }
+  },
+
+	addDeckToLibrary(uuid: string) {
+		let endpoint = '/api/v1/library/add';
+		let method = 'POST'
+		let body = JSON.stringify({
+				uuid: uuid,
+				device: DeviceInfo.getDeviceName(),
+			});
+		console.info('Adding deck "' + uuid + '" to library from endpoint: ' + endpoint)
+		return CueApi.fetch(endpoint, method, body);
+	}
 }
 
 module.exports = LibraryApi;

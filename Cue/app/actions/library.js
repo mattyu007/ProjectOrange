@@ -104,4 +104,21 @@ async function syncDeck(change) : PromiseAction {
   }
 }
 
-module.exports = { loadLibrary, createDeck, deleteDeck, editDeck, syncDeck, syncLibrary };
+async function addLibrary(uuid: string): PromiseAction {
+  try {
+    await LibraryApi.addDeckToLibrary(uuid);
+  } catch (e) {
+    return {
+      type: 'DECK_ALREADY_IN_LIBRARY'
+    }
+  }
+
+  let deck = await LibraryApi.fetchDeck(uuid);
+
+  return {
+    type: 'DECK_ADDED_TO_LIBRARY',
+    deck,
+  };
+}
+
+module.exports = { loadLibrary, createDeck, deleteDeck, editDeck, syncDeck, syncLibrary, addLibrary };

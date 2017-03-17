@@ -14,6 +14,7 @@ class CueApi {
 
 	static fetch (endpoint: string, method: string = 'GET', body: ?string = null): Promise<JSON> {
 		let headers = null;
+
 		if (this.userId != null && this.accessToken != null) {
 			headers = {
 				'X-CUE-USER-ID' : this.userId,
