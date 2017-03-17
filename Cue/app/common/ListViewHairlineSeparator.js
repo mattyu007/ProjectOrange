@@ -8,7 +8,7 @@ import CueColors from './CueColors'
 const styles = {
   separator: {
     flex: 1,
-    height: 1,
+    height: StyleSheet.hairlineWidth,
     marginLeft: 16,
     backgroundColor: CueColors.veryLightGrey,
   }

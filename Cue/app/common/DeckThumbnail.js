@@ -3,15 +3,18 @@
 'use strict';
 
 import React from 'react'
-import { View, Text, TouchableOpacity, Dimensions, Navigator } from 'react-native'
+import { View, Image, Text, TouchableOpacity, TouchableNativeFeedback, Dimensions, Navigator, Platform } from 'react-native'
 
 import type { Deck } from '../api/types'
 
 import CueColors from './CueColors'
+import CueIcons from './CueIcons'
 
 export default class DeckThumbnail extends React.Component {
   props: {
     deck: Deck,
+    hideInsets?: boolean,
+    style?: Object,
     onPress?: () => void,
   }
 
@@ -21,11 +24,23 @@ export default class DeckThumbnail extends React.Component {
       itemContainer: {
         alignItems: 'flex-start',
         justifyContent: 'center',
-        padding: 4,
-        width: Math.floor((Dimensions.get('window').width - 64) / 2),
+        padding: 8,
+        width: Math.floor((Dimensions.get('window').width - 48) / 2),
         aspectRatio: 1.35,
-        borderWidth: 2,
-        borderColor: CueColors.primaryText,
+        backgroundColor: 'white',
+        borderRadius: 2,
+
+        // Android
+        elevation: 2,
+
+        // iOS
+        shadowColor: 'black',
+        shadowOpacity: 0.25,
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowRadius: 1,
       },
       contentContainer: {
         flex: 1,
@@ -34,7 +49,21 @@ export default class DeckThumbnail extends React.Component {
       },
       itemText: {
         color: CueColors.primaryText,
-        fontSize: 20,
+        fontSize: 17,
+      },
+      itemPublicInset: {
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        tintColor: CueColors.publicInsetTint,
+        borderRadius: 2,
+      },
+      itemSharedInset: {
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        tintColor: CueColors.sharedInsetTint,
+        borderRadius: 2,
       },
       cardNumber: {
         fontSize: 12,
@@ -57,6 +86,22 @@ export default class DeckThumbnail extends React.Component {
       // Display "Updating..."?
     }
 
+    let inset
+    if (!this.props.hideInsets) {
+      if (this.props.deck.accession === 'private') {
+        if (this.props.deck.public) {
+          inset = (
+            <Image style={styles.itemPublicInset} source={CueIcons.deckInsetPublic} />
+          );
+        }
+        else if (this.props.deck.share_code) {
+          inset = (
+            <Image style={styles.itemSharedInset} source={CueIcons.deckInsetShared} />
+          );
+        }
+      }
+    }
+
     let content = (
         <View style={styles.contentContainer}>
           <Text style={styles.itemText} numberOfLines={2}>
@@ -65,13 +110,29 @@ export default class DeckThumbnail extends React.Component {
           {subText}
         </View>
       )
+    content = (
+      <View style={[styles.itemContainer, this.props.style]}>
+        {content}
+        {inset}
+      </View>
+    )
 
     if (this.props.onPress) {
-      return (
-        <TouchableOpacity style={styles.itemContainer} onPress={this.props.onPress} >
-          {content}
-        </TouchableOpacity>
-      )
+      if (Platform.OS === 'android') {
+        return (
+          <TouchableNativeFeedback
+            background={TouchableNativeFeedback.SelectableBackground()}
+            onPress={this.props.onPress}>
+            {content}
+          </TouchableNativeFeedback>
+        )
+      } else {
+        return (
+          <TouchableOpacity onPress={this.props.onPress} >
+            {content}
+          </TouchableOpacity>
+        )
+      }
     } else {
       return (
         <View style={styles.itemContainer} >

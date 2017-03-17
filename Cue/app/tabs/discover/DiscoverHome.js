@@ -5,6 +5,7 @@ import { View, Text, Image, ScrollView, ListView, Navigator, Platform } from 're
 
 import { connect } from 'react-redux'
 
+import CueColors from '../../common/CueColors'
 import CueHeader from '../../common/CueHeader'
 import CueIcons from '../../common/CueIcons'
 import DiscoverDeckCarousel from './DiscoverDeckCarousel'
@@ -15,7 +16,7 @@ import DiscoverApi from '../../api/Discover'
 const styles = {
   container: {
     flex: 1,
-    backgroundColor: 'white'
+    backgroundColor: CueColors.coolLightGrey,
   },
   bodyContainer: {
     flex: 1,

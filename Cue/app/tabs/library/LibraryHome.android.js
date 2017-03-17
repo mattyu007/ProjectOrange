@@ -19,7 +19,7 @@ import { createDeck, loadLibrary, syncLibrary } from '../../actions/library'
 const styles = {
   container: {
     flex: 1,
-    backgroundColor: 'white'
+    backgroundColor: CueColors.coolLightGrey,
   },
   bodyContainer: {
     flex: 1,
