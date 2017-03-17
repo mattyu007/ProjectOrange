@@ -58,10 +58,16 @@ function library(state: State = initialState, action: Action): State {
     //update localChanges
     let changeIndex = localChanges.findIndex(deck => deck.uuid == change.uuid)
     if (localChanges[changeIndex]) {
+      let cards = localChanges[changeIndex].cards
+        ? change.cards
+          ? localChanges[changeIndex].cards.concat(change.cards)
+          : localChanges[changeIndex].cards
+        : change.cards
+
       localChanges[changeIndex] = {
         ...localChanges[changeIndex],
         ...change,
-        cards: localChanges[changeIndex].cards.concat(change.cards),
+        cards,
         action: localChanges[changeIndex].action,
       }
     } else {
@@ -76,6 +82,10 @@ function library(state: State = initialState, action: Action): State {
         })
     }
 
+  } else if (action.type === 'SHARE_CODE_GENERATED') {
+    let deck = decks.find((deck: Deck) => deck.uuid === action.uuid)
+    deck.share_code = action.code
+
   } else if (action.type === 'DECK_SYNCED') {
     let change = action.change
     let serverDeck = action.serverDeck
@@ -85,6 +95,7 @@ function library(state: State = initialState, action: Action): State {
     let changeIndex = localChanges.findIndex(deck => deck.uuid == change.uuid)
     if (localChanges[changeIndex])
       localChanges.splice(changeIndex,1)
+
   } else {
     return state
   }

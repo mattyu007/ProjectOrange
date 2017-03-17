@@ -19,7 +19,8 @@ const iosStyles = {
 const androidStyles = {
   headerText: {
     paddingHorizontal: 16,
-    paddingVertical: 17,
+    paddingTop: 17,
+    paddingBottom: 8,
     fontSize: 14,
     fontWeight: '500',
     color: CueColors.primaryTint

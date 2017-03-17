@@ -14,13 +14,21 @@ const styles = {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingVertical: Platform.OS === 'android' ? 16 : undefined,
   },
   text: {
     color: CueColors.primaryText,
-    fontSize: Platform.OS === 'android' ? 16 : 17
+    fontSize: Platform.OS === 'android' ? 16 : 17,
+  },
+  textDisabled: {
+    color: CueColors.mediumGrey,
+    fontSize: Platform.OS === 'android' ? 16 : 17,
   },
   icon: {
     tintColor: CueColors.primaryTint,
+  },
+  iconDisabled: {
+    tintColor: CueColors.mediumGrey,
   }
 }
 
@@ -28,12 +36,13 @@ export default class SelectableTextTableRow extends React.Component {
   props: {
     text: string,
     selected: boolean,
-    onPress: () => void,
+    disabled?: boolean,
+    onPress?: () => void,
   }
 
   _renderText = () => {
     return (
-      <Text style={styles.text}>
+      <Text style={this.props.disabled ? styles.textDisabled : styles.text}>
         {this.props.text}
       </Text>
     )
@@ -50,14 +59,18 @@ export default class SelectableTextTableRow extends React.Component {
   _renderIconAndroid = () => {
     let source = this.props.selected ? CueIcons.radioChecked : CueIcons.radioUnchecked
     return (
-      <Image style={styles.icon} source={source} />
+      <Image
+        style={this.props.disabled ? styles.iconDisabled : styles.icon}
+        source={source} />
     )
   }
 
   _renderIconIOS = () => {
     if (this.props.selected) {
       return (
-        <Image style={styles.icon} source={CueIcons.checkSmall} />
+        <Image
+          style={this.props.disabled ? styles.iconDisabled : styles.icon}
+          source={CueIcons.checkSmall} />
       )
     }
   }
@@ -65,6 +78,7 @@ export default class SelectableTextTableRow extends React.Component {
   render() {
     return (
       <TableRow
+        disabled={this.props.disabled}
         onPress={this.props.onPress}>
         <View style={styles.container}>
           {this._renderText()}

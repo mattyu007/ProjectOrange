@@ -48,6 +48,14 @@ function editDeck(change) : Action {
   }
 }
 
+function recordShareCode(uuid: string, shareCode: string): Action {
+  return {
+    type: 'SHARE_CODE_GENERATED',
+    uuid,
+    code: shareCode,
+  }
+}
+
 //attempts to sync each deck once, returns list of failed syncs
 function syncLibrary(localChanges): ThunkAction {
   return (dispatch, getState) => {
@@ -121,4 +129,4 @@ async function addLibrary(uuid: string): PromiseAction {
   };
 }
 
-module.exports = { loadLibrary, createDeck, deleteDeck, editDeck, syncDeck, syncLibrary, addLibrary };
+module.exports = { loadLibrary, createDeck, deleteDeck, editDeck, recordShareCode, syncDeck, syncLibrary, addLibrary };
