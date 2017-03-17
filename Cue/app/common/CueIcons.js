@@ -22,6 +22,8 @@ module.exports = {
   radioChecked: require('./img/radio_checked.png'),
   radioUnchecked: require('./img/radio_unchecked.png'),
   share: require('./img/share.png'),
+  thumbsUp: require('./img/thumb_up.png'),
+  thumbsDown: require('./img/thumb_down.png'),
 
   // Images
   cueDeck: require('./img/cue_deck.png'),
@@ -31,6 +33,7 @@ module.exports = {
   emptyDeck: require('./img/deck_empty.png'),
   emptyFilteredDeck: require('./img/deck_empty_filtered.png'),
   emptyLibrary: require('./img/library_empty.png'),
+  searchNoResults: require('./img/search_no_results.png'),
 
   // Deck Play Mode Indicators
   indicatorBack: require('./img/indicator_back.png'),

@@ -22,8 +22,7 @@ type HeaderItem = {
 
 type Props = {
   title?: string,
-  // TODO Support rendering custom title elements (e.g., a Search box)
-  // customTitleRenderer?: (any) => any,
+  customTitleComponent?: React.Component,
   leftItem?: HeaderItem,
   rightItems?: Array<HeaderItem>,
   overflowItems?: Array<HeaderItem>,
@@ -38,23 +37,32 @@ class CueHeader extends React.Component {
   render() {
     const { title, leftItem, rightItems } = this.props;
 
-    return (
-      <View style={[styles.headerContainer, this.props.containerStyles]}>
-        <View style={styles.leftItemContainer}>
-          <HeaderItemIOS item={leftItem} />
+    if (this.props.customTitleComponent) {
+      return (
+        <View style={[styles.headerContainer, this.props.containerStyles]}>
+          {this.props.customTitleComponent}
         </View>
-        <View style={styles.titleItemContainer}>
-          <Text
-            style={styles.titleTextItem}
-            numberOfLines={1}>
-            {title}
-          </Text>
+      )
+    } else {
+      return (
+        <View style={[styles.headerContainer, this.props.containerStyles]}>
+          <View style={styles.leftItemContainer}>
+            <HeaderItemIOS item={leftItem} />
+          </View>
+          <View style={styles.titleItemContainer}>
+            <Text
+              style={styles.titleTextItem}
+              numberOfLines={1}>
+              {title}
+            </Text>
+            {this.props.customTitleComponent}
+          </View>
+          <View style={styles.rightItemContainer}>
+            {(rightItems || []).map((item) => <HeaderItemIOS key={item.title} item={item} />)}
+          </View>
         </View>
-        <View style={styles.rightItemContainer}>
-          {(rightItems || []).map((item) => <HeaderItemIOS key={item.title} item={item} />)}
-        </View>
-      </View>
-    )
+      )
+    }
   }
 }
 
@@ -103,7 +111,8 @@ styles = {
     height: HEADER_HEIGHT,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
+    elevation: 4
   },
   leftItemContainer: {
     flex: 1,

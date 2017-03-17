@@ -11,7 +11,8 @@ import CueColors from '../../common/CueColors'
 import CueIcons from '../../common/CueIcons'
 import EmptyView from '../../common/EmptyView'
 import ListViewHeader from '../../common/ListViewHeader'
-import LibraryListViewItem from './LibraryListViewItem'
+
+import DeckThumbnail from '../../common/DeckThumbnail'
 
 const styles = {
   list: {
@@ -19,6 +20,10 @@ const styles = {
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'flex-start',
+  },
+  cardContainer: {
+    marginHorizontal: 16,
+    marginBottom: 30,
   }
 }
 
@@ -144,8 +149,9 @@ class LibraryListView extends React.Component {
         pageSize={2}
         refreshControl={refreshControl}
         renderSectionHeader={(decks, category) => <ListViewHeader section={category} />}
-        renderRow={deck => <LibraryListViewItem navigator={this.props.navigator} deck={deck} />} />
-    )
+        renderRow={deck => <View style={styles.cardContainer}><DeckThumbnail deck={deck}
+                              onPress={() => this.props.navigator.push({deck: deck})}/></View> } />
+      )
   }
 };
 

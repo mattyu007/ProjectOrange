@@ -21,7 +21,10 @@ function library(state: State = initialState, action: Action): State {
 
   if (action.type === 'LOADED_LIBRARY') {
     decks = action.decks
-
+  } else if (action.type === 'DECK_ADDED_TO_LIBRARY') {
+    decks = state.decks.push(action.deck)
+  } else if (action.type === 'DECK_ALREADY_IN_LIBRARY') {
+    decks = state.decks
   } else if (action.type === 'DECK_CREATED') {
     decks.push(action.deck)
     localChanges.push({...action.deck, action: "add"})

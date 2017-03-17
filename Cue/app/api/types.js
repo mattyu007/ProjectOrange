@@ -8,9 +8,10 @@ export type Card = {
   position: number
 };
 
-export type Deck = {
+export type DeckMetadata = {
   uuid: string,
   name: string,
+  author: string,
   rating: number,
   num_ratings: number,
   tags: Array<string>,
@@ -23,9 +24,12 @@ export type Deck = {
   last_update_device?: string,
   share_code?: string,
   deleted: boolean,
-  author?: string,
   accession?: string,
-  cards: ?Array<Card>
+};
+
+export type Deck = {
+  ...DeckMetadata,
+  cards: Array<Card>
 };
 
 export type Library = {
