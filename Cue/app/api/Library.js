@@ -75,7 +75,25 @@ var LibraryApi = {
 			});
 		console.info('Adding deck "' + uuid + '" to library from endpoint: ' + endpoint)
 		return CueApi.fetch(endpoint, method, body);
-	}
+	},
+
+  overwriteDeck(deck: Deck) {
+    let endpoint = '/api/v1/deck/' + deck.uuid
+    let method = 'POST'
+    let cards = deck.cards.map(card => {return {
+      ...card,
+      uuid: card.uuid ? card.uuid : null
+    }})
+    let body = JSON.stringify({
+      name: deck.name,
+      tags: deck.tags,
+      public: Boolean(deck.public), //server returns 400 without Boolean conversion
+      device: DeviceInfo.getDeviceName(),
+      cards
+    })
+    console.info('Overwriting ' + body + ' at endpoint: ' + endpoint)
+    return CueApi.fetch(endpoint, method, body)
+  }
 }
 
 module.exports = LibraryApi;

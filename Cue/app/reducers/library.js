@@ -96,6 +96,14 @@ function library(state: State = initialState, action: Action): State {
     if (localChanges[changeIndex])
       localChanges.splice(changeIndex,1)
 
+  } else if (action.type === 'DECK_CONFLICT_RESOLVED') {
+    let updatedDeck = action.updatedDeck
+    let deckIndex = decks.findIndex(deck => deck.uuid == updatedDeck.uuid)
+    if (decks[deckIndex])
+      decks[deckIndex] = updatedDeck
+    let changeIndex = localChanges.findIndex(deck => deck.uuid == updatedDeck.uuid)
+    if (localChanges[changeIndex])
+      localChanges.splice(changeIndex,1)
   } else {
     return state
   }

@@ -13,6 +13,7 @@ export type Action =
   | { type: 'DECK_SYNCED', serverDeck: Deck, change: {} }
   | { type: 'DECK_EDITED', change: {} }
   | { type: 'SHARE_CODE_GENERATED', uuid: string, code: string }
+	| { type: 'DECK_CONFLICT_RESOLVED', updatedDeck: Deck}
   ;
 
 export type Dispatch = (action: Action | ThunkAction | PromiseAction | Array<Action>) => any;

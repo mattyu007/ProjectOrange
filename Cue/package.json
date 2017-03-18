@@ -21,6 +21,7 @@
     "react-native-material-kit": "^0.4.1",
     "react-native-material-tabs": "^1.0.1",
     "react-native-prompt-android": "0.0.5",
+    "react-native-radio-buttons": "^0.14.0",
     "react-redux": "^5.0.2",
     "redux": "^3.6.0",
     "redux-logger": "^2.8.1",

@@ -14,6 +14,7 @@ import DeckView from './tabs/library/DeckView'
 import PlayDeckSetupView from './tabs/library/play/PlayDeckSetupView'
 import PlayDeckView from './tabs/library/play/PlayDeckView'
 import DeckPreview from './common/DeckPreview'
+import SyncConflict from './common/SyncConflict'
 
 var CueNavigator = React.createClass({
   _handlers: ([]: Array<() => boolean>),
@@ -107,6 +108,8 @@ var CueNavigator = React.createClass({
       return <PlayDeckView navigator={navigator} deck={route.playDeck} {...route} />
     } else if (route.preview) {
       return <DeckPreview navigator={navigator} deck={route.preview}/>
+    } else if (route.failedSyncs) {
+      return <SyncConflict navigator={navigator} failedSyncs={route.failedSyncs} />
     } else if (typeof route.cardEntry !== 'undefined') {
       return <CardEntryView navigator={navigator} existingCard={route.cardEntry} {...route} />
     }

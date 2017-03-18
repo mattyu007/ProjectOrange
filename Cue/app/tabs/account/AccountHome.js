@@ -1,8 +1,7 @@
 // @flow
 
 import React from 'react'
-import { View, Text, TouchableHighlight } from 'react-native'
-import { LoginManager } from 'react-native-fbsdk'
+import { View, Text, TouchableHighlight, Alert } from 'react-native'
 
 import { connect } from 'react-redux'
 import { logOut } from '../../actions/login'
@@ -64,9 +63,35 @@ type Props = {
 }
 
 class AccountHome extends React.Component {
+
   _logOut = () => {
-    LoginManager.logOut()
-    this.props.logOut()
+    if (this.props.localChanges && this.props.localChanges.length) {
+      this.props.syncLibrary(this.props.localChanges).then(failedSyncs =>{
+        if (failedSyncs && failedSyncs.length) {
+          Alert.alert(
+            'Failed to sync changes with server',
+            'Resolve conflicts or logout and lose local changes',
+            [
+              {text: "Logout", onPress: () => this.props.logOut()},
+              {text: "Resolve", onPress: () => this.props.navigator.push({failedSyncs})}
+            ],
+            { cancelable: false }
+          )
+        } else {
+          this.props.logOut()
+        }
+      }).catch(e => {
+        console.warn('Failed to sync changes', e)
+        Alert.alert(
+          'Could Not Sync Local Changes',
+          'Logout and lose local changes?',
+          [{text: 'Logout', onPress: () => this.props.logOut()},
+           {text: 'Cancel', style: 'cancel'}]
+        )
+      })
+    } else {
+      this.props.logOut()
+    }
   }
 
   render() {
@@ -106,12 +131,14 @@ class AccountHome extends React.Component {
 function select(store) {
   return {
     user: store.user,
+    localChanges: store.library.localChanges,
   }
 }
 
 function actions(dispatch) {
   return {
     logOut: () => dispatch(logOut()),
+    syncLibrary: (changes) => dispatch(syncLibrary(changes))
   }
 }
 
