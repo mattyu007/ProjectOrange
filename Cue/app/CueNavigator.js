@@ -7,6 +7,7 @@ import { connect } from 'react-redux'
 import { switchTab } from './actions/tabs'
 
 import CueColors from './common/CueColors'
+import CardEntryView from './tabs/library/CardEntryView'
 import CueTabsView from './tabs/CueTabsView'
 import DeckView from './tabs/library/DeckView'
 import PlayDeckSetupView from './tabs/library/play/PlayDeckSetupView'
@@ -80,6 +81,12 @@ var CueNavigator = React.createClass({
               gestures: {}}
           }
 
+          if (typeof route.cardEntry !== 'undefined') {
+            return {
+              ...Navigator.SceneConfigs.FloatFromBottom,
+              gestures: {}}
+          }
+
           return Navigator.SceneConfigs.PushFromRight;
         }}
         initialRoute={{}}
@@ -90,13 +97,15 @@ var CueNavigator = React.createClass({
 
   renderScene: function(route, navigator) {
     if (route.deck) {
-      return <DeckView navigator={navigator} deck={route.deck}/>
+      return <DeckView navigator={navigator} deckUuid={route.deck.uuid}/>
     } else if (route.playDeckSetup) {
       return <PlayDeckSetupView navigator={navigator} deck={route.playDeckSetup} {...route} />
     } else if (route.playDeck) {
       return <PlayDeckView navigator={navigator} deck={route.playDeck} {...route} />
     } else if (route.preview) {
       return <DeckPreview navigator={navigator} deck={route.preview}/>
+    } else if (typeof route.cardEntry !== 'undefined') {
+      return <CardEntryView navigator={navigator} existingCard={route.cardEntry} {...route} />
     }
     return <CueTabsView navigator={navigator} />;
   },

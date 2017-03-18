@@ -35,7 +35,8 @@ const androidStyles = {
 export default class TableRow extends React.Component {
 
   props: {
-    onPress?: () => void
+    onPress?: () => void,
+    style?: Object
   }
 
   _renderIOS = () => {
@@ -44,7 +45,7 @@ export default class TableRow extends React.Component {
         style={iosStyles.row}
         underlayColor={CueColors.veryLightGrey}
         onPress={this.props.onPress}>
-        <View style={iosStyles.contentContainer}>
+        <View style={[iosStyles.contentContainer, this.props.style]}>
           {this.props.children}
         </View>
       </TouchableHighlight>
@@ -56,7 +57,7 @@ export default class TableRow extends React.Component {
       <TouchableNativeFeedback
         background={TouchableNativeFeedback.SelectableBackground()}
         onPress={this.props.onPress}>
-        <View style={androidStyles.row}>
+        <View style={[androidStyles.row, this.props.style]}>
           {this.props.children}
         </View>
       </TouchableNativeFeedback>
