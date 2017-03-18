@@ -35,6 +35,12 @@ var LibraryApi = {
 
   editDeck (change){
     let endpoint = '/api/v1/deck/' + change.uuid
+    let actions
+    if (change.cards) {
+      actions = change.cards.map(card => {
+        return {...card, card_id: card.uuid, uuid: undefined}
+      })
+    }
     let body = JSON.stringify({
       device: DeviceInfo.getDeviceName(),
       parent_deck_version: change.parent_deck_version,
@@ -42,7 +48,7 @@ var LibraryApi = {
       name: change.name,
       public: change.public,
       tags: change.tags,
-      actions: change.cards //TODO: api expects card_id, not uuid
+      actions
     })
     console.info('editing deck' + body + ' at endpoint ' + endpoint)
     return CueApi.fetch(endpoint, 'PUT', body)
