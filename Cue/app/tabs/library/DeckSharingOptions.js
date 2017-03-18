@@ -64,7 +64,7 @@ class DeckSharingOptions extends React.Component {
       editable: props.deck.accession ? props.deck.accession === 'private' : false,
       selectedOption: this._sharingStatusForDeck(props.deck),
       shareCode: props.deck.share_code,
-      tags: props.deck.tags,
+      tags: props.deck.tags || [],
     }
 
     this.newTagTextInputRef = null
@@ -82,7 +82,11 @@ class DeckSharingOptions extends React.Component {
         : 'private'
   }
 
-  _arraysEqual = (a: Array<*>, b: Array<*>): boolean => {
+  _arraysEqual = (a: ?Array<*>, b: ?Array<*>): boolean => {
+    if (!a || !b) {
+      return false
+    }
+    
     if (a.length !== b.length) {
       return false
     }
