@@ -15,22 +15,20 @@ import DeckRating from '../../common/DeckRating'
 
 const styles = {
   itemContainer: {
-    marginTop: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
     flexDirection: 'row',
-    flex: 1,
   },
   textContainer: {
-    flex: 1,
     flexDirection: 'column',
-    marginBottom: 16
+    justifyContent: 'space-between',
   },
   firstText: {
     fontSize: 16,
-    flex: 1,
+    color: CueColors.primaryText,
   },
   cardContainer: {
-    marginHorizontal: 16,
-    marginBottom: 16,
+    marginRight: 16,
   }
 }
 
@@ -42,9 +40,9 @@ export default class SearchListViewItem extends React.Component {
 
   render() {
     let contents = (
-      <View style={{flex: 1, flexDirection: 'row'}}>
+      <View style={styles.itemContainer}>
         <View style={styles.cardContainer}>
-          <DeckThumbnail deck={this.props.deck} />
+          <DeckThumbnail hideInsets style={{marginLeft: -8}} deck={this.props.deck} />
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.firstText} numberOfLines={2}>By {this.props.deck.author} </Text>
@@ -55,21 +53,18 @@ export default class SearchListViewItem extends React.Component {
 
     if (Platform.OS === 'android') {
       return (
-        <View style={styles.itemContainer}>
-          <TouchableNativeFeedback
-            onPress={() => this.props.navigator.push({preview: this.props.deck})} >
-            {contents}
-          </TouchableNativeFeedback>
-        </View>
+        <TouchableNativeFeedback
+          onPress={() => this.props.navigator.push({preview: this.props.deck})} >
+          {contents}
+        </TouchableNativeFeedback>
       )
     } else {
       return (
-        <View style={styles.itemContainer}>
-          <TouchableHighlight
-            onPress={() => this.props.navigator.push({preview: this.props.deck})} >
-            {contents}
-          </TouchableHighlight>
-        </View>
+        <TouchableHighlight
+          onPress={() => this.props.navigator.push({preview: this.props.deck})}
+          underlayColor={CueColors.veryLightGrey}>
+          {contents}
+        </TouchableHighlight>
       )
     }
 

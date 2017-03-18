@@ -7,6 +7,7 @@ import { connect } from 'react-redux'
 
 import type { Deck } from '../../api/types'
 
+import CueColors from '../../common/CueColors'
 import CueHeader from '../../common/CueHeader'
 import CueIcons from '../../common/CueIcons'
 
@@ -16,12 +17,12 @@ import { createDeck, loadLibrary, syncLibrary } from '../../actions/library'
 const styles = {
   container: {
     flex: 1,
-    backgroundColor: 'white'
+    backgroundColor: CueColors.coolLightGrey,
   },
   bodyContainer: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   }
 }
 

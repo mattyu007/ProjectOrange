@@ -8,7 +8,8 @@ import CueColors from './CueColors'
 
 export default class ListViewHeader extends React.Component {
   props: {
-    section: string
+    section: string,
+    style?: Object,
   }
 
   render() {
@@ -29,7 +30,7 @@ export default class ListViewHeader extends React.Component {
     }
 
     return (
-      <Text style={styles.sectionHeader}>
+      <Text style={[styles.sectionHeader, this.props.style]}>
         {this.props.section}
       </Text>
     )

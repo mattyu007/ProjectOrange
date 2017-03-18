@@ -33,7 +33,10 @@ export default class DiscoverViewListItem extends React.Component {
     return (
       <View style={styles.itemContainer}>
         <View style={styles.cardContainer}>
-          <DeckThumbnail deck={this.props.deck} onPress={() => this.props.navigator.push({preview: this.props.deck})} />
+          <DeckThumbnail
+            hideInsets
+            deck={this.props.deck}
+            onPress={() => this.props.navigator.push({preview: this.props.deck})} />
         </View>
         <DeckRating deck={this.props.deck} />
       </View>

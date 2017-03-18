@@ -16,14 +16,14 @@ import DeckThumbnail from '../../common/DeckThumbnail'
 
 const styles = {
   list: {
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'flex-start',
+    paddingHorizontal: 16,
   },
   cardContainer: {
-    marginHorizontal: 16,
-    marginBottom: 30,
+    marginBottom: 16,
   }
 }
 
@@ -148,7 +148,7 @@ class LibraryListView extends React.Component {
         initialListSize={8}
         pageSize={2}
         refreshControl={refreshControl}
-        renderSectionHeader={(decks, category) => <ListViewHeader section={category} />}
+        renderSectionHeader={(decks, category) => <ListViewHeader style={{marginLeft: -16}} section={category} />}
         renderRow={deck => <View style={styles.cardContainer}><DeckThumbnail deck={deck}
                               onPress={() => this.props.navigator.push({deck: deck})}/></View> } />
       )
