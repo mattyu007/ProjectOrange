@@ -32,7 +32,7 @@ class User(object):
         return result[0]
 
     def to_json(self):
-        return json.dumps(self.get())
+        return json.dumps(self.get(), ensure_ascii=False)
 
     def set_name(self, name):
         self.connector.call_procedure_transactionally('SET_USER_NAME', self.uuid, name)

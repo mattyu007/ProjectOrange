@@ -56,8 +56,8 @@ class DeckUUIDHandler(BaseHandler):
     @authorize_request_and_create_db_connector
     @extract_user_id
     @require_params('parent_deck_version', 'parent_user_data_version', 'device')
-    @optional_params('name', 'public', 'tags', 'actions')
-    def put(self, name, public, tags, actions, parent_deck_version, parent_user_data_version, device,
+    @optional_params('name', 'public', 'unshare', 'tags', 'actions')
+    def put(self, name, public, unshare, tags, actions, parent_deck_version, parent_user_data_version, device,
             user_id, connector, uuid):
         """Edit an existing deck."""
 
@@ -85,6 +85,8 @@ class DeckUUIDHandler(BaseHandler):
                 deck.set_name(name)
             if public is not None:
                 deck.set_public(public)
+            if unshare is True:
+                deck.nullify_share_code()
             if tags is not None:
                 deck.set_tags(tags)
 
@@ -92,8 +94,8 @@ class DeckUUIDHandler(BaseHandler):
             if actions is not None:
                 for action in actions:
                     if action['action'] == 'add':
-                        Card.create(deck.uuid, action['front'], action['back'], action['position'],
-                                    connector=connector)
+                        action['card_id'] = Card.create(deck.uuid, action['front'], action['back'],
+                                                        action['position'], connector=connector).uuid
                     elif action['action'] == 'edit':
                         card = CardPolicy.belongs_to(action['card_id'], deck.uuid, connector)
                         if card is None:
@@ -138,7 +140,7 @@ class DeckUUIDHandler(BaseHandler):
         if deck is None:
             return self.make_response(status=StatusCode.NOT_FOUND)
 
-        # Begin deck edits.
+        # Begin deck overwrite.
         try:
             connector.begin_transaction()
 
@@ -164,14 +166,19 @@ class DeckUUIDHandler(BaseHandler):
 
             # Edit cards.
             for card in cards:
+                card_obj = None
                 if (card['uuid'] is None):
-                    Card.create(deck.uuid, card['front'], card['back'], card['position'],
-                                connector=connector)
+                    card_obj = Card.create(deck.uuid, card['front'], card['back'], card['position'],
+                                           connector=connector)
                 else:
-                    existing = CardPolicy.belongs_to(card['uuid'], deck.uuid, connector)
-                    if existing is None:
+                    card_obj = CardPolicy.belongs_to(card['uuid'], deck.uuid, connector)
+                    if card_obj is None:
                         raise ValueError  # not allowed to edit this card
-                    existing.edit(deck.uuid, card['front'], card['back'], card['position'])
+                    card_obj.edit(deck.uuid, card['front'], card['back'], card['position'])
+
+                # Mark for review.
+                if card.get('needs_review') is not None and card_obj is not None:
+                    card_obj.needs_review(card['needs_review'], user_id)
 
             # Update deck versions.
             deck.update_deck_version()

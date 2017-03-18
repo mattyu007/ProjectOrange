@@ -262,6 +262,7 @@ BEGIN
         Deck.name,
         Deck.rating,
         (SELECT COUNT(*) FROM Rating WHERE deck_id=did) AS num_ratings,
+        (SELECT COUNT(*) FROM Card WHERE deck_id=did) AS num_cards,
         Deck.owner,
         Deck.public,
         Deck.version AS deck_version,

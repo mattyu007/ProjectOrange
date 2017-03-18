@@ -51,9 +51,12 @@ class Deck(object):
         self.connector.query_transactionally(
             'UPDATE Deck SET public=%s WHERE uuid=%s', public, self.uuid)
 
+    def nullify_share_code(self):
+        self.connector.call_procedure_transactionally('SET_SHARE_CODE', self.uuid, None)
+
     def set_tags(self, tags):
         self.connector.call_procedure_transactionally(
-            'SET_DELIMITED_TAGS', self.uuid, ','.join(tags))
+            'SET_DELIMITED_TAGS', self.uuid, ','.join(tags) if len(tags) > 0 else None)
 
     def update_deck_version(self):
         self.connector.call_procedure_transactionally('INCREMENT_DECK_VERSION', self.uuid)
@@ -120,8 +123,8 @@ class Deck(object):
 
     def metadata_to_json(self, user_id):
         deck = self.get_metadata(user_id)
-        return json.dumps(deck, default=serializer)
+        return json.dumps(deck, default=serializer, ensure_ascii=False)
 
     def full_deck_to_json(self, user_id):
         deck = self.get_full_deck(user_id)
-        return json.dumps(deck, default=serializer)
+        return json.dumps(deck, default=serializer, ensure_ascii=False)
