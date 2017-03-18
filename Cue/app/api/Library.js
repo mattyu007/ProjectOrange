@@ -34,7 +34,7 @@ var LibraryApi = {
   },
 
   editDeck (change){
-    let endpoint = 'api/v1/deck/' + change.uuid
+    let endpoint = '/api/v1/deck/' + change.uuid
     let body = JSON.stringify({
       device: DeviceInfo.getDeviceName(),
       parent_deck_version: change.parent_deck_version,
