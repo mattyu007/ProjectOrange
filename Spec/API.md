@@ -431,7 +431,8 @@ This response only contains metadata (does not include the cards in the deck).
     "last_update_device": "<last-update-device>" | null,
     "share_code": "<share-code>" | null,
     "deleted": true | false,
-    "accession": "public" | "private" | "shared" | null
+    "accession": "public" | "private" | "shared" | null,
+    "accessible": true | false
 }
 ```
 
@@ -453,6 +454,7 @@ Response description:
 - `share_code`: the code that can be entered by users to gain access to a remote private deck (null if a code has not been requested yet)
 - `deleted`: boolean indicating whether or not a deck has been deleted by the owner
 - `accession`: string indicating how the deck became part of the user's library (null if the deck is not a part of the user's library)
+- `accessible`: boolean indicating whether or not a deck is still retrievable given its current state and the user's accession
 
 *Note*: if the `deleted` flag is set to true in the response, the client should not expect to receive any other metadata about the deck (with the exception of `name` and `uuid`).
 

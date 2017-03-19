@@ -105,6 +105,7 @@ class Deck(object):
         if len(results) != 1:
             return None
         deck = results[0]
+        deck['accessible'] = self._is_accessible(deck, user_id)
 
         results = self.connector.call_procedure('GET_DELIMITED_TAGS', self.uuid)
         if len(results) != 1:
@@ -113,6 +114,15 @@ class Deck(object):
 
         deck['tags'] = [] if tags is None else tags.split(',')
         return deck
+
+    def _is_accessible(self, deck, user_id):
+        if deck['accession'] == 'private':
+            return True if user_id == deck['owner'] else False
+        if deck['accession'] == 'shared':
+            return True if (deck['public'] or deck['share_code'] is not None) else False
+        if deck['accession'] == 'public':
+            return True if deck['public'] else False
+        return False
 
     def get_full_deck(self, user_id):
         deck = self.get_metadata(user_id)

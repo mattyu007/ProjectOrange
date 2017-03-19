@@ -11,8 +11,8 @@ class DeckPolicy(object):
             return None
 
         if (
+            not metadata['accessible'] and
             not metadata['public'] and
-            (user_id is None or metadata['owner'] != user_id) and
             (share_code is None or metadata['share_code'] != share_code)
         ):
             return None
