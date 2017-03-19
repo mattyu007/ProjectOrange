@@ -44,8 +44,7 @@ class LibraryCopyHandler(BaseHandler):
     def post(self, user_id, uuid, device, connector):
         """Copy a remote deck into a user's library."""
 
-        deck = (DeckPolicy.can_view(uuid, user_id, connector=connector) or
-                DeckPolicy.in_library(uuid, user_id, connector=connector))
+        deck = DeckPolicy.can_view(uuid, user_id, connector=connector)
         if deck is None:
             return self.make_response(status=StatusCode.NOT_FOUND)
 

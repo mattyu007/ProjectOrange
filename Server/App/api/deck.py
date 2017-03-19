@@ -45,8 +45,7 @@ class DeckUUIDHandler(BaseHandler):
     @optional_query_string_params('share_code')
     def get(self, share_code, user_id, connector, uuid):
         """Retrieve a full deck via its UUID."""
-        deck = (DeckPolicy.can_view(uuid, user_id, share_code, connector=connector) or
-                DeckPolicy.in_library(uuid, user_id, connector=connector))
+        deck = DeckPolicy.can_view(uuid, user_id, share_code, connector=connector)
         if deck is None:
             return self.make_response(status=StatusCode.NOT_FOUND)
 
@@ -257,8 +256,7 @@ class DeckRateHandler(BaseHandler):
     def post(self, rating, user_id, connector, uuid):
         """Rate existing decks."""
 
-        deck = (DeckPolicy.can_view(uuid, user_id, connector=connector) or
-                DeckPolicy.in_library(uuid, user_id, connector=connector))
+        deck = DeckPolicy.can_view(uuid, user_id, connector=connector)
         if deck is None:
             return self.make_response(status=StatusCode.NOT_FOUND)
 
