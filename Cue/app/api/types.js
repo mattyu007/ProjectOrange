@@ -14,6 +14,7 @@ export type DeckMetadata = {
   author: string,
   rating: number,
   num_ratings: number,
+  num_cards: number,
   tags: Array<string>,
   owner: string,
   public: boolean,
