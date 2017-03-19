@@ -3,7 +3,7 @@
 'use strict';
 
 import React from 'react'
-import { View, Text, Image, ScrollView, ListView, Navigator, Platform } from 'react-native'
+import { View, Text, Image, ScrollView, ListView, Navigator, Platform, Alert } from 'react-native'
 
 import { connect } from 'react-redux'
 import { editDeck } from '../../actions'
@@ -108,6 +108,20 @@ class DeckView extends React.Component {
     }
   }
 
+  _onPlayDeck = () => {
+    if (!this.state.deck.cards || this.state.deck.cards.length === 0) {
+      Alert.alert(
+        (Platform.OS === 'android'
+          ? 'This deck is empty'
+          : 'This Deck is Empty'),
+        'To play this deck, add a few cards to it first.',
+        [{text: 'OK', style: 'cancel'}]
+      )
+    } else {
+      this.props.navigator.push({ playDeckSetup: this.state.deck })
+    }
+  }
+
   _getAllCommonItems = () => {
     return {
       addItem: {
@@ -193,9 +207,7 @@ class DeckView extends React.Component {
       const PrimaryFAB = MKButton.coloredFab()
         .withBackgroundColor(CueColors.primaryTint)
         .withStyle(styles.fab)
-        .withOnPress(() => {
-          this.props.navigator.push({ playDeckSetup: this.state.deck })
-        })
+        .withOnPress(() => { this._onPlayDeck() })
         .build()
 
       return (
@@ -215,7 +227,7 @@ class DeckView extends React.Component {
     if (Platform.OS !== 'android') {
       let playItem = {
         icon: CueIcons.play,
-        onPress: () => {this.props.navigator.push({playDeckSetup: this.state.deck})}
+        onPress: () => { this._onPlayDeck() }
       }
 
       return (
