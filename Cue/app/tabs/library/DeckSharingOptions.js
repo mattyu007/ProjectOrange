@@ -23,6 +23,8 @@ import ShareCodeTableRow from './ShareCodeTableRow'
 import TagsTableRow from './TagsTableRow'
 import TableFooter from '../../common/TableFooter'
 
+const MAX_TAGS_LENGTH = 500
+
 const styles = {
   container: {
     flex: 1,
@@ -86,7 +88,7 @@ class DeckSharingOptions extends React.Component {
     if (!a || !b) {
       return false
     }
-    
+
     if (a.length !== b.length) {
       return false
     }
@@ -259,10 +261,20 @@ class DeckSharingOptions extends React.Component {
 
   _onTagAdded = (tag: string) => {
     if (!this.state.tags.includes(tag)) {
-      this.setState({
-        dirty: true,
-        tags: this.state.tags.concat([tag])
-      })
+      if (this.state.tags.concat([tag]).join(',').length > MAX_TAGS_LENGTH) {
+        Alert.alert(
+          (Platform.OS === 'android'
+            ? 'Tags limit exceeded'
+            : 'Tags Limit Exceeded'),
+          'The combined length of all the tags must be less than 500 characters.',
+          [{text: 'OK', style: 'cancel'}]
+        )
+      } else {
+        this.setState({
+          dirty: true,
+          tags: this.state.tags.concat([tag])
+        })
+      }
     }
   }
 
