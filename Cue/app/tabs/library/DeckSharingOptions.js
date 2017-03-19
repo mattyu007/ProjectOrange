@@ -129,6 +129,31 @@ class DeckSharingOptions extends React.Component {
   }
 
   _handleSharedSubmit = () => {
+    // People with 'public' accession will lose access to the deck if it becomes Shared.
+    if (this._sharingStatusForDeck(this.props.deck) === 'public') {
+      Alert.alert(
+        (Platform.OS === 'android'
+          ? 'Others may lose access to this deck'
+          : 'Others May Lose Access to this Deck'),
+        'People who discovered your deck via Discover or Search will no longer receive updates for this deck.',
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel'
+          },
+          {
+            text: 'Continue Anyway',
+            style: 'default',
+            onPress: () => {
+              this._doHandleSharedSubmit()
+            }
+          }
+        ]
+      )
+    }
+  }
+
+  _doHandleSharedSubmit = () => {
     // Generate a share code if needed
     if (!this.props.deck.share_code) {
       LibraryApi.generateShareCode(this.props.deck.uuid)
@@ -165,11 +190,11 @@ class DeckSharingOptions extends React.Component {
     switch (this._sharingStatusForDeck(this.props.deck)) {
       case 'public':
         message = 'Your deck will no longer appear in Discover or Search.'
-          + '\n\nPeople who currently have your deck in their Library will still be able to make copies of your deck.'
+          + '\n\nPeople who currently have your deck in their Library will no longer receive updates for this deck.'
         break
       case 'shared':
-        message = 'The share code for your deck will become invalid immediately.'
-          + '\n\nPeople who currently have your deck in their Library will still be able to make copies of your deck.'
+        message = 'The current share code for your deck will be invalidated.'
+          + '\n\nPeople who currently have your deck in their Library will no longer receive updates for this deck.'
         break
     }
 
