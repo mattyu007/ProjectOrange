@@ -21,6 +21,9 @@ const styles = {
     flexWrap: 'wrap',
     alignItems: 'flex-start',
     paddingHorizontal: 16,
+
+    // FAB height (56) + FAB padding (16) - to avoid crashing into FAB
+    paddingBottom: Platform.OS === 'android' ? 72 : undefined,
   },
   cardContainer: {
     marginBottom: 16,
