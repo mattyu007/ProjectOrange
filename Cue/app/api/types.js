@@ -28,8 +28,7 @@ export type DeckMetadata = {
   accession?: string,
 };
 
-export type Deck = {
-  ...DeckMetadata,
+export type Deck = DeckMetadata & {
   cards: Array<Card>
 };
 
