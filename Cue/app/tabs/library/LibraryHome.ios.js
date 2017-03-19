@@ -29,7 +29,8 @@ const styles = {
 type Props = {
   decks: Array<Deck>,
   navigator: Navigator,
-  onPressMenu?: () => void
+  onPressMenu?: () => void,
+  localChanges: {}
 }
 
 class LibraryHome extends React.Component {
@@ -44,7 +45,10 @@ class LibraryHome extends React.Component {
       ...this.state,
       refreshing: true
    });
-   this.props.onLoadLibrary(this.props.localChanges);
+   this.props.onSyncLibrary(this.props.localChanges).then(failedSyncs =>{
+     //TODO: issue #65
+     // will need promise to return serverDeck version of the failedSync
+   })
   }
 
   componentWillReceiveProps(newProps: Props) {
@@ -110,6 +114,7 @@ class LibraryHome extends React.Component {
 function select(store) {
   return {
     decks: store.library.decks,
+    localChanges: store.library.localChanges,
   }
 }
 

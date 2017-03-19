@@ -7,7 +7,7 @@ module.exports = {
   back: require('./img/back.png'),
   cancel: require('./img/cancel.png'),
   copy: require('./img/copy.png'),
-  checkSmall: require('./img/check18.png'),
+  checkSmall: require('./img/check_small.png'),
   done: require('./img/done.png'),
   down: require('./img/down.png'),
   dropdown: require('./img/dropdown.png'),
@@ -24,6 +24,9 @@ module.exports = {
   share: require('./img/share.png'),
   thumbsUp: require('./img/thumb_up.png'),
   thumbsDown: require('./img/thumb_down.png'),
+
+  // Chips
+  chipRemove: require('./img/chip_remove.png'),
 
   // Images
   cueDeck: require('./img/cue_deck.png'),

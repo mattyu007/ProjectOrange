@@ -147,6 +147,9 @@ class DeckView extends React.Component {
       shareItem: {
         title: 'Deck sharing options',
         icon: CueIcons.share,
+        onPress: () => {
+          this.props.navigator.push({ sharingOptions: this.state.deck })
+        }
       }
     }
   }

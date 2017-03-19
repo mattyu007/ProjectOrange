@@ -60,6 +60,12 @@ var LibraryApi = {
     return CueApi.fetch(endpoint, 'DELETE')
   },
 
+  generateShareCode(uuid: string) {
+    let endpoint = '/api/v1/deck/' + uuid + '/code'
+    console.info('Generating share code using endpoint: ' + endpoint)
+    return CueApi.fetch(endpoint, 'GET')
+  },
+
 	addDeckToLibrary(uuid: string) {
 		let endpoint = '/api/v1/library/add';
 		let method = 'POST'

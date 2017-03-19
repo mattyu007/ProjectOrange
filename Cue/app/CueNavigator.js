@@ -9,6 +9,7 @@ import { switchTab } from './actions/tabs'
 import CueColors from './common/CueColors'
 import CardEntryView from './tabs/library/CardEntryView'
 import CueTabsView from './tabs/CueTabsView'
+import DeckSharingOptions from './tabs/library/DeckSharingOptions'
 import DeckView from './tabs/library/DeckView'
 import PlayDeckSetupView from './tabs/library/play/PlayDeckSetupView'
 import PlayDeckView from './tabs/library/play/PlayDeckView'
@@ -75,7 +76,7 @@ var CueNavigator = React.createClass({
             return Navigator.SceneConfigs.FloatFromBottomAndroid;
           }
 
-          if (route.playDeckSetup) {
+          if (route.playDeckSetup || route.sharingOptions) {
             return {
               ...Navigator.SceneConfigs.FloatFromBottom,
               gestures: {}}
@@ -98,6 +99,8 @@ var CueNavigator = React.createClass({
   renderScene: function(route, navigator) {
     if (route.deck) {
       return <DeckView navigator={navigator} deckUuid={route.deck.uuid}/>
+    } else if (route.sharingOptions) {
+      return <DeckSharingOptions navigator={navigator} deck={route.sharingOptions} {...route} />
     } else if (route.playDeckSetup) {
       return <PlayDeckSetupView navigator={navigator} deck={route.playDeckSetup} {...route} />
     } else if (route.playDeck) {
