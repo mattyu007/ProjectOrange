@@ -201,8 +201,8 @@ class DeckSharingOptions extends React.Component {
     if (message) {
       Alert.alert(
         (Platform.OS === 'android'
-          ? 'Others may lose access to this deck'
-          : 'Others May Lose Access to this Deck'),
+          ? 'Others will lose access to this deck'
+          : 'Others Will Lose Access to this Deck'),
         message,
         [
           {
