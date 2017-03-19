@@ -110,6 +110,7 @@ PUT /api/v1/deck/<uuid>
     "parent_user_data_version" "<parent-user-data-version>",
     "name": "<name>",
     "public": true | false,
+    "unshare": true,
     "tags": ["<tag1>", "<tag2>", ...],
     "actions": [
         {
@@ -127,6 +128,7 @@ Request description:
 - `parent_user_data_version` (required): the current version of the user data for the deck
 - `name`: the name that the deck will be changed to
 - `public`: determines whether or not the deck should be discoverable by other users
+- `unshare`: nullifies the deck's share code if it exists
 - `tags`: the new list of strings that describe the deck
 - `actions`: a list of actions (add, edit, delete) as described below
 
@@ -181,7 +183,8 @@ POST /api/v1/deck/<uuid>
             "uuid": "<uuid>" | null,
             "front": "<Q>",
             "back": "<A>",
-            "position": "<P>"
+            "position": "<P>",
+            "needs_review": true | false
         },
         ...
     ]
@@ -197,6 +200,7 @@ Request description:
     - `front`: the text on the front of the card
     - `back`: the text on the back of the card
     - `position`: position of the card in the deck
+    - `needs_review` (optional): indicates if the user wants to mark the card as needs review
 
 Response: [Standard Full Deck Response](#full-response)
 
@@ -415,6 +419,7 @@ This response only contains metadata (does not include the cards in the deck).
     "name": "<name>",
     "rating": <rating>,
     "num_ratings": "<num-ratings>",
+    "num_cards": <num-cards>,
     "tags": ["<tag1>", "<tag2>", ...],
     "owner": "<userid>",
     "author": "<author>" | null,
@@ -435,6 +440,7 @@ Response description:
 - `name`: the name of the deck
 - `rating`: the deck rating (integer representing total net likes)
 - `num_ratings`: the number of ratings this deck has
+- `num_cards`: the number of cards in the deck
 - `tags`: a list of strings describing the contents of the deck
 - `owner`: the user id of the owner of the deck
 - `author`: the name of the owner of the deck (or null if not set)

@@ -6,16 +6,16 @@ from config import StatusCode
 class BaseHandler(object):
     request = flask.request
 
-    def post(self):
+    def post(self, *args, **kwargs):
         self.abort(StatusCode.NOT_FOUND)
 
-    def get(self):
+    def get(self, *args, **kwargs):
         self.abort(StatusCode.NOT_FOUND)
 
-    def put(self):
+    def put(self, *args, **kwargs):
         self.abort(StatusCode.NOT_FOUND)
 
-    def delete(self):
+    def delete(self, *args, **kwargs):
         self.abort(StatusCode.NOT_FOUND)
 
     def render_template(self, *args):
