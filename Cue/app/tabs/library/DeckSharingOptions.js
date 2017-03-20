@@ -150,6 +150,8 @@ class DeckSharingOptions extends React.Component {
           }
         ]
       )
+    } else {
+      this._doHandleSharedSubmit()
     }
   }
 
