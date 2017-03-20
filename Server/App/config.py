@@ -25,7 +25,7 @@ class DBConfig(object):
     DB_NAME = 'Cue'
     SCHEMA_PATH = 'SQL/schema.sql'
     PROCEDURE_PATH = 'SQL/procedures.sql'
-    TEST_DATA_FILES = ['SQL/test.sql']
+    TESTDATA_DIRECTORY = 'SQL/Testdata'
     MIGRATION_DIRECTORY = 'SQL/Migrations'
 
 

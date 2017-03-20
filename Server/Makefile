@@ -37,4 +37,4 @@ system:
 	sudo apt-get install mysql-server python-pip build-essential python-dev libmysqlclient-dev
 	pip install --user virtualenv
 
-.PHONY: depends run schema procedures system venv everything all
+.PHONY: depends run schema procedures testdata migration lint system venv everything all
