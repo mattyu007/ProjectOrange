@@ -95,11 +95,11 @@ function syncLibrary(localChanges): ThunkAction {
 // ex: { uuid: string, action: 'edit', cards: [{action: 'edit', uuid: string, front: "fox", back: "20XX"}] } if 1 card in deck was changed
 async function syncDeck(change) : PromiseAction {
   let serverDeck = {}
-  if (change.action === "add"){
+  if (change.action === "add") {
     serverDeck = await LibraryApi.createDeck(change.name, change.tags);
     // check if any other changes need to be synced
     for (let key in change) {
-      if((key === 'cards' && change.cards.length) || (key === change[key] != serverDeck[key] && !key.match("^(?:cards|uuid|action)$"))) {
+      if((key === 'cards' && change.cards.length) || (change[key] != serverDeck[key] && !key.match("^(?:cards|uuid|action)$"))) {
         serverDeck = await LibraryApi.editDeck({
           ...change,
           uuid: serverDeck.uuid,
@@ -109,7 +109,15 @@ async function syncDeck(change) : PromiseAction {
       }
     }
   } else if (change.action === "edit") {
-    serverDeck = await LibraryApi.editDeck(change)
+    if (change.name || change.tags || change.public
+      || (change.cards && change.cards.find(card => card.front || card.back || card.poistion))) {
+      serverDeck = await LibraryApi.editDeck(change)
+    } else if (change.cards && change.cards.find(card => card.uuid && card.needs_review != undefined)) {
+      let response = await LibraryApi.flagCard(change)
+      change = {...change, User_data_version: response.user_data_version}
+    } else {
+      console.warn('Change not synced', change)
+    }
   } else if (change.action === "delete") {
     await LibraryApi.deleteDeck(change.uuid)
   }

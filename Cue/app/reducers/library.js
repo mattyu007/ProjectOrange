@@ -70,16 +70,15 @@ function library(state: State = initialState, action: Action): State {
         cards,
         action: localChanges[changeIndex].action,
       }
+    } else if (!decks[deckIndex]) {
+        console.error("Could not find deck for an edit action that already exists", change)
     } else {
-      if (!decks[deckIndex])
-        console.error("Could not find existing deck for edit action", change)
-      else
-        localChanges.push({
-          ...change,
-          action: 'edit',
-          parent_deck_version: decks[deckIndex].deck_version,
-          parent_user_data_version: decks[deckIndex].user_data_version
-        })
+      localChanges.push({
+        ...change,
+        action: 'edit',
+        parent_deck_version: decks[deckIndex].deck_version,
+        parent_user_data_version: decks[deckIndex].user_data_version
+      })
     }
 
   } else if (action.type === 'SHARE_CODE_GENERATED') {
@@ -90,8 +89,12 @@ function library(state: State = initialState, action: Action): State {
     let change = action.change
     let serverDeck = action.serverDeck
     let deckIndex = decks.findIndex(deck => deck.uuid == change.uuid || deck.uuid == serverDeck.uuid)
-    if (decks[deckIndex])
-      decks[deckIndex] = serverDeck
+    if (decks[deckIndex]) {
+      if (change.user_data_version)
+        decks[deckIndex] = {...decks[deckIndex], user_data_version: change.user_data_version}
+      else
+        decks[deckIndex] = serverDeck
+    }
     let changeIndex = localChanges.findIndex(deck => deck.uuid == change.uuid)
     if (localChanges[changeIndex])
       localChanges.splice(changeIndex,1)
