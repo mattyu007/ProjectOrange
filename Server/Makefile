@@ -15,13 +15,13 @@ run:
 	$(VPY) App/server.py
 
 schema:
-	$(VPY) App/init_schema.py
+	$(VPY) Scripts/init_schema.py
 
 procedures:
-	$(VPY) App/init_procedures.py
+	$(VPY) Scripts/init_procedures.py
 
 testdata: schema procedures
-	$(VPY) App/init_test_data.py
+	$(VPY) Scripts/init_test_data.py
 
 venv:
 	python -m virtualenv $(VENV)
