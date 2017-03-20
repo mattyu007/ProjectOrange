@@ -74,17 +74,13 @@ export default class DeckThumbnail extends React.Component {
       }
     }
 
-    let subText;
-    if (typeof this.props.deck.cards !== 'undefined') {
-      subText = (
-        <Text style={styles.cardNumber}>
-          {this.props.deck.cards.length
-           + (this.props.deck.cards.length == 1 ? " card" : " cards")}
-        </Text>
+    let subText = (
+      <Text style={styles.cardNumber}>
+        {this.props.deck.num_cards
+         + (this.props.deck.num_cards == 1 ? " card" : " cards")}
+      </Text>
       )
-    } else {
-      // Display "Updating..."?
-    }
+    
 
     let inset
     if (!this.props.hideInsets) {
