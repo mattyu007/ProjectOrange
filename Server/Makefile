@@ -1,4 +1,4 @@
-export PYTHONPATH := $(shell pwd)
+export PYTHONPATH := $(shell pwd):$(shell pwd)/App
 VENV = $(shell pwd)/venv
 VPY = $(VENV)/bin/python
 VPIP = $(VENV)/bin/pip
@@ -37,4 +37,7 @@ system:
 	sudo apt-get install mysql-server python-pip build-essential python-dev libmysqlclient-dev
 	pip install --user virtualenv
 
-.PHONY: depends run schema procedures testdata migration lint system venv everything all
+nfpdata: testdata
+	$(VPY) Scripts/generate_nfp_testdata.py
+
+.PHONY: depends run schema procedures testdata migration lint system venv everything all nfpdata
