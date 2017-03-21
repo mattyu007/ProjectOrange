@@ -97,7 +97,8 @@ export default class TextEntryTableRow extends React.Component {
   render() {
     let tableRowExtraStyle = {
       flexDirection: 'column',
-      paddingVertical: Platform.OS === 'android' ? 0 : undefined,
+      paddingVertical: Platform.OS === 'android' ? 0 : 12,
+      marginTop: Platform.OS === 'android' ? 8 : 0,
       minHeight: Platform.OS === 'android' ? 0 : undefined,
     }
     return (
