@@ -15,7 +15,8 @@ class DatabaseConnector(object):
                  db=DBConfig.DB_NAME):
         """Initialize with parameters for a DB connection."""
         super(DatabaseConnector, self).__init__()
-        self.connector = MySQLdb.connect(host=host, user=user, passwd=password, db=db)
+        self.connector = MySQLdb.connect(host=host, user=user, passwd=password, db=db,
+                                         charset=DBConfig.CHARSET)
         self.num_nested_transactions = 0
 
     def __del__(self):
