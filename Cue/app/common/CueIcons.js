@@ -8,6 +8,7 @@ module.exports = {
   cancel: require('./img/cancel.png'),
   copy: require('./img/copy.png'),
   checkSmall: require('./img/check_small.png'),
+  delete: require('./img/delete.png'),
   done: require('./img/done.png'),
   down: require('./img/down.png'),
   dropdown: require('./img/dropdown.png'),
