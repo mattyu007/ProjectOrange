@@ -44,8 +44,8 @@ const baseStyles = {
   },
   deleteOverlayIconContainer: {
     position: 'absolute',
-    top: 8,
-    left: 8,
+    top: 4,
+    left: 4,
   },
   deleteOverlayIcon: {
     tintColor: '#FF3B30',
