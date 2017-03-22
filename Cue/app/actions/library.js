@@ -13,6 +13,7 @@ async function loadLibrary(): PromiseAction {
   	promises.push(LibraryApi.fetchDeck(deckMetadata.uuid));
   }
   let decks = await Promise.all(promises);
+
   return {
     type: 'LOADED_LIBRARY',
     decks,
@@ -143,12 +144,43 @@ async function addLibrary(uuid: string): PromiseAction {
     }
   }
 
-  let deck = await LibraryApi.fetchDeck(uuid);
+  let addedDeck = await LibraryApi.fetchDeck(uuid);
 
   return {
     type: 'DECK_ADDED_TO_LIBRARY',
-    deck,
+    addedDeck,
   };
 }
 
-module.exports = { loadLibrary, createDeck, deleteDeck, editDeck, recordShareCode, syncDeck, syncLibrary, addLibrary, resolveConflict, flagCard };
+function clearInaccessibleDecks(): Action {
+  return {
+    type: 'CLEAR_INACCESSIBLE_DECKS'
+  }
+}
+
+function copyDeck(localDeck: Deck) : Action {
+  let cards = JSON.parse(JSON.stringify(localDeck.cards))
+
+  cards.forEach(card => {
+    card.action = 'add'
+    delete card.uuid
+  })
+
+  let deck = {
+    name: localDeck.name,
+    uuid: uuidV4(),
+    public: false,
+    cards: cards,
+    owner: CueApi.userId,
+    accession: 'private',
+  }
+  return {
+    type: 'DECK_CREATED',
+    deck,
+  }
+}
+
+module.exports = {
+  loadLibrary, createDeck, deleteDeck, editDeck, recordShareCode, resolveConflict,
+  syncDeck, syncLibrary, addLibrary, clearInaccessibleDecks, copyDeck, flagCard
+};

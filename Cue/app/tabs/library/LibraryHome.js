@@ -15,7 +15,7 @@ import CueIcons from '../../common/CueIcons'
 import { MKButton } from 'react-native-material-kit'
 
 import LibraryListView from './LibraryListView'
-import { createDeck, loadLibrary, syncLibrary, deleteDeck } from '../../actions/library'
+import { createDeck, loadLibrary, syncLibrary, deleteDeck, copyDeck, clearInaccessibleDecks } from '../../actions/library'
 
 const styles = {
   container: {
@@ -48,12 +48,15 @@ type Props = {
   navigator: Navigator,
   onPressMenu?: () => void,
   localChanges: {},
+  inaccessibleDecks: ?Array<Deck>,
 
   // From Redux:
   onCreateDeck: (string) => any,
   onLoadLibrary: () => any,
   onSyncLibrary: (any) => any,
   deleteDeck: (uuid: string) => any,
+  onClearInaccessibleDecks: () => any,
+  onDeckCopy: (deck: Deck) => any,
 }
 
 class LibraryHome extends React.Component {
@@ -79,6 +82,23 @@ class LibraryHome extends React.Component {
     this.state = {
       editing: false,
       refreshing,
+    }
+  }
+
+  componentWillReceiveProps(newProps: Props) {
+    if (newProps.inaccessibleDecks && newProps.inaccessibleDecks.length > 0) {
+      newProps.inaccessibleDecks.forEach(deck => {
+        Alert.alert(
+          ('The deck "' + deck.name + '" is no longer available'),
+          'To continue using this deck, copy the deck into your library.',
+          [
+            {text: 'Remove', style: 'cancel'},
+            {text: 'Copy', onPress: () => this.props.onDeckCopy(deck)},
+          ]
+        )
+      })
+
+      this.props.onClearInaccessibleDecks()
     }
   }
 
@@ -263,6 +283,7 @@ function select(store) {
   return {
     decks: store.library.decks,
     localChanges: store.library.localChanges,
+    inaccessibleDecks: store.library.inaccessibleDecks,
   }
 }
 
@@ -272,6 +293,8 @@ function actions(dispatch) {
     onLoadLibrary: () => dispatch(loadLibrary()),
     onSyncLibrary: (changes) => dispatch(syncLibrary(changes)),
     deleteDeck: (uuid: string) => dispatch(deleteDeck(uuid)),
+    onClearInaccessibleDecks: () => dispatch(clearInaccessibleDecks()),
+    onDeckCopy: (deck) => dispatch(copyDeck(deck)),
   }
 }
 

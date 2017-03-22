@@ -36,6 +36,7 @@ var LibraryApi = {
   editDeck (change){
     let endpoint = '/api/v1/deck/' + change.uuid
     let actions
+
     if (change.cards) {
       actions = change.cards.map(card => {
         return {...card, card_id: card.uuid, uuid: undefined}
@@ -51,6 +52,7 @@ var LibraryApi = {
       tags: change.tags,
       actions
     })
+
     console.info('editing deck' + body + ' at endpoint ' + endpoint)
     return CueApi.fetch(endpoint, 'PUT', body)
   },

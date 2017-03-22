@@ -3,8 +3,8 @@
 import type {Deck, DeckMetadata} from '../api/types';
 
 export type Action =
-  { type: 'LOADED_LIBRARY', decks: Array<Deck> }
-  | { type: 'LOADED_USERNAME', name: string }
+	{ type: 'LOADED_LIBRARY', decks: Array<Deck> }
+  |	{ type: 'LOADED_USERNAME', name: string }
   | { type: 'LOGGED_IN', data: { userId: string; accessToken: string; } }
   | { type: 'LOGGED_OUT' }
   | { type: 'SWITCH_TAB', tab: 'library' | 'discover' | 'search' }
@@ -17,6 +17,9 @@ export type Action =
   | { type: 'SEARCHED_DECKS', searchResults: Array<DeckMetadata>, searchString: string }
   | { type: 'DISCOVERED_DECKS', newDecks: Array<DeckMetadata>, topDecks: Array<DeckMetadata> }
   | { type: 'CARD_FLAGGED', change: {uuid: string, cards:[uuid:string, needs_review: Boolean, action: 'edit']}}
+	| { type: 'DECK_ALREADY_IN_LIBRARY'}
+	| { type: 'DECK_ADDED_TO_LIBRARY', addedDeck: Deck}
+	| { type: 'CLEAR_INACCESSIBLE_DECKS'}
   ;
 
 export type Dispatch = (action: Action | ThunkAction | PromiseAction | Array<Action>) => any;
