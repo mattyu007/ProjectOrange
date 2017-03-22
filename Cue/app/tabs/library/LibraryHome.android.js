@@ -67,18 +67,16 @@ class LibraryHome extends React.Component {
        this.props.navigator.push({failedSyncs})
      }
      this.setState({
-       ...this.state,
        refreshing: false
      });
    })
    .catch(e => {
      console.warn('Failed to sync changes', e)
      this.setState({
-       ...this.state,
        refreshing: false
      });
      Alert.alert(
-       'Could not sync local changes',
+       'Cue cloud sync failed',
        'Check your Internet connection and try again.'
      )
    })

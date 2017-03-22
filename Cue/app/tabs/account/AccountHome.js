@@ -69,11 +69,11 @@ class AccountHome extends React.Component {
       this.props.syncLibrary(this.props.localChanges).then(failedSyncs =>{
         if (failedSyncs && failedSyncs.length) {
           Alert.alert(
-            'Failed to sync changes with server',
-            'Resolve conflicts or logout and lose local changes',
+            'You have local changes which conflict with changes in the Cue cloud',
+            'If you sign out now without resolving these conflicts, you will lose all your local changes',
             [
-              {text: "Logout", onPress: () => this.props.logOut()},
-              {text: "Resolve", onPress: () => this.props.navigator.push({failedSyncs})}
+              {text: "Sign Out Anyway", onPress: () => this.props.logOut(), style: 'destructive'},
+              {text: "Resolve Conflicts", onPress: () => this.props.navigator.push({failedSyncs})}
             ],
             { cancelable: false }
           )
@@ -83,10 +83,13 @@ class AccountHome extends React.Component {
       }).catch(e => {
         console.warn('Failed to sync changes', e)
         Alert.alert(
-          'Could Not Sync Local Changes',
-          'Logout and lose local changes?',
-          [{text: 'Logout', onPress: () => this.props.logOut()},
-           {text: 'Cancel', style: 'cancel'}]
+          'Some changes haven’t been synced to the Cue cloud yet',
+          'Can’t connect to the Cue cloud right now.\nIf you sign out now, you will lose all the changes you made while offline.',
+          [
+            {text: 'Sign Out Anyway', onPress: () => this.props.logOut(), style: 'destructive'},
+            {text: 'Cancel', style: 'cancel'}
+          ],
+           { cancelable: false }
         )
       })
     } else {

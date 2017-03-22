@@ -42,7 +42,6 @@ class LibraryHome extends React.Component {
 
   _refresh = () => {
     this.setState({
-      ...this.state,
       refreshing: true
    });
    this.props.onSyncLibrary(this.props.localChanges).then(failedSyncs =>{
@@ -50,18 +49,16 @@ class LibraryHome extends React.Component {
        this.props.navigator.push({failedSyncs})
      }
      this.setState({
-       ...this.state,
        refreshing: false
      });
    })
    .catch(e => {
      console.warn('Failed to sync changes', e)
      this.setState({
-       ...this.state,
        refreshing: false
      });
      Alert.alert(
-       'Could not Sync Local Changes',
+       'Cue Cloud Sync Failed',
        'Check your Internet connection and try again.'
      )
    })
