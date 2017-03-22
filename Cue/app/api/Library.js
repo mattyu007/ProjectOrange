@@ -56,7 +56,7 @@ var LibraryApi = {
 
   deleteDeck(uuid: string) {
     let endpoint = '/api/v1/library/' + uuid
-    console.info('deleteing deck at endpoint ' + endpoint)
+    console.info('deleting deck at endpoint ' + endpoint)
     return CueApi.fetch(endpoint, 'DELETE')
   },
 
