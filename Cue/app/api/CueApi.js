@@ -27,7 +27,14 @@ class CueApi {
 			body: body,
 		})
 		.then(checkStatus)
-		.then(response => response.json())
+		.then(response => response.text())
+		.then(text => {
+			try {
+				return JSON.parse(text)
+			} catch (e) {
+				return {}
+			}
+		})
 		.catch(e => {
 			throw (e)
 		});

@@ -10,67 +10,86 @@ import type { Deck } from '../api/types'
 import CueColors from './CueColors'
 import CueIcons from './CueIcons'
 
+const baseStyles = {
+  itemContainer: {
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    padding: 8,
+    width: undefined, // Set in render()
+    aspectRatio: 1.35,
+    backgroundColor: 'white',
+    overflow: 'visible',
+    borderRadius: 2,
+
+    // Android
+    elevation: 2,
+
+    // iOS
+    shadowColor: 'black',
+    shadowOpacity: 0.25,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowRadius: 2,
+  },
+  contentContainer: {
+    flex: 1,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+  },
+  itemText: {
+    color: CueColors.primaryText,
+    fontSize: 17,
+  },
+  deleteOverlayIconContainer: {
+    position: 'absolute',
+    top: 4,
+    left: 4,
+  },
+  deleteOverlayIcon: {
+    tintColor: '#FF3B30',
+  },
+  itemPublicInset: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    tintColor: CueColors.publicInsetTint,
+    borderRadius: 2,
+  },
+  itemSharedInset: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    tintColor: CueColors.sharedInsetTint,
+    borderRadius: 2,
+  },
+  cardNumber: {
+    fontSize: 12,
+    color: CueColors.lightText,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+  }
+}
+
 export default class DeckThumbnail extends React.Component {
   props: {
     deck: Deck,
     hideInsets?: boolean,
+    deletable?: boolean,
     style?: Object,
     onPress?: () => void,
+    onPressDelete?: () => void,
   }
 
   render() {
-
-    const styles = {
+    // Add the width style prop based on the current window dimens
+    let styles = {
+      ...baseStyles,
       itemContainer: {
-        alignItems: 'flex-start',
-        justifyContent: 'center',
-        padding: 8,
+        ...baseStyles.itemContainer,
         width: Math.floor((Dimensions.get('window').width - 48) / 2),
-        aspectRatio: 1.35,
-        backgroundColor: 'white',
-        borderRadius: 2,
-
-        // Android
-        elevation: 2,
-
-        // iOS
-        shadowColor: 'black',
-        shadowOpacity: 0.25,
-        shadowOffset: {
-          width: 0,
-          height: 2,
-        },
-        shadowRadius: 1,
-      },
-      contentContainer: {
-        flex: 1,
-        alignItems: 'flex-start',
-        justifyContent: 'center',
-      },
-      itemText: {
-        color: CueColors.primaryText,
-        fontSize: 17,
-      },
-      itemPublicInset: {
-        position: 'absolute',
-        top: 0,
-        right: 0,
-        tintColor: CueColors.publicInsetTint,
-        borderRadius: 2,
-      },
-      itemSharedInset: {
-        position: 'absolute',
-        top: 0,
-        right: 0,
-        tintColor: CueColors.sharedInsetTint,
-        borderRadius: 2,
-      },
-      cardNumber: {
-        fontSize: 12,
-        color: CueColors.lightText,
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
       }
     }
 
@@ -79,8 +98,34 @@ export default class DeckThumbnail extends React.Component {
         {this.props.deck.num_cards
          + (this.props.deck.num_cards == 1 ? " card" : " cards")}
       </Text>
-      )
-    
+    )
+
+    let deleteOverlayIcon
+    if (this.props.deletable) {
+      if (Platform.OS === 'android') {
+        deleteOverlayIcon = (
+          <TouchableNativeFeedback
+            background={TouchableNativeFeedback.SelectableBackgroundBorderless()}
+            onPress={this.props.onPressDelete}>
+            <View style={styles.deleteOverlayIconContainer}>
+              <Image
+                style={styles.deleteOverlayIcon}
+                source={CueIcons.delete} />
+            </View>
+          </TouchableNativeFeedback>
+        )
+      } else {
+        deleteOverlayIcon = (
+          <TouchableOpacity
+            style={styles.deleteOverlayIconContainer}
+            onPress={this.props.onPressDelete}>
+            <Image
+              style={styles.deleteOverlayIcon}
+              source={CueIcons.delete} />
+          </TouchableOpacity>
+        )
+      }
+    }
 
     let inset
     if (!this.props.hideInsets) {
@@ -99,21 +144,22 @@ export default class DeckThumbnail extends React.Component {
     }
 
     let content = (
-        <View style={styles.contentContainer}>
-          <Text style={styles.itemText} numberOfLines={2}>
-            {this.props.deck.name}
-          </Text>
-          {subText}
-        </View>
-      )
+      <View style={styles.contentContainer}>
+        <Text style={styles.itemText} numberOfLines={2}>
+          {this.props.deck.name}
+        </Text>
+        {subText}
+      </View>
+    )
     content = (
       <View style={[styles.itemContainer, this.props.style]}>
         {content}
         {inset}
+        {deleteOverlayIcon}
       </View>
     )
 
-    if (this.props.onPress) {
+    if (!this.props.deletable && this.props.onPress) {
       if (Platform.OS === 'android') {
         return (
           <TouchableNativeFeedback
@@ -130,11 +176,7 @@ export default class DeckThumbnail extends React.Component {
         )
       }
     } else {
-      return (
-        <View style={styles.itemContainer} >
-          {content}
-        </View>
-      )
+      return content
     }
 
   }

@@ -37,8 +37,10 @@ const SECTION_PUBLIC = 'Public'
 type Props = {
   navigator: Navigator,
   decks: Array<Deck>,
+  editing: boolean,
   refreshing: boolean,
-  onSwipeToRefresh: () => void
+  onSwipeToRefresh: () => void,
+  onDeleteDeck: (deck: Deck) => void,
 }
 
 class LibraryListView extends React.Component {
@@ -113,6 +115,18 @@ class LibraryListView extends React.Component {
     })
   }
 
+  _renderRow = (deck: Deck) => {
+    return (
+      <View style={styles.cardContainer}>
+        <DeckThumbnail
+          deck={deck}
+          deletable={this.props.editing}
+          onPress={() => this.props.navigator.push({deck: deck})}
+          onPressDelete={() => this.props.onDeleteDeck(deck)}/>
+      </View>
+    )
+  }
+
   render() {
     let refreshControl = (
       <RefreshControl
@@ -152,8 +166,7 @@ class LibraryListView extends React.Component {
         pageSize={2}
         refreshControl={refreshControl}
         renderSectionHeader={(decks, category) => <ListViewHeader style={{marginLeft: -16}} section={category} />}
-        renderRow={deck => <View style={styles.cardContainer}><DeckThumbnail deck={deck}
-                              onPress={() => this.props.navigator.push({deck: deck})}/></View> } />
+        renderRow={this._renderRow} />
       )
   }
 };
