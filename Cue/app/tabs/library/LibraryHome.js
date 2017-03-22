@@ -81,7 +81,8 @@ class LibraryHome extends React.Component {
 
   _refresh = () => {
     this.setState({
-      refreshing: true
+      editing: false,
+      refreshing: true,
    });
    this.props.onSyncLibrary(this.props.localChanges).then(failedSyncs =>{
      //TODO: issue #65
@@ -180,6 +181,7 @@ class LibraryHome extends React.Component {
           this.setState({
             editing: false,
           })
+          // Call this._refresh()?
         }
       }
     } else {
