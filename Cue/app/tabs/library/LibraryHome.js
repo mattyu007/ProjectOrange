@@ -134,13 +134,8 @@ class LibraryHome extends React.Component {
       message,
       caption,
       [
-        {
-          text: 'Cancel',
-          style: 'cancel'
-        },
-        {
-          text: buttonText,
-          style: 'destructive',
+        {text: 'Cancel', style: 'cancel'},
+        {text: buttonText, style: 'destructive',
           onPress: () => {
             this.props.deleteDeck(deck.uuid)
             this.props.navigator.pop()
@@ -152,17 +147,27 @@ class LibraryHome extends React.Component {
 
   _getLeftItem = () => {
     if (Platform.OS === 'android') {
-      return this._getLeftItemAndroid()
+      return {
+        title: 'Menu',
+        icon: CueIcons.menu,
+        onPress: this.props.onPressMenu
+      }
     } else {
       return this._getToggleItem()
     }
   }
 
-  _getLeftItemAndroid = () => {
-    return {
-      title: 'Menu',
-      icon: CueIcons.menu,
-      onPress: this.props.onPressMenu
+  _getRightItems = () => {
+    if (Platform.OS === 'android') {
+      return [this._getToggleItem()]
+    } else if (!this.state.editing) {
+      return [{
+        key: 'Add',
+        title: 'Add',
+        icon: CueIcons.plus,
+        display: 'icon',
+        onPress: this._onPressAddDeck
+      }]
     }
   }
 
@@ -188,28 +193,6 @@ class LibraryHome extends React.Component {
         }
       }
     }
-  }
-
-  _getRightItems = () => {
-    if (Platform.OS === 'android') {
-      return [this._getToggleItem()]
-    } else {
-      return this._getRightItemsIOS()
-    }
-  }
-
-  _getRightItemsIOS = () => {
-    if (this.state.editing) {
-      return
-    }
-
-    return [{
-      key: 'Add',
-      title: 'Add',
-      icon: CueIcons.plus,
-      display: 'icon',
-      onPress: this._onPressAddDeck
-    }]
   }
 
   _renderFAB = () => {
