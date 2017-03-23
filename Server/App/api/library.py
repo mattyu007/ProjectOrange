@@ -1,5 +1,7 @@
 import logging
 
+from MySQLdb import IntegrityError
+
 from config import StatusCode
 from model.library import Library, Accession
 from policy.deck import DeckPolicy
@@ -32,7 +34,11 @@ class LibraryAddHandler(BaseHandler):
         # We are making an assumption here that if the share_code is not None, then the share code
         # is in fact the correct share code for the deck, and we mark the accession as SHARED.
         library = Library(user_id, connector=connector)
-        library.add(deck.uuid, device, Accession.PUBLIC if share_code is None else Accession.SHARED)
+        try:
+            library.add(deck.uuid, device, Accession.PUBLIC if share_code is None else Accession.SHARED)
+        except IntegrityError:
+            logging.error('{} tried to add {} but was already in library'.format(user_id, uuid), exc_info=True)
+            return self.make_response(status=StatusCode.METHOD_NOT_ALLOWED)
 
         return self.make_response(status=StatusCode.OK)
 
