@@ -13,21 +13,25 @@ const styles = {
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
+  textIconWrapper: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
   frontText: {
     fontSize: Platform.OS === 'android' ? 14 : 17,
     fontWeight: Platform.OS === 'android' ? '500' : '600',
     color: CueColors.primaryText,
     marginBottom: 12,
+    flex: 1,
   },
   backText: {
     fontSize: Platform.OS === 'android' ? 14 : 17,
     color: CueColors.primaryText,
   },
   flagIcon: {
-    right: 16,
-    top: 12,
-    position: 'absolute',
-    tintColor: CueColors.flagIndicatorTint
+    tintColor: CueColors.flagIndicatorTint,
+    flex: 0,
+    marginLeft: 16,
   }
 }
 
@@ -44,17 +48,22 @@ export default class CardListViewRow extends React.Component {
   }
 
   render() {
+    let flag
+    if (this.props.card.needs_review) {
+      flag = <Image style={styles.flagIcon} source={CueIcons.indicatorFlag} />
+    }
+
     let row = (
       <View style={styles.container}>
-        <Text style={{...styles.frontText, marginRight: this.props.card.needs_review ? 40 : 0}}>
-          {this.props.card.front}
-        </Text>
+        <View style={styles.textIconWrapper}>
+          <Text style={styles.frontText}>
+            {this.props.card.front}
+          </Text>
+          {flag}
+        </View>
         <Text style={styles.backText}>
           {this.props.card.back}
         </Text>
-        <Image
-          style={{...styles.flagIcon, opacity: this.props.card.needs_review ? 1 : 0}}
-          source={CueIcons.indicatorFlag} />
       </View>
     )
 
