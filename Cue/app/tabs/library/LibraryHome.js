@@ -67,9 +67,11 @@ class LibraryHome extends React.Component {
   constructor(props: Props) {
     super(props)
 
+    let refreshing = this.props.decks ? false : true;
+
     this.state = {
       editing: false,
-      refreshing: false,
+      refreshing: refreshing,
     }
   }
 

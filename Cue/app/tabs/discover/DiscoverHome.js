@@ -1,7 +1,10 @@
 // @flow
 
 import React from 'react'
-import { View, Text, Image, ScrollView, ListView, Navigator, Platform } from 'react-native'
+import { View, Text, Image, ScrollView, ListView, RefreshControl, Navigator, Platform } from 'react-native'
+import type { DeckMetadata } from '../../api/types';
+
+import { discoverDecks } from '../../actions'
 
 import { connect } from 'react-redux'
 
@@ -25,37 +28,61 @@ const styles = {
 
 type Props = {
   navigator: Navigator,
-  onPressMenu?: () => void
+  onPressMenu?: () => void,
+
+  newDecks: ?Array<DeckMetadata>,
+  topDecks: ?Array<DeckMetadata>,
+  onDiscover: () => any,
 }
 
 class DiscoverHome extends React.Component {
   props: Props
 
   state: {
-    dataSource: ListView.DataSource
+    dataSource: ListView.DataSource,
+    loading: boolean,
+    refreshing: boolean
   }
+
+  ds: ListView.DataSource
 
   constructor(props) {
     super(props)
 
-    let ds = new ListView.DataSource({
+    this.ds = new ListView.DataSource({
       rowHasChanged: (r1, r2) => r1 !== r2,
       sectionHeaderHasChanged: (s1, s2) => s1 !== s2
     })
 
-    Promise.all([DiscoverApi.fetchTop(), DiscoverApi.fetchNew()])
-      .then((decks) => {
-        this.setState({
-          ...this.state,
-          dataSource: ds.cloneWithRowsAndSections({
-            'Top Decks': [decks[0]],
-            'New Decks': [decks[1]],
-          })
-        })
-      })
+    this.state = this._getNewState(props)
+  }
 
-    this.state = {
-      dataSource: ds.cloneWithRowsAndSections({})
+  componentWillReceiveProps(newProps) {
+    this.setState(this._getNewState(newProps))
+  }
+
+  _refresh = () => {
+    this.setState({
+      refreshing: true
+    })
+    this.props.onDiscover()
+  }
+
+  _getNewState = (props) => {
+    if (props.newDecks && props.topDecks) {
+      return {
+        dataSource: this.ds.cloneWithRowsAndSections({
+          'Top Decks': [props.topDecks],
+          'New Decks': [props.newDecks],
+        }),
+        refreshing: false
+      }
+    } else {
+      this.props.onDiscover()
+      return {
+        dataSource: this.ds.cloneWithRowsAndSections({}),
+        refreshing: true
+      }
     }
   }
 
@@ -69,6 +96,14 @@ class DiscoverHome extends React.Component {
       }
     }
 
+    let refreshControl = (
+      <RefreshControl
+        colors={[CueColors.primaryTint]}
+        refreshing={this.state.refreshing}
+        onRefresh={this._refresh}
+      />
+    )
+
     return (
       <View style={styles.container}>
         <CueHeader
@@ -79,6 +114,7 @@ class DiscoverHome extends React.Component {
           contentInset={{bottom: 49}}
           style={styles.bodyContainer}
           dataSource={this.state.dataSource}
+          refreshControl={refreshControl}
           renderSectionHeader={(decks, section) => <ListViewHeader section={section} />}
           renderRow={decks => <DiscoverDeckCarousel navigator={this.props.navigator} decks={decks} />} />
       </View>
@@ -88,11 +124,14 @@ class DiscoverHome extends React.Component {
 
 function select(store) {
   return {
+    newDecks: store.discover.newDecks,
+    topDecks : store.discover.topDecks,
   };
 }
 
 function actions(dispatch) {
   return {
+    onDiscover: () => dispatch(discoverDecks())
   };
 }
 
