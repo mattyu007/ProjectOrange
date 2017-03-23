@@ -272,7 +272,8 @@ BEGIN
         L.last_update_device,
         Deck.share_code,
         User.name AS author,
-        L.accession
+        L.accession,
+        Deck.deleted
     FROM Deck LEFT JOIN (
         SELECT version, last_update_device, deck_id, accession
         FROM Library WHERE user_id=uid and deck_id=did
@@ -304,7 +305,7 @@ BEGIN
     SET @sql_statement = CONCAT('SELECT
         Deck.uuid
     FROM Deck
-    WHERE Deck.public=TRUE
+    WHERE Deck.public=TRUE AND Deck.deleted=FALSE
     ORDER BY ', sort_criteria, ' DESC ',
     'LIMIT ', CAST(page_offset AS CHAR), ', ', page_size);
 
@@ -326,7 +327,7 @@ BEGIN
     SELECT
         Deck.uuid
     FROM Deck
-    WHERE Deck.public=TRUE
+    WHERE Deck.public=TRUE AND Deck.deleted=FALSE
     AND MATCH(Deck.name, Deck.tags_delimited) AGAINST(query_string IN NATURAL LANGUAGE MODE)
     LIMIT page_offset, page_size;
 END$$
