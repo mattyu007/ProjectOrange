@@ -18,7 +18,6 @@ try:
         sorted(os.listdir(DBConfig.TESTDATA_DIRECTORY))
     )
     files = ' '.join(test_files)
-    mysql_cmd = 'mysql -u{} -p'.format(DBConfig.USERNAME)
 
     # Read the files into the DB.
     ps = subprocess.Popen(('cat {}'.format(files)).split(), stdout=subprocess.PIPE)
