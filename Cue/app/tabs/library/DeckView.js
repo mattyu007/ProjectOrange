@@ -10,6 +10,7 @@ import { editDeck } from '../../actions'
 
 import type { Card, Deck } from '../../api/types'
 
+import uuidV4 from 'uuid/v4'
 import { MKButton } from 'react-native-material-kit'
 
 import CueColors from '../../common/CueColors'
@@ -284,6 +285,7 @@ function actions(dispatch) {
             front,
             back,
             position,
+            uuid: uuidV4(),
           }
         ]
       }
