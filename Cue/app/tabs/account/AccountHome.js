@@ -1,11 +1,11 @@
 // @flow
 
 import React from 'react'
-import { View, Text, TouchableHighlight } from 'react-native'
-import { LoginManager } from 'react-native-fbsdk'
+import { View, Text, TouchableHighlight, Alert, Navigator } from 'react-native'
 
 import { connect } from 'react-redux'
 import { logOut } from '../../actions/login'
+import { syncLibrary } from '../../actions/library'
 
 import CueColors from '../../common/CueColors'
 import CueHeader from '../../common/CueHeader'
@@ -58,15 +58,47 @@ const styles = {
 }
 
 type Props = {
+  navigator: Navigator,
+
   // From Redux:
   user: Object,
   logOut: () => void,
+  syncLibrary: () => void,
 }
 
 class AccountHome extends React.Component {
+
   _logOut = () => {
-    LoginManager.logOut()
-    this.props.logOut()
+    if (this.props.localChanges && this.props.localChanges.length) {
+      this.props.syncLibrary(this.props.localChanges).then(failedSyncs =>{
+        if (failedSyncs && failedSyncs.length) {
+          Alert.alert(
+            'You Have Local Changes Which Conflict with Changes in the Cue Cloud',
+            'If you sign out now without resolving these conflicts, you will lose all your local changes',
+            [
+              {text: "Sign Out Anyway", onPress: () => this.props.logOut(), style: 'destructive'},
+              {text: "Resolve Conflicts", onPress: () => this.props.navigator.push({failedSyncs})}
+            ],
+            { cancelable: false }
+          )
+        } else {
+          this.props.logOut()
+        }
+      }).catch(e => {
+        console.warn('Failed to sync changes', e)
+        Alert.alert(
+          'Some changes haven’t been synced to the Cue cloud yet',
+          'Can’t connect to the Cue cloud right now.\n\nIf you sign out now, you will lose all the changes you made while offline.',
+          [
+            {text: 'Sign Out Anyway', onPress: () => this.props.logOut(), style: 'destructive'},
+            {text: 'Cancel', style: 'cancel'}
+          ],
+           { cancelable: false }
+        )
+      })
+    } else {
+      this.props.logOut()
+    }
   }
 
   render() {
@@ -106,12 +138,14 @@ class AccountHome extends React.Component {
 function select(store) {
   return {
     user: store.user,
+    localChanges: store.library.localChanges,
   }
 }
 
 function actions(dispatch) {
   return {
     logOut: () => dispatch(logOut()),
+    syncLibrary: (changes) => dispatch(syncLibrary(changes))
   }
 }
 

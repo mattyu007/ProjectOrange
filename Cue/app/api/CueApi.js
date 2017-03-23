@@ -46,7 +46,7 @@ var checkStatus = function(response) {
 		return response;
 	} else {
 		console.warn('Cue API request returned bad status code', response)
-		let error = new Error(response.statusText);
+		let error = new Error(response);
 		error.response = response;
 		throw error;
 	}

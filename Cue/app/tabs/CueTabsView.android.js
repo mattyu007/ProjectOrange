@@ -55,7 +55,8 @@ class CueTabsView extends React.Component {
     return (
       <View style={styles.drawer}>
         <MenuProfileItem
-          name={this.props.user.name || 'Welcome to Cue'} />
+          name={this.props.user.name || 'Welcome to Cue'}
+          navigator={this.props.navigator} />
         <ListViewHairlineSeparator
           style={styles.separator} />
         <MenuItem

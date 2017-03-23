@@ -80,14 +80,23 @@ class LibraryHome extends React.Component {
   }
 
   _refresh = () => {
-    this.setState({
-      editing: false,
-      refreshing: true,
-   });
-   this.props.onSyncLibrary(this.props.localChanges).then(failedSyncs =>{
-     //TODO: issue #65
-     // will need promise to return serverDeck version of the failedSync
+    if (failedSyncs && failedSyncs.length) {
+       this.props.navigator.push({failedSyncs})
+     }
+     this.setState({
+       refreshing: false
+     });
    })
+   .catch(e => {
+     console.warn('Failed to sync changes', e)
+     this.setState({
+       refreshing: false
+     });
+     Alert.alert(
+       (Platform.OS === 'android' ? 'Cue cloud sync failed' : 'Cue Cloud Sync Failed'),
+       'Check your Internet connection and try again.'
+     )
+    })
   }
 
   _onPressAddDeck = () => {

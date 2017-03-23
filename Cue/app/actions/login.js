@@ -18,6 +18,7 @@ function logIn(cueUserId: string, cueAccessToken: string): Action {
 }
 
 function logOut(): Action {
+  LoginManager.logOut()
   CueApi.setAuthHeader(null, null);
   return {
     type: 'LOGGED_OUT',
