@@ -32,7 +32,7 @@ type Props = {
 
   newDecks: ?Array<DeckMetadata>,
   topDecks: ?Array<DeckMetadata>,
-  onDiscover: () => any,
+  onRefreshDiscover: () => any,
 }
 
 class DiscoverHome extends React.Component {
@@ -40,7 +40,6 @@ class DiscoverHome extends React.Component {
 
   state: {
     dataSource: ListView.DataSource,
-    loading: boolean,
     refreshing: boolean
   }
 
@@ -65,7 +64,7 @@ class DiscoverHome extends React.Component {
     this.setState({
       refreshing: true
     })
-    this.props.onDiscover()
+    this.props.onRefreshDiscover()
   }
 
   _getNewState = (props) => {
@@ -78,7 +77,7 @@ class DiscoverHome extends React.Component {
         refreshing: false
       }
     } else {
-      this.props.onDiscover()
+      this.props.onRefreshDiscover()
       return {
         dataSource: this.ds.cloneWithRowsAndSections({}),
         refreshing: true
@@ -131,7 +130,7 @@ function select(store) {
 
 function actions(dispatch) {
   return {
-    onDiscover: () => dispatch(discoverDecks())
+    onRefreshDiscover: () => dispatch(discoverDecks())
   };
 }
 

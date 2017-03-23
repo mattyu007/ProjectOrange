@@ -71,7 +71,7 @@ class LibraryHome extends React.Component {
 
     this.state = {
       editing: false,
-      refreshing: refreshing,
+      refreshing,
     }
   }
 
