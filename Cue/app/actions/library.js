@@ -85,7 +85,6 @@ function syncLibrary(localChanges): ThunkAction {
     })
     return Promise.all(promises).then(() => {
       console.info('failed syncs:  ', failedSyncs)
-      if (failedSyncs.length == 0) dispatch(loadLibrary())
       return failedSyncs;
     })
   };

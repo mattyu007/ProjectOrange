@@ -73,28 +73,21 @@ class LibraryHome extends React.Component {
     }
   }
 
-  componentWillReceiveProps(newProps: Props) {
-    this.setState({
-      refreshing: false
-    })
-  }
-
   _refresh = () => {
+    this.setState({refreshing: true})
     this.props.onSyncLibrary(this.props.localChanges).then(failedSyncs =>{
       if (failedSyncs && failedSyncs.length) {
+        this.setState({refreshing: false})
         this.props.navigator.push({failedSyncs})
+      } else {
+        this.props.onLoadLibrary().then(response => {
+          this.setState({refreshing: false})
+        })
       }
-      this.setState({
-        refreshing: false,
-        editing: false
-      });
     })
     .catch(e => {
+      this.setState({refreshing: false})
       console.warn('Failed to sync changes', e)
-      this.setState({
-        refreshing: false,
-        editing: false
-      });
       Alert.alert(
         (Platform.OS === 'android' ? 'Cue cloud sync failed' : 'Cue Cloud Sync Failed'),
         'Check your Internet connection and try again.'
@@ -241,6 +234,7 @@ class LibraryHome extends React.Component {
         <CueHeader
           leftItem={leftItem}
           title='Library'
+          key={this.state.editing}
           rightItems={rightItems} />
         <LibraryListView
           style={styles.bodyContainer}
