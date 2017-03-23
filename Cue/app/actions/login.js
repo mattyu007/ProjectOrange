@@ -5,6 +5,8 @@ import FacebookApi from '../api/Facebook';
 import { LoginManager, AccessToken,  } from 'react-native-fbsdk';
 import { loadLibrary } from './library';
 import CueApi from '../api/CueApi';
+import UserApi from '../api/UserApi';
+
 
 function logIn(cueUserId: string, cueAccessToken: string): Action {
   CueApi.setAuthHeader(cueUserId, cueAccessToken);
@@ -17,6 +19,7 @@ function logIn(cueUserId: string, cueAccessToken: string): Action {
   };
 }
 
+
 function logOut(): Action {
   LoginManager.logOut()
   CueApi.setAuthHeader(null, null);
@@ -26,34 +29,31 @@ function logOut(): Action {
 }
 
 
-
-async function loadUsername(name): PromiseAction {
+function loadUsername(name: string): Action {
+  UserApi.setName(name).catch(e => console.warn('Could not set name on Cue server'))
   return {
     type: 'LOADED_USERNAME',
     name,
   };
 }
 
+
 function serverLogin(): ThunkAction {
   return (dispatch, getState) => {
-    const login = _serverLogin();
+    return _serverLogin().then(cueUser => {
+      dispatch(logIn(cueUser['user_id'], cueUser['access_token']));
+      dispatch(loadLibrary());
 
-    // Loading data happens async
-    login.then(
-      (result) => {
-        dispatch(result[0]);
-        dispatch(loadLibrary());
-        FacebookApi.getName(data=>{dispatch(loadUsername(data.name))});
-      }
-    ).catch(
-      (e) => {
-        //If Cue auth fails, logout of facebook
-        LoginManager.logOut();
-        throw e;
+      // Get name from Facebook.
+      FacebookApi.getName(data => dispatch(loadUsername(data.name)));
+    }).catch(e => {
+      // Log out of Facebook if Cue auth fails.
+      LoginManager.logOut();
+      throw e;
     });
-    return login;
   };
 }
+
 
 async function _serverLogin() {
   const fbAccessToken = await AccessToken.getCurrentAccessToken();
@@ -63,13 +63,9 @@ async function _serverLogin() {
   let timeout = new Promise((resolve, reject) => {
     setTimeout(reject, 10000, 'Timed out while authenticating with Cue server');
   })
-  let cueUser = await Promise.race
-    ([timeout, AuthenticationApi.authenticate(facebookUserId, facebookAccessToken)]);
-  let userId = cueUser['user-id'];
-  let accessToken = cueUser['access-token'];
-  return Promise.all([
-    Promise.resolve(logIn(userId, accessToken)),
-  ]);
+  return Promise.race(
+    [timeout, AuthenticationApi.authenticate(facebookUserId, facebookAccessToken)]);
 }
+
 
 module.exports = {logIn, logOut, serverLogin};

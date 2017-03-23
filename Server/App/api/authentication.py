@@ -35,8 +35,8 @@ class AuthHandler(BaseHandler):
         if user is not None:
             user_json = user.get()
             return self.make_response(response=json.dumps({
-                'user-id': user_json['uuid'],
-                'access-token': user_json['access_token']
+                'user_id': user_json['uuid'],
+                'access_token': user_json['access_token']
             }))
 
         # Create a new user.
@@ -46,8 +46,8 @@ class AuthHandler(BaseHandler):
         # Return newly created credentials.
         user_json = user.get()
         return self.make_response(response=json.dumps({
-            'user-id': user_json['uuid'],
-            'access-token': user_json['access_token']
+            'user_id': user_json['uuid'],
+            'access_token': user_json['access_token']
         }), status=StatusCode.CREATED)
 
 
