@@ -27,7 +27,7 @@ function library(state: State = initialState, action: Action): State {
     let loadedDecks = action.decks.slice()
 
     action.decks.forEach(deck => {
-        if ((!deck.accessible || deck.deleted)) {
+        if (!deck.accessible || deck.deleted) {
           let index = decks.findIndex(d => d.uuid == deck.uuid)
           if (index != -1) {
             inaccessibleDecks.push(decks[index])

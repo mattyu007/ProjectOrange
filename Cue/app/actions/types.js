@@ -4,6 +4,7 @@ import type {Deck, DeckMetadata} from '../api/types';
 
 export type Action =
 	{ type: 'LOADED_LIBRARY', decks: Array<Deck> }
+<<<<<<< HEAD
   |	{ type: 'LOADED_USERNAME', name: string }
   | { type: 'LOGGED_IN', data: { userId: string; accessToken: string; } }
   | { type: 'LOGGED_OUT' }
@@ -20,7 +21,7 @@ export type Action =
 	| { type: 'DECK_ALREADY_IN_LIBRARY'}
 	| { type: 'DECK_ADDED_TO_LIBRARY', addedDeck: Deck}
 	| { type: 'CLEAR_INACCESSIBLE_DECKS'}
-  ;
+;
 
 export type Dispatch = (action: Action | ThunkAction | PromiseAction | Array<Action>) => any;
 export type GetState = () => Object;
