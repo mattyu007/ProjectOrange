@@ -14,7 +14,7 @@ type Props = {
   cards: Array<Card>,
   isFiltering: boolean,
   accession?: string,
-  flagCard?: (cardUuid: string, flag: boolean) => any,
+  onFlagCard?: (cardUuid: string, flag: boolean) => any,
 }
 
 export default class CardListView extends React.Component {
@@ -41,7 +41,10 @@ export default class CardListView extends React.Component {
 
   _getDataSource = (cards: Array<Card>, isFiltering: boolean) => {
     let ds = new ListView.DataSource({
-      rowHasChanged: (r1, r2) => r1.front !== r2.front || r1.back !== r2.back || r1.position !== r2.position
+      rowHasChanged: (r1: Card, r2: Card) => {
+        return (r1.front !== r2.front || r1.back !== r2.back || r1.uuid !== r2.uuid ||
+                r1.needs_review !== r2.needs_review)
+      }
     })
 
     cards = cards || []
@@ -81,7 +84,7 @@ export default class CardListView extends React.Component {
           ? { paddingBottom: 88 /* 56 + 2 x 16 to avoid FAB */ }
           : { } }
         dataSource={this.state.dataSource}
-        renderRow={card => <CardListViewRow card={card} flagCard={this.props.flagCard} />}
+        renderRow={card => <CardListViewRow card={card} onFlagCard={this.props.onFlagCard} />}
         renderSeparator={(section, row) => <ListViewHairlineSeparator key={row} />} />
     )
   }

@@ -1,7 +1,7 @@
 // @flow
 
 import React from 'react'
-import { View, Text, Platform, Image, TouchableNativeFeedback } from 'react-native'
+import { View, Text, Platform, Image, TouchableNativeFeedback, TouchableHighlight } from 'react-native'
 
 import type { Card } from '../../api/types'
 
@@ -34,11 +34,13 @@ const styles = {
 export default class CardListViewRow extends React.Component {
   props: {
     card: Card,
-    flagCard: (cardUuid: string, flag: boolean) => any
+    onFlagCard?: (cardUuid: string, flag: boolean) => any
   }
 
   _onPress = () => {
-    this.props.flagCard(this.props.card.uuid, !this.props.card.needs_review)
+    if (typeof this.props.onFlagCard !== 'undefined') {
+      this.props.onFlagCard(this.props.card.uuid, !this.props.card.needs_review)
+    }
   }
 
   render() {
@@ -56,14 +58,25 @@ export default class CardListViewRow extends React.Component {
       </View>
     )
 
-    // Row should not be touchable if flagCard is undefined.
-    if (typeof this.props.flagCard === 'undefined') return row
+    // Row should not be touchable if onFlagCard is undefined.
+    if (typeof this.props.onFlagCard === 'undefined') return row
 
+    if (Platform.OS === 'android') {
+      return (
+        <TouchableNativeFeedback
+          onPress={this._onPress} >
+          {row}
+        </TouchableNativeFeedback>
+      )
+    }
+
+    // iOS
     return (
-      <TouchableNativeFeedback
-        onPress={this._onPress} >
+      <TouchableHighlight
+        onPress={this._onPress}
+        underlayColor={CueColors.veryLightGrey} >
         {row}
-      </TouchableNativeFeedback>
+      </TouchableHighlight>
     )
   }
 }

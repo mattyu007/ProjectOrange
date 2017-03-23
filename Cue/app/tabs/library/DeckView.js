@@ -54,7 +54,7 @@ type Props = {
   decks: Array<Deck>,
   addCard: (deckUuid: string, front: string, back: string, position: number) => any,
   editCard: (deckUuid: string, cardUuid: string, front: string, back: string) => any,
-  flagCard?: (deckUuid: string, cardUuid: string, flag: boolean) => any,
+  flagCard: (deckUuid: string, cardUuid: string, flag: boolean) => any,
 }
 
 class DeckView extends React.Component {
@@ -266,7 +266,7 @@ class DeckView extends React.Component {
             accession={this.state.deck.accession}
             cards={this.state.deck.cards}
             isFiltering={this.state.isFiltering}
-            flagCard={this._flagCard} />
+            onFlagCard={this._flagCard} />
         </ScrollView>
         {this._renderFABs()}
         {this._renderToolbar(allItems)}
