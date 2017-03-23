@@ -73,12 +73,6 @@ class LibraryHome extends React.Component {
     }
   }
 
-  componentWillReceiveProps(newProps: Props) {
-    this.setState({
-      refreshing: false
-    })
-  }
-
   _refresh = () => {
     this.setState({refreshing: true})
     this.props.onSyncLibrary(this.props.localChanges).then(failedSyncs =>{
@@ -86,7 +80,9 @@ class LibraryHome extends React.Component {
         this.setState({refreshing: false})
         this.props.navigator.push({failedSyncs})
       } else {
-        this.props.onLoadLibrary()
+        this.props.onLoadLibrary().then(response => {
+          this.setState({refreshing: false})
+        })
       }
     })
     .catch(e => {
@@ -238,6 +234,7 @@ class LibraryHome extends React.Component {
         <CueHeader
           leftItem={leftItem}
           title='Library'
+          key={this.state.editing}
           rightItems={rightItems} />
         <LibraryListView
           style={styles.bodyContainer}
