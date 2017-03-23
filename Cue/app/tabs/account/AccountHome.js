@@ -58,7 +58,7 @@ const styles = {
 }
 
 type Props = {
-  navigator: Navigator
+  navigator: Navigator,
 
   // From Redux:
   user: Object,

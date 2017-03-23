@@ -94,7 +94,6 @@ class LibraryHome extends React.Component {
      });
      Alert.alert(
        (Platform.OS === 'android' ? 'Cue cloud sync failed' : 'Cue Cloud Sync Failed'),
-       'Cue Cloud Sync Failed',
        'Check your Internet connection and try again.'
      )
     })
