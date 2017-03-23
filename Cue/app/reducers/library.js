@@ -63,12 +63,11 @@ function library(state: State = initialState, action: Action): State {
           ? localChanges[changeIndex].cards.concat(change.cards)
           : localChanges[changeIndex].cards
         : change.cards
-
       localChanges[changeIndex] = {
         ...localChanges[changeIndex],
         ...change,
         cards,
-        action: localChanges[changeIndex].action,
+        action: localChanges[changeIndex].action === 'add' ? 'add' : 'edit',
       }
     } else if (!decks[deckIndex]) {
         console.error("Could not find deck for an edit action that already exists", change)
@@ -76,6 +75,36 @@ function library(state: State = initialState, action: Action): State {
       localChanges.push({
         ...change,
         action: 'edit',
+        parent_deck_version: decks[deckIndex].deck_version,
+        parent_user_data_version: decks[deckIndex].user_data_version
+      })
+    }
+
+  } else if (action.type === 'CARD_FLAGGED') {
+    let change = action.change
+    let deckIndex = decks.findIndex(deck => deck.uuid == change.uuid)
+    if (decks[deckIndex]) {
+      decks[deckIndex] = {
+        ...decks[deckIndex],
+        cards: _mergeCardChanges(decks[deckIndex].cards, change.cards),
+      }
+    }
+    let changeIndex = localChanges.findIndex(deck => deck.uuid == change.uuid)
+    if (localChanges[changeIndex]) {
+      let cards = localChanges[changeIndex].cards
+        ? change.cards
+          ? localChanges[changeIndex].cards.concat(change.cards)
+          : localChanges[changeIndex].cards
+        : change.cards
+
+      localChanges[changeIndex] = {
+        ...localChanges[changeIndex],
+        cards,
+      }
+    } else {
+      localChanges.push({
+        ...change,
+        action: 'flag',
         parent_deck_version: decks[deckIndex].deck_version,
         parent_user_data_version: decks[deckIndex].user_data_version
       })
@@ -121,8 +150,8 @@ function library(state: State = initialState, action: Action): State {
 function _mergeCardChanges(cards, changes) {
   console.info('Merging card changes', cards, changes)
   if (! cards && !changes) return []
-  if (!cards) return []
   if (!changes) return cards
+  if (!cards) cards = []
   let mergedCards = cards.slice();
   changes.forEach(change => {
     let index = mergedCards.findIndex(card => card.uuid == change.uuid)

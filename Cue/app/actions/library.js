@@ -56,6 +56,17 @@ function recordShareCode(uuid: string, shareCode: string): Action {
   }
 }
 
+function flagCard(deckUuid: string, cardUuid: string, needs_review: Boolean): Action {
+  let change = {
+    uuid: deckUuid,
+    cards: [{uuid: cardUuid, needs_review, action: 'edit'}]
+  }
+  return {
+    type: 'CARD_FLAGGED',
+    change
+  }
+}
+
 async function resolveConflict(useServerDeck: Boolean, localDeck: Deck) : PromiseAction {
   let updatedDeck
   if (useServerDeck)
@@ -109,17 +120,12 @@ async function syncDeck(change) : PromiseAction {
       }
     }
   } else if (change.action === "edit") {
-    if (change.name || change.tags || change.public
-      || (change.cards && change.cards.find(card => card.front || card.back || card.poistion))) {
-      serverDeck = await LibraryApi.editDeck(change)
-    } else if (change.cards && change.cards.find(card => card.uuid && card.needs_review != undefined)) {
-      let response = await LibraryApi.flagCard(change)
-      change = {...change, user_data_version: response.user_data_version}
-    } else {
-      console.warn('Change not synced', change)
-    }
+    serverDeck = await LibraryApi.editDeck(change)
   } else if (change.action === "delete") {
     await LibraryApi.deleteDeck(change.uuid)
+  } else if (change.action === "flag") {
+    let response = await LibraryApi.flagCard(change)
+    change = {...change, user_data_version: response.user_data_version}
   }
   return {
     type: 'DECK_SYNCED',
@@ -145,4 +151,4 @@ async function addLibrary(uuid: string): PromiseAction {
   };
 }
 
-module.exports = { loadLibrary, createDeck, deleteDeck, editDeck, recordShareCode, syncDeck, syncLibrary, addLibrary, resolveConflict };
+module.exports = { loadLibrary, createDeck, deleteDeck, editDeck, recordShareCode, syncDeck, syncLibrary, addLibrary, resolveConflict, flagCard };

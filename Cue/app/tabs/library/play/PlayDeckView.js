@@ -4,7 +4,7 @@ import React from 'react'
 import { Navigator, Animated, Easing, View, Text, Image, TouchableOpacity, PanResponder, Platform, Dimensions, StatusBar } from 'react-native'
 
 import { connect } from 'react-redux'
-import { editDeck } from '../../../actions'
+import { flagCard } from '../../../actions'
 
 import type { Deck, Card } from '../../../api/types'
 
@@ -501,17 +501,7 @@ class PlayDeckView extends React.Component {
 function actions(dispatch) {
   return {
     flagCard: (deckUuid: string, cardUuid: string, flag: boolean) => {
-      let change = {
-        uuid: deckUuid,
-        cards: [
-          {
-            action: 'edit',
-            uuid: cardUuid,
-            needs_review: flag,
-          }
-        ]
-      }
-      return dispatch(editDeck(change))
+      return dispatch(flagCard(deckUuid, cardUuid, flag))
     }
   }
 }
