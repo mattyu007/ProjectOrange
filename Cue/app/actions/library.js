@@ -114,7 +114,7 @@ async function syncDeck(change) : PromiseAction {
       serverDeck = await LibraryApi.editDeck(change)
     } else if (change.cards && change.cards.find(card => card.uuid && card.needs_review != undefined)) {
       let response = await LibraryApi.flagCard(change)
-      change = {...change, User_data_version: response.user_data_version}
+      change = {...change, user_data_version: response.user_data_version}
     } else {
       console.warn('Change not synced', change)
     }
