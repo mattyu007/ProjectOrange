@@ -47,6 +47,7 @@ var LibraryApi = {
       parent_user_data_version: change.parent_user_data_version,
       name: change.name,
       public: change.public,
+      unshare: change.unshare,
       tags: change.tags,
       actions
     })
