@@ -192,11 +192,11 @@ class DeckSharingOptions extends React.Component {
     switch (this._sharingStatusForDeck(this.props.deck)) {
       case 'public':
         message = 'Your deck will no longer appear in Discover or Search.'
-          + '\n\nPeople who currently have your deck in their Library will no longer receive updates for this deck.'
+          + '\n\nPeople who have your deck in their Library will no longer receive updates for it.'
         break
       case 'shared':
         message = 'The current share code for your deck will be invalidated.'
-          + '\n\nPeople who currently have your deck in their Library will no longer receive updates for this deck.'
+          + '\n\nPeople who have your deck in their Library will no longer receive updates for it.'
         break
     }
 
@@ -319,7 +319,7 @@ class DeckSharingOptions extends React.Component {
     let footerText
     if (this.props.deck.accession === 'private') {
       footerText = 'Separate tags by pressing the Done key.'
-        + ' Others can discover your deck by searching for these tags.'
+        + ' Others can discover this deck by searching for these tags.'
         + '\n\nOnly you can edit this deck.'
     } else {
       footerText = 'Others can discover this deck by searching for these tags.'
@@ -414,7 +414,9 @@ function actions(dispatch) {
         change = {
           uuid: deckUuid,
           public: isPublic,
-          share_code: null // Share code needs to be deleted if the deck becomes private
+          // Share code needs to be deleted if the deck becomes private
+          share_code: null,
+          unshare: true,
         }
       } else {
         change = {
