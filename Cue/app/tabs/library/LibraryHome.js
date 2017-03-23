@@ -55,9 +55,9 @@ type Props = {
   onCreateDeck: (string) => any,
   onLoadLibrary: () => any,
   onSyncLibrary: (any) => any,
-  deleteDeck: (uuid: string) => any,
+  onDeleteDeck: (uuid: string) => any,
   onClearInaccessibleDecks: () => any,
-  onDeckCopy: (deck: Deck) => any,
+  onCopyDeck: (deck: Deck) => any,
 }
 
 class LibraryHome extends React.Component {
@@ -90,11 +90,13 @@ class LibraryHome extends React.Component {
     if (newProps.inaccessibleDecks && newProps.inaccessibleDecks.length > 0) {
       newProps.inaccessibleDecks.forEach(deck => {
         Alert.alert(
-          ('The deck "' + deck.name + '" is no longer available'),
+          (Platform.OS === 'android' ?
+            'The deck “' + deck.name + '” is no longer available from the original owner' :
+            'The Deck “' + deck.name + '” Is No Longer Available From The Original Owner'),
           'To continue using this deck, copy the deck into your library.',
           [
-            {text: 'Remove', style: 'cancel'},
-            {text: 'Copy', onPress: () => this.props.onDeckCopy(deck)},
+            {text: 'Remove', style: 'destructive'},
+            {text: 'Copy', onPress: () => this.props.onCopyDeck(deck)},
           ]
         )
       })
@@ -173,7 +175,7 @@ class LibraryHome extends React.Component {
         {text: 'Cancel', style: 'cancel'},
         {text: buttonText, style: 'destructive',
           onPress: () => {
-            this.props.deleteDeck(deck.uuid)
+            this.props.onDeleteDeck(deck.uuid)
             this.props.navigator.pop()
           }
         }
@@ -293,9 +295,9 @@ function actions(dispatch) {
     onCreateDeck: (name: string) => dispatch(createDeck(name)),
     onLoadLibrary: () => dispatch(loadLibrary()),
     onSyncLibrary: (changes) => dispatch(syncLibrary(changes)),
-    deleteDeck: (uuid: string) => dispatch(deleteDeck(uuid)),
+    onDeleteDeck: (uuid: string) => dispatch(deleteDeck(uuid)),
     onClearInaccessibleDecks: () => dispatch(clearInaccessibleDecks()),
-    onDeckCopy: (deck) => dispatch(copyDeck(deck)),
+    onCopyDeck: (deck) => dispatch(copyDeck(deck)),
   }
 }
 

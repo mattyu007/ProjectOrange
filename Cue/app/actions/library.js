@@ -159,18 +159,15 @@ function clearInaccessibleDecks(): Action {
 }
 
 function copyDeck(localDeck: Deck) : Action {
-  let cards = JSON.parse(JSON.stringify(localDeck.cards))
-
-  cards.forEach(card => {
-    card.action = 'add'
-    delete card.uuid
+  let newCards = localDeck.cards.map(card => {
+    return {...card, action: 'add', uuid: undefined}
   })
 
   let deck = {
     name: localDeck.name,
     uuid: uuidV4(),
     public: false,
-    cards: cards,
+    cards: newCards,
     owner: CueApi.userId,
     accession: 'private',
   }

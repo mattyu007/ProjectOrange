@@ -24,7 +24,7 @@ function library(state: State = initialState, action: Action): State {
 
   if (action.type === 'LOADED_LIBRARY') {
     inaccessibleDecks = []
-    loadedDecks = action.decks.slice()
+    let loadedDecks = action.decks.slice()
 
     action.decks.forEach(deck => {
         if ((!deck.accessible || deck.deleted)) {
