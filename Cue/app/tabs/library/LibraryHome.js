@@ -83,17 +83,15 @@ class LibraryHome extends React.Component {
     this.setState({refreshing: true})
     this.props.onSyncLibrary(this.props.localChanges).then(failedSyncs =>{
       if (failedSyncs && failedSyncs.length) {
-        this.props.navigator.push({failedSyncs})
         this.setState({refreshing: false})
+        this.props.navigator.push({failedSyncs})
       } else {
-        this.props.onLoadLibrary().then(response => {
-          this.setState({refreshing: false})
-        })
+        this.props.onLoadLibrary()
       }
     })
     .catch(e => {
-      console.warn('Failed to sync changes', e)
       this.setState({refreshing: false})
+      console.warn('Failed to sync changes', e)
       Alert.alert(
         (Platform.OS === 'android' ? 'Cue cloud sync failed' : 'Cue Cloud Sync Failed'),
         'Check your Internet connection and try again.'
