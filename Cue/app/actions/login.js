@@ -29,7 +29,7 @@ function logOut(): Action {
 }
 
 
-async function loadUsername(name: string): PromiseAction {
+function loadUsername(name: string): Action {
   UserApi.setName(name).catch(e => console.warn('Could not set name on Cue server'))
   return {
     type: 'LOADED_USERNAME',
