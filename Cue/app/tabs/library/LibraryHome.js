@@ -47,10 +47,11 @@ type Props = {
   decks: Array<Deck>,
   navigator: Navigator,
   onPressMenu?: () => void,
+
+  // From Redux:
   localChanges: {},
   inaccessibleDecks: ?Array<Deck>,
 
-  // From Redux:
   onCreateDeck: (string) => any,
   onLoadLibrary: () => any,
   onSyncLibrary: (any) => any,
