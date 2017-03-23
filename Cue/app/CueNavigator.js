@@ -77,7 +77,7 @@ var CueNavigator = React.createClass({
             return Navigator.SceneConfigs.FloatFromBottomAndroid;
           }
 
-          if (route.playDeckSetup || route.sharingOptions) {
+          if (route.playDeckSetup || route.sharingOptions || route.failedSyncs) {
             return {
               ...Navigator.SceneConfigs.FloatFromBottom,
               gestures: {}}

@@ -1,10 +1,11 @@
 // @flow
 
 import React from 'react'
-import { View, Text, TouchableHighlight, Alert } from 'react-native'
+import { View, Text, TouchableHighlight, Alert, Navigator } from 'react-native'
 
 import { connect } from 'react-redux'
 import { logOut } from '../../actions/login'
+import { syncLibrary } from '../../actions/library'
 
 import CueColors from '../../common/CueColors'
 import CueHeader from '../../common/CueHeader'
@@ -57,9 +58,12 @@ const styles = {
 }
 
 type Props = {
+  navigator: Navigator
+
   // From Redux:
   user: Object,
   logOut: () => void,
+  syncLibrary: () => void,
 }
 
 class AccountHome extends React.Component {
@@ -69,7 +73,7 @@ class AccountHome extends React.Component {
       this.props.syncLibrary(this.props.localChanges).then(failedSyncs =>{
         if (failedSyncs && failedSyncs.length) {
           Alert.alert(
-            'You have local changes which conflict with changes in the Cue cloud',
+            'You Have Local Changes Which Conflict with Changes in the Cue Cloud',
             'If you sign out now without resolving these conflicts, you will lose all your local changes',
             [
               {text: "Sign Out Anyway", onPress: () => this.props.logOut(), style: 'destructive'},
@@ -84,7 +88,7 @@ class AccountHome extends React.Component {
         console.warn('Failed to sync changes', e)
         Alert.alert(
           'Some changes haven’t been synced to the Cue cloud yet',
-          'Can’t connect to the Cue cloud right now.\nIf you sign out now, you will lose all the changes you made while offline.',
+          'Can’t connect to the Cue cloud right now.\n\nIf you sign out now, you will lose all the changes you made while offline.',
           [
             {text: 'Sign Out Anyway', onPress: () => this.props.logOut(), style: 'destructive'},
             {text: 'Cancel', style: 'cancel'}

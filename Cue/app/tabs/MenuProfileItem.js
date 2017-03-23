@@ -64,7 +64,7 @@ class MenuProfileItem extends React.Component {
         console.warn('Failed to sync changes', e)
         Alert.alert(
           'Some changes haven’t been synced to the Cue cloud yet',
-          'Can’t connect to the Cue cloud right now.\nIf you sign out now, you will lose all the changes you made while offline.',
+          'Can’t connect to the Cue cloud right now.\n\nIf you sign out now, you will lose all the changes you made while offline.',
           [{text: 'Sign Out Anyway', onPress: () => this.props.logOut(), style: 'destructive'},
            {text: 'Cancel', style: 'cancel'}],
            { cancelable: false }

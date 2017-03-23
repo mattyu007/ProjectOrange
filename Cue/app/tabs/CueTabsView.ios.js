@@ -68,7 +68,8 @@ class CueTabsView extends React.Component {
           selectedIcon={CueIcons.tabAccountSelected}
           selected={this.props.tab === 'account'}
           onPress={this.onTabSelect.bind(this, 'account')}>
-          <AccountHome />
+          <AccountHome
+            navigator={this.props.navigator} />
         </TabBarIOS.Item>
       </TabBarIOS>
     );
