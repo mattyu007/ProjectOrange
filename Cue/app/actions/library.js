@@ -96,7 +96,7 @@ function syncLibrary(localChanges): ThunkAction {
 // ex: { uuid: string, action: 'edit', cards: [{action: 'edit', uuid: string, front: "fox", back: "20XX"}] } if 1 card in deck was changed
 async function syncDeck(change) : PromiseAction {
   let serverDeck = {}
-  if (change.action == "add"){
+  if (change.action === "add"){
     serverDeck = await LibraryApi.createDeck(change.name, change.tags);
     // check if any other changes need to be synced
     for (let key in change) {
@@ -109,9 +109,9 @@ async function syncDeck(change) : PromiseAction {
         break
       }
     }
-  } else if (change.action == "edit") {
+  } else if (change.action === "edit") {
     serverDeck = await LibraryApi.editDeck(change)
-  } else if (change.action == "delete") {
+  } else if (change.action === "delete") {
     await LibraryApi.deleteDeck(change.uuid)
   }
   return {
