@@ -68,7 +68,7 @@ export default class CardListViewRow extends React.Component {
     )
 
     // Row should not be touchable if onFlagCard is undefined.
-    if (typeof this.props.onFlagCard === 'undefined') return row
+    if (!this.props.onFlagCard) return row
 
     if (Platform.OS === 'android') {
       return (
