@@ -53,7 +53,7 @@ const baseStyles = {
     left: 4,
   },
   deleteOverlayIcon: {
-    tintColor: '#FF3B30',
+    tintColor: CueColors.dangerTint,
   },
   itemPublicInset: {
     position: 'absolute',

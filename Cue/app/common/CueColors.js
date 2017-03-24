@@ -11,6 +11,8 @@ module.exports = {
   primaryTintDark: '#225095',   // or Material Blue 800 '#1565C0'?
   primaryTintDarker: '#193C70', // or Material Blue 900 '#0D47A1'?
 
+  dangerTint: '#FF3B30',
+
   primaryText: '#53585F',
   lightText: 'rgba(0, 0, 0, 0.4)',
 
@@ -29,5 +31,5 @@ module.exports = {
   backIndicatorTint: '#51A7F9',
 
   positiveTint: '#4AA45A',
-  negativeTint: '#DA3832'
+  negativeTint: '#DA3832',
 }

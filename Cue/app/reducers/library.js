@@ -1,7 +1,7 @@
 // @flow
 
 import type { Action } from '../actions/types';
-import type { Deck } from '../api/types';
+import type { Deck, Card } from '../api/types';
 
 export type State = {
   decks: ?Array<Deck>;
@@ -189,46 +189,124 @@ function library(state: State = initialState, action: Action): State {
 //apply card changes to a deck.cards
 function _applyCardChangesDecks(cards, changes) {
   console.debug('_applyCardChangesDecks', cards, changes)
-  if (! cards && !changes) return []
+  if (!cards && !changes) return []
   if (!changes) return cards
   if (!cards) cards = []
+
+  let positionUpdateNeeded = false
   let mergedCards = cards.slice();
+
   changes.forEach(change => {
     let index = mergedCards.findIndex(card => card.uuid == change.uuid)
+
     if (change.action === 'add') {
       mergedCards.push({...change, action: undefined})
-    } else if (change.action === 'delete' && mergedCards[index]) {
-      mergedCards.splice(index,1)
-    } else if (change.action === 'edit' && mergedCards[index]) {
-      //TODO: update the position of every card if position changed
-      mergedCards[index] = {...mergedCards[index], ...change, action: undefined}
+
+    } else if (change.action === 'delete') {
+      if (index !== -1) {
+        mergedCards.splice(index,1)
+      } else {
+        console.warn('Tried to delete non-existant card ' + change.uuid + '?')
+      }
+
+    } else if (change.action === 'edit') {
+      if (index !== -1) {
+        if (typeof change.position !== 'undefined' && change.position !== index) {
+          // The change has a move; do the move
+          positionUpdateNeeded = true
+          let card = mergedCards.splice(index, 1)[0]
+          card = {...card, ...change, action: undefined}
+          mergedCards.splice(change.position, 0, card)
+        } else {
+          // The change is not a move; just edit the card in-place
+          mergedCards[index] = {...mergedCards[index], ...change, action: undefined}
+        }
+      } else {
+        console.warn('Tried to edit non-existant card ' + change.uuid + '?')
+      }
     }
   })
+
+  // Fix the position property of the cards if necessary
+  if (positionUpdateNeeded) {
+    mergedCards.forEach((card: Card, index: number) => {
+      card.position = index
+    })
+  }
+
   return mergedCards
 }
 
 //apply card changes to a localChange.cards
 function _applyCardChangesLocalChanges(cards, changes) {
   console.debug('_applyCardChangesLocalChanges', cards, changes)
-  if (! cards && !changes) return []
+  if (!cards && !changes) return []
   if (!cards) return changes
   if (!changes) return cards
   let mergedCards = cards.slice();
   changes.forEach(change => {
+    // Locate the existing localChanges record
     let index = mergedCards.findIndex(card => card.uuid == change.uuid)
+
     if (change.action === 'add') {
       mergedCards.push(change)
-    } else if (change.action === 'delete' && mergedCards[index]) {
-      if (mergedCards[index].action === 'add')
-        mergedCards.splice(index,1)
-      else
-        mergedCards[index] = {uuid: change.uuid, action: 'delete'}
-    } else if (change.action === 'edit') {
-      //TODO: make sure position order is what server expects
-      if (mergedCards[index])
-        mergedCards[index] = {...mergedCards[index], ...change, action: mergedCards[index].action}
-      else
+
+    } else if (change.action === 'delete') {
+      if (index !== -1) {
+        if (mergedCards[index].action === 'add') {
+          mergedCards.splice(index,1)
+        } else {
+          mergedCards[index] = {uuid: change.uuid, action: 'delete'}
+        }
+      } else {
         mergedCards.push(change)
+      }
+
+    } else if (change.action === 'edit') {
+      // For card moves, since our local changes and the server's changes are
+      // applied in order, we only need to account for the case where a card
+      // is edited or moved multiple times, which causes other cards to shift.
+      if (index !== -1) {
+        if (typeof change.position !== 'undefined'
+            && typeof mergedCards[index].position !== 'undefined'
+            && change.position !== mergedCards[index].position) {
+          // Remove the card from the list of merged cards
+          let localChange = mergedCards.splice(index, 1)[0]
+
+          let oldPosition = localChange.position
+          let newPosition = change.position
+
+          console.debug('Processing move from ' + oldPosition + ' to ' + newPosition)
+          // Forward move from X to Y: subtract 1 from all pending changes
+          // with positions > X
+          if (newPosition > oldPosition) {
+            mergedCards.forEach((card: Card) => {
+              if (typeof card.position !== 'undefined'
+                  && card.position > oldPosition) {
+                console.debug('Forward: Card at ' + card.position + ' will be adjusted -1')
+                card.position--
+              } else {
+                console.debug('Forward: Card at ' + card.position + ' not affected')
+              }
+            })
+
+          // Backward move from X to Y: we don't care! This is automatically taken
+          // care of because the card is inserted last, so all other cards
+          // are bumped automatically
+          } else if (newPosition < oldPosition) {
+            mergedCards.forEach((card: Card) => {
+              console.log('Back: Nothing to do with card at ' + card.position)
+            })
+          }
+
+          // Merge the new change and insert it at the end of the local changes
+          mergedCards.push({...localChange, ...change, action: localChange.action})
+        } else {
+          mergedCards[index] = {...mergedCards[index], ...change, action: mergedCards[index].action}
+        }
+      } else {
+        mergedCards.push(change)
+      }
     }
   })
   return mergedCards
