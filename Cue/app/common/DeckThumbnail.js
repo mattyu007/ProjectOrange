@@ -3,7 +3,7 @@
 'use strict';
 
 import React from 'react'
-import { View, Image, Text, TouchableOpacity, TouchableNativeFeedback, Dimensions, Navigator, Platform } from 'react-native'
+import { View, Image, Text, TouchableHighlight, TouchableNativeFeedback, Dimensions, Navigator, Platform } from 'react-native'
 
 import type { Deck } from '../api/types'
 
@@ -11,6 +11,11 @@ import CueColors from './CueColors'
 import CueIcons from './CueIcons'
 
 const baseStyles = {
+  touchableHighlight: {
+    // Match the border radius on itemContainer to stop the highlight's
+    // underlay colour from leaking through the rounded corners
+    borderRadius: 2,
+  },
   itemContainer: {
     alignItems: 'flex-start',
     justifyContent: 'center',
@@ -172,9 +177,11 @@ export default class DeckThumbnail extends React.Component {
         )
       } else {
         return (
-          <TouchableOpacity onPress={this.props.onPress} >
+          <TouchableHighlight
+            style={styles.touchableHighlight}
+            onPress={this.props.onPress}>
             {content}
-          </TouchableOpacity>
+          </TouchableHighlight>
         )
       }
     } else {
