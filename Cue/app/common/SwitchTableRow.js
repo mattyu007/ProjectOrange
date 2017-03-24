@@ -32,15 +32,17 @@ export default class SwitchTableRow extends React.Component {
 
   render() {
     return (
-      <TableRow style={styles.container} >
+      <TableRow
+        style={styles.container}
+        onPress={() => this.props.onPress(!this.props.value)}
+        disabled={Platform.OS !== 'android'} >
         <Text style={styles.text}>
           {this.props.text}
         </Text>
         <Switch
-          onTintColor={CueColors.primaryTint}
-          tintColor={CueColors.lightGrey}
+          onTintColor={Platform.OS === 'android' ? CueColors.primaryTintEvenLighter : CueColors.primaryTint}
           thumbTintColor={(Platform.OS === 'android' && this.props.value) ?
-                            CueColors.primaryTint : CueColors.veryLightGrey}
+                            CueColors.primaryTint : undefined}
           value={this.props.value}
           onValueChange={this.props.onPress} />
       </TableRow>

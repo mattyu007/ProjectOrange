@@ -115,7 +115,7 @@ export default class PlayDeckSetupView extends React.Component {
     return (
       <View>
         <TableHeader
-          text={'Modifiers:'} />
+          text={'Options:'} />
         <SwitchTableRow
           text={'Answer side first'}
           value={this.state.answerFirst}

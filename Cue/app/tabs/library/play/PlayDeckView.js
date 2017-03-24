@@ -153,22 +153,12 @@ class PlayDeckView extends React.Component {
     StatusBar.setHidden(false)
   }
 
-  _flaggedOnly(array: Array<*>): Array<*> {
-    return array.slice(0).filter(item => item.needs_review)
+  _flaggedOnly(array: Array<Deck>): Array<Deck> {
+    return array.filter(item => item.needs_review)
   }
 
-  _answerFirst(array: Array<*>): Array<*> {
-    let ret = []
-
-    for (let i = 0; i < array.length; i++) {
-      ret.push({
-        ...array[i],
-        front: array[i].back,
-        back: array[i].front
-      })
-    }
-
-    return ret
+  _answerFirst(array: Array<Deck>): Array<Deck> {
+    return array.map(deck => { return {...deck, front: deck.back, back: deck.front} })
   }
 
   _shuffled(array: Array<*>): Array<*> {

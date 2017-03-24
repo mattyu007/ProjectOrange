@@ -5,6 +5,7 @@
 module.exports = {
   primaryAccent: '#51A7F9',
 
+  primaryTintEvenLighter: '#BED1EA',
   primaryTintLighter: '#DEE8F5',
   primaryTint: '#0365C0',       // or Material Blue 600 '#1E88E5'?
   primaryTintDark: '#225095',   // or Material Blue 800 '#1565C0'?
