@@ -71,19 +71,14 @@ class LibraryHome extends React.Component {
   constructor(props: Props) {
     super(props)
 
-    let refreshing = false
-
-    if (this.props.deck === null) {
-      refreshing = true
-      this.props.onLoadLibrary().then(response => {
-        this.setState({refreshing: false})
-      })
-    }
-
     this.state = {
       editing: false,
-      refreshing,
+      refreshing: false,
     }
+  }
+
+  componentDidMount() {
+    this._refresh()
   }
 
   componentWillReceiveProps(newProps: Props) {
@@ -106,25 +101,27 @@ class LibraryHome extends React.Component {
   }
 
   _refresh = () => {
-    this.setState({refreshing: true})
-    this.props.onSyncLibrary(this.props.localChanges).then(failedSyncs =>{
-      if (failedSyncs && failedSyncs.length) {
-        this.setState({refreshing: false})
-        this.props.navigator.push({failedSyncs})
-      } else {
-        this.props.onLoadLibrary().then(response => {
+    if (!this.state.refreshing) {
+      this.setState({refreshing: true})
+      this.props.onSyncLibrary(this.props.localChanges).then(failedSyncs =>{
+        if (failedSyncs && failedSyncs.length) {
           this.setState({refreshing: false})
-        })
-      }
-    })
-    .catch(e => {
-      this.setState({refreshing: false})
-      console.warn('Failed to sync changes', e)
-      Alert.alert(
-        (Platform.OS === 'android' ? 'Cue cloud sync failed' : 'Cue Cloud Sync Failed'),
-        'Check your Internet connection and try again.'
-      )
-    })
+          this.props.navigator.push({failedSyncs})
+        } else {
+          this.props.onLoadLibrary().then(response => {
+            this.setState({refreshing: false})
+          })
+        }
+      })
+      .catch(e => {
+        this.setState({refreshing: false})
+        console.warn('Failed to sync changes', e)
+        Alert.alert(
+          (Platform.OS === 'android' ? 'Cue cloud sync failed' : 'Cue Cloud Sync Failed'),
+          'Check your Internet connection and try again.'
+        )
+      })
+    }
   }
 
   _onPressAddDeck = () => {
