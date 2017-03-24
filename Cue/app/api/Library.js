@@ -94,7 +94,27 @@ var LibraryApi = {
     })
     console.info('Overwriting ' + body + ' at endpoint: ' + endpoint)
     return CueApi.fetch(endpoint, method, body)
+  },
+
+  flagCard(change) {
+    let endpoint = '/api/v1/deck/' + change.uuid + '/flag'
+    let method = 'PUT'
+    let actions = []
+    if (change.cards) {
+      actions = change.cards.map(card => {
+        return {card_id: card.uuid, needs_review: card.needs_review}
+      })
+    }
+    let body = JSON.stringify({
+      device: DeviceInfo.getDeviceName(),
+      parent_deck_version: change.parent_deck_version,
+      parent_user_data_version: change.parent_user_data_version,
+      actions
+    })
+    console.info('Flagging card "' + body + '" at endpoint: ' + endpoint)
+    return CueApi.fetch(endpoint, method, body);
   }
+
 }
 
 module.exports = LibraryApi;

@@ -56,6 +56,17 @@ function recordShareCode(uuid: string, shareCode: string): Action {
   }
 }
 
+function flagCard(deckUuid: string, cardUuid: string, needs_review: Boolean): Action {
+  let change = {
+    uuid: deckUuid,
+    cards: [{uuid: cardUuid, needs_review, action: 'edit'}]
+  }
+  return {
+    type: 'CARD_FLAGGED',
+    change
+  }
+}
+
 async function resolveConflict(useServerDeck: Boolean, localDeck: Deck) : PromiseAction {
   let updatedDeck
   if (useServerDeck)
@@ -95,11 +106,11 @@ function syncLibrary(localChanges): ThunkAction {
 // ex: { uuid: string, action: 'edit', cards: [{action: 'edit', uuid: string, front: "fox", back: "20XX"}] } if 1 card in deck was changed
 async function syncDeck(change) : PromiseAction {
   let serverDeck = {}
-  if (change.action === "add"){
+  if (change.action === "add") {
     serverDeck = await LibraryApi.createDeck(change.name, change.tags);
     // check if any other changes need to be synced
     for (let key in change) {
-      if((key === 'cards' && change.cards.length) || (key === change[key] != serverDeck[key] && !key.match("^(?:cards|uuid|action)$"))) {
+      if((key === 'cards' && change.cards.length) || (change[key] != serverDeck[key] && !key.match("^(?:cards|uuid|action)$"))) {
         serverDeck = await LibraryApi.editDeck({
           ...change,
           uuid: serverDeck.uuid,
@@ -112,6 +123,9 @@ async function syncDeck(change) : PromiseAction {
     serverDeck = await LibraryApi.editDeck(change)
   } else if (change.action === "delete") {
     await LibraryApi.deleteDeck(change.uuid)
+  } else if (change.action === "flag") {
+    let response = await LibraryApi.flagCard(change)
+    change = {...change, user_data_version: response.user_data_version}
   }
   return {
     type: 'DECK_SYNCED',
@@ -137,4 +151,4 @@ async function addLibrary(uuid: string): PromiseAction {
   };
 }
 
-module.exports = { loadLibrary, createDeck, deleteDeck, editDeck, recordShareCode, syncDeck, syncLibrary, addLibrary, resolveConflict };
+module.exports = { loadLibrary, createDeck, deleteDeck, editDeck, recordShareCode, syncDeck, syncLibrary, addLibrary, resolveConflict, flagCard };
