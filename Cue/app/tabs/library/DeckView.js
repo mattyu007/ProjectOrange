@@ -258,6 +258,7 @@ class DeckView extends React.Component {
             key={this.state.deck.share_code}
             onLayout={this._onUpdateHeaderLayout} />
           <CardListView
+            accession={this.state.deck.accession}
             cards={this.state.deck.cards}
             isFiltering={this.state.isFiltering} />
         </ScrollView>

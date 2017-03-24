@@ -13,6 +13,7 @@ import ListViewHairlineSeparator from '../../common/ListViewHairlineSeparator'
 type Props = {
   cards: Array<Card>,
   isFiltering: boolean,
+  accession?: string,
 }
 
 export default class CardListView extends React.Component {
@@ -53,11 +54,14 @@ export default class CardListView extends React.Component {
 
   render() {
     if (!this.props.cards || this.props.cards.length == 0) {
+      let subtitleText
+      if (this.props.accession === 'private')
+        subtitleText='Add a card by tapping the + button.'
       return (
         <EmptyView
           icon={CueIcons.emptyDeck}
           titleText={'No cards in this deck yet.'}
-          subtitleText={'Add a card by tapping the + button.'} />
+          subtitleText={subtitleText} />
       )
     }
 
