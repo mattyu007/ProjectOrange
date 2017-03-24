@@ -13,7 +13,7 @@ import ListViewHairlineSeparator from '../../common/ListViewHairlineSeparator'
 type Props = {
   cards: Array<Card>,
   isFiltering: boolean,
-  accession: ?string,
+  accession?: string,
 }
 
 export default class CardListView extends React.Component {
