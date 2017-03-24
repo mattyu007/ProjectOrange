@@ -70,6 +70,8 @@ type Props = {
   deck: Deck,
   shuffle?: boolean,
   startIndex?: number,
+  flaggedOnly?: boolean,
+  answerFirst?: boolean,
 
   // From Redux:
   flagCard: (deckUuid: string, cardUuid: string, flag: boolean) => any
@@ -105,7 +107,13 @@ class PlayDeckView extends React.Component {
 
     // Take a snapshot of the Deck in props
     let cards = (this.props.deck.cards || []).slice(0)
-    cards = this.props.shuffle ? this._shuffled(cards) : cards
+
+    // Process play options
+    if (this.props.shuffle) cards = this._shuffled(cards)
+    else if (this.props.flaggedOnly) cards = this._flaggedOnly(cards)
+
+    // Process modifiers
+    if (this.props.answerFirst) cards = this._answerFirst(cards)
 
     this.state = {
       index: this.props.startIndex || 0,
@@ -143,6 +151,24 @@ class PlayDeckView extends React.Component {
 
   componentWillUnmount() {
     StatusBar.setHidden(false)
+  }
+
+  _flaggedOnly(array: Array<*>): Array<*> {
+    return array.slice(0).filter(item => item.needs_review)
+  }
+
+  _answerFirst(array: Array<*>): Array<*> {
+    let ret = []
+
+    for (let i = 0; i < array.length; i++) {
+      ret.push({
+        ...array[i],
+        front: array[i].back,
+        back: array[i].front
+      })
+    }
+
+    return ret
   }
 
   _shuffled(array: Array<*>): Array<*> {

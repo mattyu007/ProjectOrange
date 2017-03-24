@@ -12,6 +12,7 @@ import CueIcons from '../../../common/CueIcons'
 import TableHeader from '../../../common/TableHeader'
 import TableRow from '../../../common/TableRow'
 import SelectableTextTableRow from '../../../common/SelectableTextTableRow'
+import SwitchTableRow from '../../../common/SwitchTableRow'
 
 const styles = {
   container: {
@@ -28,16 +29,18 @@ const styles = {
 type Props = {
   navigator: Navigator,
   deck: Deck,
+  flagFilter: boolean,
 }
 
-type PlaybackOption = 'sequential' | 'shuffled' | 'custom'
+type PlaybackOption = 'sequential' | 'shuffled' | 'custom' | 'flagged'
 
 export default class PlayDeckSetupView extends React.Component {
   props: Props
 
   state: {
     playbackOption: PlaybackOption,
-    customStartIndex: number
+    customStartIndex: number,
+    answerFirst: boolean,
   }
 
   _onPlaybackOptionSelected = (option: PlaybackOption) => {
@@ -51,8 +54,9 @@ export default class PlayDeckSetupView extends React.Component {
     super(props)
 
     this.state = {
-      playbackOption: 'sequential',
-      customStartIndex: 0
+      playbackOption: this.props.flagFilter ? 'flagged' : 'sequential',
+      customStartIndex: 0,
+      answerFirst: false
     }
   }
 
@@ -73,6 +77,10 @@ export default class PlayDeckSetupView extends React.Component {
           text={'Beginning at a specific card'}
           selected={this.state.playbackOption === 'custom'}
           onPress={() => { this._onPlaybackOptionSelected('custom') }} />
+        <SelectableTextTableRow
+          text={'With flagged cards only'}
+          selected={this.state.playbackOption === 'flagged'}
+          onPress={() => { this._onPlaybackOptionSelected('flagged') }} />
       </View>
     )
   }
@@ -103,6 +111,19 @@ export default class PlayDeckSetupView extends React.Component {
     }
   }
 
+  _renderModifiers = () => {
+    return (
+      <View>
+        <TableHeader
+          text={'Modifiers:'} />
+        <SwitchTableRow
+          text={'Answer side first'}
+          value={this.state.answerFirst}
+          onPress={value => this.setState({...this.state, answerFirst: value})} />
+      </View>
+    )
+  }
+
   render() {
     let leftItem = {
       title: 'Cancel',
@@ -120,7 +141,9 @@ export default class PlayDeckSetupView extends React.Component {
             shuffle: this.state.playbackOption === 'shuffled',
             startIndex: this.state.playbackOption === 'custom'
               ? this.state.customStartIndex
-              : undefined
+              : undefined,
+            flaggedOnly: this.state.playbackOption === 'flagged',
+            answerFirst: this.state.answerFirst,
           })}
       }
     ]
@@ -133,6 +156,7 @@ export default class PlayDeckSetupView extends React.Component {
         <ScrollView style={styles.container}>
           {this._renderPlaybackOptions()}
           {this._renderCustomSelection()}
+          {this._renderModifiers()}
         </ScrollView>
       </View>
     )
