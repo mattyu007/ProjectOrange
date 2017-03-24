@@ -75,6 +75,12 @@ class LibraryHome extends React.Component {
     }
   }
 
+  componentWillReceiveProps(newProps: Props) {
+    this.setState({
+      refreshing: false
+    })
+  }
+
   _refresh = () => {
     this.setState({refreshing: true})
     this.props.onSyncLibrary(this.props.localChanges).then(failedSyncs =>{
