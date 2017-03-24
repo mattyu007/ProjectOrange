@@ -6,7 +6,7 @@ import React from 'react'
 import { View, Text, Image, ScrollView, ListView, Navigator, Platform, Alert } from 'react-native'
 
 import { connect } from 'react-redux'
-import { editDeck } from '../../actions'
+import { editDeck, flagCard } from '../../actions'
 
 import type { Card, Deck } from '../../api/types'
 
@@ -54,6 +54,7 @@ type Props = {
   decks: Array<Deck>,
   addCard: (deckUuid: string, front: string, back: string, position: number) => any,
   editCard: (deckUuid: string, cardUuid: string, front: string, back: string) => any,
+  flagCard: (deckUuid: string, cardUuid: string, flag: boolean) => any,
 }
 
 class DeckView extends React.Component {
@@ -85,6 +86,10 @@ class DeckView extends React.Component {
 
   _findDeck = (decks: Array<Deck>, deckUuid: string) => {
     return decks.find((deck: Deck) => deck.uuid === deckUuid)
+  }
+
+  _flagCard = (cardUuid: string, flag: boolean) => {
+    this.props.flagCard(this.props.deckUuid, cardUuid, flag)
   }
 
   _onUpdateHeaderLayout = (event) => {
@@ -260,7 +265,8 @@ class DeckView extends React.Component {
           <CardListView
             accession={this.state.deck.accession}
             cards={this.state.deck.cards}
-            isFiltering={this.state.isFiltering} />
+            isFiltering={this.state.isFiltering}
+            onFlagCard={this._flagCard} />
         </ScrollView>
         {this._renderFABs()}
         {this._renderToolbar(allItems)}
@@ -305,6 +311,9 @@ function actions(dispatch) {
         ]
       }
       return dispatch(editDeck(change))
+    },
+    flagCard: (deckUuid: string, cardUuid: string, flag: boolean) => {
+      return dispatch(flagCard(deckUuid, cardUuid, flag))
     }
   }
 }
