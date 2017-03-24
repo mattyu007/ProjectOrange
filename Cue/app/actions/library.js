@@ -160,7 +160,7 @@ function clearInaccessibleDecks(): Action {
 
 function copyDeck(localDeck: Deck) : Action {
   let newCards = localDeck.cards.map(card => {
-    return {...card, action: 'add', uuid: undefined}
+    return {...card, action: 'add', uuid: uuidV4()}
   })
 
   let deck = {

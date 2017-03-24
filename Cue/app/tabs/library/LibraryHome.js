@@ -92,8 +92,8 @@ class LibraryHome extends React.Component {
         Alert.alert(
           (Platform.OS === 'android' ?
             'This deck is no longer available from the original owner' :
-            'This Deck Is No Longer Available From The Original Owner'),
-            'To continue using the deck “' + deck.name + '”, copy it into your library.',
+            'This Deck Is No Longer Available from the Original Owner'),
+              'To continue using the deck “' + deck.name + '”, copy it into your library.',
           [
             {text: 'Remove', style: 'destructive'},
             {text: 'Copy', onPress: () => this.props.onCopyDeck(deck)},
