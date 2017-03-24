@@ -147,11 +147,11 @@ Edit action:
 ```
 {
     "action": "edit",
-    "card_id": "<card-id>"
+    "card_id": "<card-id>"[,
     "front": "<Q>",
     "back": "<A>",
     "position": <pos>,
-    "needs_review": true | false
+    "needs_review": true | false]
 }
 ```
 
