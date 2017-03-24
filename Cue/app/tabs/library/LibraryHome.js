@@ -91,9 +91,9 @@ class LibraryHome extends React.Component {
       newProps.inaccessibleDecks.forEach(deck => {
         Alert.alert(
           (Platform.OS === 'android' ?
-            'The deck “' + deck.name + '” is no longer available from the original owner' :
-            'The Deck “' + deck.name + '” Is No Longer Available From The Original Owner'),
-          'To continue using this deck, copy the deck into your library.',
+            'This deck is no longer available from the original owner' :
+            'This Deck Is No Longer Available From The Original Owner'),
+            'To continue using the deck “' + deck.name + '”, copy it into your library.',
           [
             {text: 'Remove', style: 'destructive'},
             {text: 'Copy', onPress: () => this.props.onCopyDeck(deck)},
