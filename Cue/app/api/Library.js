@@ -11,8 +11,11 @@ var LibraryApi = {
     return CueApi.fetch(endpoint);
   },
 
-  fetchDeck(uuid : string) {
+  fetchDeck(uuid : string, shareCode?: string) {
     let endpoint = '/api/v1/deck/' + uuid;
+    if (shareCode) {
+      endpoint += '?share_code=' + shareCode
+    }
     console.info('Fetching deck from endpoint: ' + endpoint)
     return CueApi.fetch(endpoint);
   },
@@ -69,16 +72,23 @@ var LibraryApi = {
     return CueApi.fetch(endpoint, 'GET')
   },
 
-	addDeckToLibrary(uuid: string) {
-		let endpoint = '/api/v1/library/add';
-		let method = 'POST'
-		let body = JSON.stringify({
-				uuid: uuid,
-				device: DeviceInfo.getDeviceName(),
-			});
-		console.info('Adding deck "' + uuid + '" to library from endpoint: ' + endpoint)
-		return CueApi.fetch(endpoint, method, body);
-	},
+  getUuidByShareCode(shareCode: string) {
+    let endpoint = '/api/v1/deck/uuid/' + shareCode
+    console.info('Fetching deck UUID from share code "' + shareCode + '" at endpoint:' + endpoint)
+    return CueApi.fetch(endpoint)
+  },
+
+  addDeckToLibrary(uuid: string, shareCode?: string) {
+    let endpoint = '/api/v1/library/add';
+    let method = 'POST'
+    let body = JSON.stringify({
+      uuid: uuid,
+      device: DeviceInfo.getDeviceName(),
+      share_code: shareCode || null,
+    });
+    console.info('Adding deck "' + uuid + '" to library from endpoint: ' + endpoint)
+    return CueApi.fetch(endpoint, method, body);
+  },
 
   overwriteDeck(deck: Deck) {
     let endpoint = '/api/v1/deck/' + deck.uuid

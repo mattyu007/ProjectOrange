@@ -38,6 +38,7 @@ type Props = {
   deck: DeckMetadata,
 
   decks: Array<Deck>,
+  addLibrary: (uuid: string, shareCode: ?string) => any,
 }
 
 class DeckPreview extends React.Component {
@@ -49,6 +50,12 @@ class DeckPreview extends React.Component {
     isLoading: boolean
   }
 
+  _onPressAddDeck = () => {
+    // Add without share code if possible
+    this.props.addLibrary(this.props.deck.uuid,
+                          this.props.deck.public ? null : this.props.deck.share_code)
+  }
+
   constructor(props: Props) {
     super(props)
 
@@ -58,7 +65,7 @@ class DeckPreview extends React.Component {
       isLoading: true
     }
 
-    LibraryApi.fetchDeck(this.props.deck.uuid).then((fullDeck: Deck) => {
+    LibraryApi.fetchDeck(this.props.deck.uuid, this.props.deck.share_code).then((fullDeck: Deck) => {
       this.setState({
         ...this.state,
         isLoading: false,
@@ -109,7 +116,7 @@ class DeckPreview extends React.Component {
           {
             title: 'Add to Library',
             display: 'text',
-            onPress: () => this.props.addLibrary(this.props.deck.uuid)
+            onPress: this._onPressAddDeck,
           }
         ]
       }
@@ -134,7 +141,7 @@ class DeckPreview extends React.Component {
               tabs={previewTabs}
               currentTab={this.state.tab}
               onChange={this.onChange.bind(this)}
-              addLibrary={() => this.props.addLibrary(this.props.deck.uuid)}
+              addLibrary={this._onPressAddDeck}
               deckInLibrary={deck} />
             {tabView}
       </View>
@@ -150,7 +157,7 @@ function select(store) {
 
 function actions(dispatch) {
   return {
-      addLibrary: (uuid: string) => dispatch(addLibrary(uuid)),
+      addLibrary: (uuid: string, shareCode: ?string) => dispatch(addLibrary(uuid, shareCode)),
   };
 }
 

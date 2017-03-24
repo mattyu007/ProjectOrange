@@ -135,9 +135,9 @@ async function syncDeck(change) : PromiseAction {
   }
 }
 
-async function addLibrary(uuid: string): PromiseAction {
+async function addLibrary(uuid: string, shareCode?: string): PromiseAction {
   try {
-    await LibraryApi.addDeckToLibrary(uuid);
+    await LibraryApi.addDeckToLibrary(uuid, shareCode);
   } catch (e) {
     return {
       type: 'DECK_ALREADY_IN_LIBRARY'
