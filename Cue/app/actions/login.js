@@ -3,7 +3,6 @@ import type { Action, PromiseAction, ThunkAction } from './types';
 import AuthenticationApi from '../api/Authentication';
 import FacebookApi from '../api/Facebook';
 import { LoginManager, AccessToken,  } from 'react-native-fbsdk';
-import { loadLibrary } from './library';
 import CueApi from '../api/CueApi';
 import UserApi from '../api/UserApi';
 
@@ -42,7 +41,6 @@ function serverLogin(): ThunkAction {
   return (dispatch, getState) => {
     return _serverLogin().then(cueUser => {
       dispatch(logIn(cueUser['user_id'], cueUser['access_token']));
-      dispatch(loadLibrary());
 
       // Get name from Facebook.
       FacebookApi.getName(data => dispatch(loadUsername(data.name)));

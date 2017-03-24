@@ -67,9 +67,18 @@ class LibraryHome extends React.Component {
   constructor(props: Props) {
     super(props)
 
+    let refreshing = false
+
+    if (!this.props.deck) {
+      refreshing = true
+      this.props.onLoadLibrary().then(response => {
+        this.setState({refreshing: false})
+      })
+    }
+
     this.state = {
       editing: false,
-      refreshing: false,
+      refreshing,
     }
   }
 

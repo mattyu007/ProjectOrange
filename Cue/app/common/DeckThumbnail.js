@@ -93,10 +93,12 @@ export default class DeckThumbnail extends React.Component {
       }
     }
 
+    let numCards = this.props.deck.cards ? this.props.deck.cards.length : this.props.deck.num_cards
+
     let subText = (
       <Text style={styles.cardNumber}>
-        {this.props.deck.num_cards
-         + (this.props.deck.num_cards == 1 ? " card" : " cards")}
+        {numCards
+         + (numCards == 1 ? " card" : " cards")}
       </Text>
     )
 
