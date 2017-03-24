@@ -6,7 +6,7 @@ import React from 'react'
 import { View, Text, Image, ScrollView, ListView, Navigator, Platform, Alert } from 'react-native'
 
 import { connect } from 'react-redux'
-import { editDeck, flagCard } from '../../actions'
+import { editDeck, flagCard, copyDeck, rateDeck } from '../../actions'
 
 import type { Card, Deck } from '../../api/types'
 
@@ -55,6 +55,8 @@ type Props = {
   addCard: (deckUuid: string, front: string, back: string, position: number) => any,
   editCard: (deckUuid: string, cardUuid: string, front: string, back: string) => any,
   flagCard: (deckUuid: string, cardUuid: string, flag: boolean) => any,
+  rateDeck: (deckUuid: string, rating: number) => any,
+  copyDeck: (deck: Deck) => any
 }
 
 class DeckView extends React.Component {
@@ -90,6 +92,34 @@ class DeckView extends React.Component {
 
   _flagCard = (cardUuid: string, flag: boolean) => {
     this.props.flagCard(this.props.deckUuid, cardUuid, flag)
+  }
+
+  _rateDeck = () => {
+    Alert.alert(
+      (Platform.OS === 'android'
+        ? 'Rate this deck'
+        : 'Rate This Deck'),
+      'Would you recommend this deck to others?',
+      [
+        {text: 'Cancel', style: 'destructive'},
+        {text: 'Would not Recommend', onPress: () => this.props.rateDeck(this.state.deck.uuid, -1)},
+        {text: 'Recommend',  onPress: () => this.props.rateDeck(this.state.deck.uuid, 1)},
+      ],
+
+    )
+  }
+
+  _copyDeck = () => {
+    Alert.alert(
+      (Platform.OS === 'android'
+        ? 'Are you sure you want to copy this deck?'
+        : 'Are You Sure You Want to Copy This Deck?'),
+      'Copying will create a private version of this deck in your library',
+      [
+        {text: 'Cancel', style: 'destructive'},
+        {text: 'Copy', onPress: () => this.props.copyDeck(this.state.deck)}
+      ]
+    )
   }
 
   _onUpdateHeaderLayout = (event) => {
@@ -152,6 +182,12 @@ class DeckView extends React.Component {
       copyItem: {
         title: 'Copy',
         icon: CueIcons.copy,
+        onPress: this._copyDeck
+      },
+      rateItem: {
+        title: 'Rate',
+        display: 'text',
+        onPress: this._rateDeck
       },
       editItem: {
         title: 'Edit',
@@ -191,7 +227,6 @@ class DeckView extends React.Component {
         return [
           filterItem,
           shareItem,
-          copyItem
         ]
       }
     } else {
@@ -202,9 +237,19 @@ class DeckView extends React.Component {
         ]
       } else {
         return [
-          copyItem
+          copyItem,
+          rateItem
         ]
       }
+    }
+  }
+
+  _getOverflowItems = ({copyItem, rateItem}) => {
+    if (this.state.deck.accession !== 'private') {
+      return [
+        copyItem,
+        rateItem
+      ]
     }
   }
 
@@ -247,12 +292,14 @@ class DeckView extends React.Component {
     const allItems = this._getAllCommonItems()
     const leftItem = this._getLeftItems(allItems)
     const rightItems = this._getRightItems(allItems)
+    const overflowItems = this._getOverflowItems(allItems)
 
     return (
       <View style={styles.container}>
         <CueHeader
           leftItem={leftItem}
           rightItems={rightItems}
+          overflowItems={overflowItems}
           key={this.state.isFiltering.toString() + this.state.scrollPosition.toString()}
           containerStyles={{elevation: this.state.scrollPosition > this.state.headerHeight ? 4 : 0}} />
         <ScrollView
@@ -314,6 +361,12 @@ function actions(dispatch) {
     },
     flagCard: (deckUuid: string, cardUuid: string, flag: boolean) => {
       return dispatch(flagCard(deckUuid, cardUuid, flag))
+    },
+    rateDeck: (deckUuid: string, rating: number) => {
+      return dispatch(rateDeck(deckUuid, rating))
+    },
+    copyDeck: (deck: Deck) => {
+      return dispatch(copyDeck(deck))
     }
   }
 }

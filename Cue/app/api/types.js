@@ -13,6 +13,7 @@ export type DeckMetadata = {
   name: string,
   author: string,
   rating: number,
+  user_rating?: number,
   num_ratings: number,
   num_cards: number,
   tags: Array<string>,
