@@ -5,26 +5,42 @@ import { View, Text, ListView, Dimensions, Navigator, Platform, Alert} from 'rea
 import type { Deck } from '../api/types';
 import { connect } from 'react-redux'
 import CueIcons from './CueIcons'
+import CueColors from './CueColors'
 import CueHeader from './CueHeader'
 import { resolveConflict } from '../actions/library'
-import { SegmentedControls } from 'react-native-radio-buttons'
+import SelectableTextTableRow from './SelectableTextTableRow'
+import LibraryApi from '../api/Library'
+import TableHeader from './TableHeader'
 
-  //TODO: issue #146: style this page
+type Conflict = {
+  localDeck: ?Deck,
+  serverDeck: ?Deck,
+  change: {},
+  useServerDeck: ?boolean,
+}
 
 type Props = {
-  failedSyncs: Array<Deck>,
+  failedSyncs: Array<{}>,
   navigator: Navigator,
 
   // Redux
   localDecks: Array<Deck>,
-  resolveConflict: () => void
+  resolveConflict: (conflict: Conflict) => any
 }
 
 const styles = {
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: Platform.OS === 'android' ? 'white' : CueColors.coolLightGrey,
   },
+
+  headerText: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 8,
+    color: CueColors.primaryText,
+    fontSize: Platform.OS === 'android' ? 16 : 17,
+  }
 }
 
 class SyncConflict extends React.Component {
@@ -32,7 +48,7 @@ class SyncConflict extends React.Component {
 
   state: {
     dataSource: ListView.dataSource,
-    conflicts: [{localDeck: Deck, useServerDeck: Boolean}]
+    conflicts: Array<Conflict>
   }
 
   constructor(props: Props) {
@@ -40,16 +56,58 @@ class SyncConflict extends React.Component {
     let ds = new ListView.DataSource({
       rowHasChanged: (r1, r2) => r1 != r2
     })
-    let conflicts = props.failedSyncs.map(change => {
-      return {
-        localDeck: props.localDecks.find(deck=> deck.uuid==change.uuid),
-        useServerDeck: undefined,
-      }
-    })
+    let conflicts = []
     this.state = {
       dataSource: ds.cloneWithRows(conflicts),
       conflicts,
     }
+  }
+
+  _internetAlert = () => {
+    Alert.alert (
+      Platform.OS === "android" ? 'Failed to resolve conflicts' : 'Failed to Resolve Conflicts',
+      'Check your Internet connection and try again.')
+  }
+
+  componentDidMount() {
+    let ds = new ListView.DataSource({
+      rowHasChanged: (r1, r2) => r1 != r2
+    })
+    let conflicts = [];
+    let promises = []
+    this.props.failedSyncs.forEach(change => {
+      promises.push(LibraryApi.fetchDeck(change.uuid).then(serverDeck =>{
+        return {
+          serverDeck,
+          change: change,
+          localDeck: this.props.localDecks.find(deck => deck.uuid==change.uuid),
+          useServerDeck: undefined
+        }
+      }).catch(e => {
+        if (e.response && e.response.status === 404) {
+          //server copy deleted
+          return {
+            change: change,
+            localDeck: this.props.localDecks.find(deck => deck.uuid==change.uuid),
+            useServerDeck: undefined
+          }
+        } else {
+          throw e
+        }
+      }))
+    })
+    Promise.all(promises).then(conflicts =>{
+      let ds = new ListView.DataSource({
+        rowHasChanged: (r1, r2) => r1 != r2
+      })
+      this.setState({
+        dataSource: ds.cloneWithRows(conflicts),
+        conflicts,
+      })
+    }).catch(e => {
+      this._internetAlert()
+      this.props.navigator.pop()
+    })
   }
 
 
@@ -62,20 +120,19 @@ class SyncConflict extends React.Component {
   }
 
   _getRightItems = () => {
-    if (this.state.conflicts && !this.state.conflicts.find(c => c.useServerDeck==undefined)) {
+    if (this.state.conflicts && !this.state.conflicts.find(c => c.useServerDeck==null)) {
       return [{
         title: 'Done',
         icon: CueIcons.done,
         onPress: () => {
           let promises = []
           this.state.conflicts.forEach(conflict => {
-            promises.push(this.props.resolveConflict(conflict.useServerDeck, conflict.localDeck))
+            promises.push(this.props.resolveConflict(conflict))
           })
           Promise.all(promises)
           .then(this.props.navigator.pop())
           .catch(e => {
-            console.error(e)
-            Alert.alert ('Alert', 'Failed to resolve conflicts')
+            this._internetAlert()
             this.props.navigator.pop()
           })
         }
@@ -83,16 +140,86 @@ class SyncConflict extends React.Component {
     }
   }
 
-  _setSelection = (deck: {}, useServerDeck: boolean) =>{
+  _setSelection = (uuid: string, useServerDeck: boolean) =>{
+    let conflicts = this.state.conflicts.map(conflict=> {
+      if (conflict.change.uuid == uuid)
+        return {...conflict, useServerDeck}
+      else
+        return conflict
+    })
+    let ds = new ListView.DataSource({
+      rowHasChanged: (r1, r2) => r1 != r2
+    })
     this.setState({
-      conflicts: this.state.conflicts.map(conflict => {
-        if (conflict.localDeck.uuid == deck.uuid)
-          return {...conflict, useServerDeck}
-        else
-          return conflict
-      })
+      dataSource: ds.cloneWithRows(conflicts),
+      conflicts,
     })
   }
+
+  _timeSince(date: Date) {
+    let seconds = Math.floor((new Date() - date) / 1000);
+    let interval = Math.floor(seconds / 31536000);
+
+    if (interval > 1) {
+      return interval + " years";
+    }
+    interval = Math.floor(seconds / 2592000);
+    if (interval > 1) {
+      return interval + " months";
+    }
+    interval = Math.floor(seconds / 86400);
+    if (interval > 1) {
+      return interval + " days";
+    }
+    interval = Math.floor(seconds / 3600);
+    if (interval > 1) {
+      return interval + " hours";
+    }
+    interval = Math.floor(seconds / 60);
+    if (interval > 1) {
+      return interval + " minutes";
+    }
+    return Math.floor(seconds) + " seconds";
+  }
+
+  _renderRow = (conflict) => {
+    let serverText
+    if (conflict.serverDeck) {
+      serverText = conflict.serverDeck.last_update_device
+        ? 'Keep changes from "' +  conflict.serverDeck.last_update_device + '"'
+        : 'Keep server copy'
+    } else {
+      serverText = 'Keep deleted server change'
+    }
+    let serverSubText = conflict.serverDeck && conflict.serverDeck.last_update
+      ? 'Modified ' + this._timeSince(new Date(conflict.serverDeck.last_update)) + ' ago'
+      : undefined
+    let localText = 'Keep changes from this device'
+    let localSubText = conflict.localDeck && conflict.localDeck.last_update
+      ? 'Modified ' + this._timeSince(new Date(conflict.localDeck.last_update)) + ' ago'
+      : undefined
+    return (
+      <View>
+        <TableHeader
+          text={conflict.localDeck.name} />
+        <SelectableTextTableRow
+          text={serverText}
+          subText={serverSubText}
+          selected={conflict.useServerDeck}
+          onPress={() => { this._setSelection(conflict.change.uuid, true) }}
+        />
+        <SelectableTextTableRow
+          text={localText}
+          subText={localSubText}
+          key={conflict.useServerDeck}
+          selected={conflict.useServerDeck == undefined ? undefined : !conflict.useServerDeck}
+          onPress={() => { this._setSelection(conflict.change.uuid, false) }}
+        />
+      </View>
+    )
+  }
+
+
 
   render() {
     let title
@@ -112,6 +239,10 @@ class SyncConflict extends React.Component {
         value: false
       }
     ]
+    let headerText = 'Changes were made to the following deck'
+      + (this.state.conflicts.length > 1 ? 's' : '')
+      + ' at the same time on multiple devices.'
+      + ' Choose which version of each deck to keep.'
 
     return (
       <View style={styles.container}>
@@ -119,21 +250,11 @@ class SyncConflict extends React.Component {
           title={title}
           leftItem={this._getLeftItem()}
           rightItems={this._getRightItems()} />
-        <Text>Choose which copy you want to keep for each deck</Text>
+        <Text style={styles.headerText}>{headerText}</Text>
         <ListView
-          onLayout={this.on_layout}
+          key={this.state.conflicts}
           dataSource={this.state.dataSource}
-          renderRow={(conflict) => {
-            return (
-              <View>
-                <Text>{conflict.localDeck.name}</Text>
-                <SegmentedControls
-                  options={ options }
-                  onSelection={ (option) => this._setSelection(conflict.localDeck, option.value) }
-                  extractText={ (option) => option.label } />
-              </View>
-            )
-          }} />
+          renderRow={this._renderRow}/>
       </View>
     )
   }
@@ -148,8 +269,8 @@ function select(store) {
 
 function actions(dispatch) {
   return {
-    resolveConflict: (useServerDeck: Boolean, localDeck: Deck) => {
-      return dispatch(resolveConflict(useServerDeck, localDeck))
+    resolveConflict: (conflict: Conflict) => {
+      return dispatch(resolveConflict(conflict))
     }
   }
 }

@@ -10,13 +10,13 @@ export type Action =
   | { type: 'SWITCH_TAB', tab: 'library' | 'discover' | 'search' }
   | { type: 'DECK_CREATED', deck: {} }
   | { type: 'DECK_DELETED', uuid: string }
-  | { type: 'DECK_SYNCED', serverDeck: Deck, change: {} }
-  | { type: 'DECK_EDITED', change: {} }
+	| { type: 'DECK_EDITED', change: {} }
+  | { type: 'DECK_SYNCED', updatedDeck: Deck, change: {} }
+	| { type: 'DECK_CONFLICT_RESOLVED', updatedDeck: Deck, change: {} }
   | { type: 'SHARE_CODE_GENERATED', uuid: string, code: string }
-  | { type: 'DECK_CONFLICT_RESOLVED', updatedDeck: Deck }
   | { type: 'SEARCHED_DECKS', searchResults: Array<DeckMetadata>, searchString: string }
   | { type: 'DISCOVERED_DECKS', newDecks: Array<DeckMetadata>, topDecks: Array<DeckMetadata> }
-  | { type: 'CARD_FLAGGED', change: {uuid: string, cards:[uuid:string, needs_review: Boolean, action: 'edit']}}
+  | { type: 'CARD_FLAGGED', change: {uuid: string, cards:[{uuid:string, needs_review: Boolean, action: 'edit'}]} }
 	| { type: 'DECK_ALREADY_IN_LIBRARY'}
 	| { type: 'DECK_ADDED_TO_LIBRARY', addedDeck: Deck}
 	| { type: 'CLEAR_INACCESSIBLE_DECKS'}

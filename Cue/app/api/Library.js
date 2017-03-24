@@ -1,7 +1,7 @@
 // @flow
 import CueApi from './CueApi'
 import DeviceInfo from 'react-native-device-info'
-
+import type { Deck } from './types'
 
 var LibraryApi = {
 
@@ -63,7 +63,12 @@ var LibraryApi = {
   deleteDeck(uuid: string) {
     let endpoint = '/api/v1/library/' + uuid
     console.info('deleting deck at endpoint ' + endpoint)
-    return CueApi.fetch(endpoint, 'DELETE')
+    return CueApi.fetch(endpoint, 'DELETE').catch(e=>{
+      if (e.response && e.response.status !== 404) {
+        // don't throw if deck already deleted
+        throw e
+      }
+    })
   },
 
   generateShareCode(uuid: string) {

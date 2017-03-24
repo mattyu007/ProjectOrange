@@ -24,6 +24,11 @@ const styles = {
     color: CueColors.mediumGrey,
     fontSize: Platform.OS === 'android' ? 16 : 17,
   },
+  textSecondary: {
+    color: CueColors.mediumGrey,
+    paddingTop: 8,
+    fontSize: Platform.OS === 'android' ? 13 : 14,
+  },
   icon: {
     tintColor: CueColors.primaryTint,
   },
@@ -35,16 +40,22 @@ const styles = {
 export default class SelectableTextTableRow extends React.Component {
   props: {
     text: string,
-    selected: boolean,
+    selected: ?boolean,
+    subText?: string,
     disabled?: boolean,
     onPress?: () => void,
   }
 
   _renderText = () => {
     return (
-      <Text style={this.props.disabled ? styles.textDisabled : styles.text}>
-        {this.props.text}
-      </Text>
+      <View>
+        <Text style={this.props.disabled ? styles.textDisabled : styles.text}>
+          {this.props.text}
+        </Text>
+        <Text style={styles.textSecondary}>
+          {this.props.subText}
+        </Text>
+      </View>
     )
   }
 

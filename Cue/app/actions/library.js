@@ -79,17 +79,11 @@ function rateDeck(uuid: string, user_rating: number): Action {
   }
 }
 
-async function resolveConflict(useServerDeck: Boolean, localDeck: Deck) : PromiseAction {
-  let updatedDeck
-  if (useServerDeck)
-    updatedDeck = await LibraryApi.fetchDeck(localDeck.uuid)
-  else
-    updatedDeck = await LibraryApi.overwriteDeck(localDeck)
-
-  return {
-    type: 'DECK_CONFLICT_RESOLVED',
-    updatedDeck,
-  }
+type Conflict = {
+  localDeck: ?Deck,
+  serverDeck: ?Deck,
+  change: {},
+  useServerDeck: boolean,
 }
 
 //attempts to sync each deck once, returns list of failed syncs
@@ -117,34 +111,68 @@ function syncLibrary(localChanges): ThunkAction {
 // ex: { uuid: string, action: 'add', name: string } if a deck was added
 // ex: { uuid: string, action: 'edit', cards: [{action: 'edit', uuid: string, front: "fox", back: "20XX"}] } if 1 card in deck was changed
 async function syncDeck(change) : PromiseAction {
-  let serverDeck = {}
+  let updatedDeck = {}
   if (change.action === "add") {
-    serverDeck = await LibraryApi.createDeck(change.name, change.tags);
+    updatedDeck = await LibraryApi.createDeck(change.name, change.tags);
     // check if any other changes need to be synced
     for (let key in change) {
-      if((key === 'cards' && change.cards.length) || (change[key] != serverDeck[key] && !key.match("^(?:cards|uuid|action)$"))) {
+      if((key === 'cards' && change.cards.length) || (change[key] != updatedDeck[key] && !key.match("^(?:cards|uuid|action)$"))) {
         serverDeck = await LibraryApi.editDeck({
           ...change,
-          uuid: serverDeck.uuid,
-          parent_deck_version: serverDeck.user_data_version,
-          parent_user_data_version: serverDeck.deck_version})
+          uuid: updatedDeck.uuid,
+          parent_deck_version: updatedDeck.user_data_version,
+          parent_user_data_version: updatedDeck.deck_version})
         break
       }
     }
   } else if (change.action === "edit") {
-    serverDeck = await LibraryApi.editDeck(change)
+    updatedDeck = await LibraryApi.editDeck(change)
   } else if (change.action === "delete") {
     await LibraryApi.deleteDeck(change.uuid)
   } else if (change.action === "flag") {
-    let response = await LibraryApi.flagCard(change)
+    let response = await LibraryApi.flagCard(change).catch(e=>{
+      if (e.response && e.response.status === 404) {
+        //server deck deleted
+        return {uuid: change.uuid, deleted: true}
+      } else {
+        throw e
+      }
+    })
     change = {...change, user_data_version: response.user_data_version}
   } else if (change.action === "rate") {
     await LibraryApi.rateDeck(change.uuid, change.user_rating)
   }
   return {
     type: 'DECK_SYNCED',
-    serverDeck,
+    updatedDeck,
     change
+  }
+}
+
+async function resolveConflict(conflict: Conflict) : PromiseAction {
+  let updatedDeck = {}
+  if (conflict.useServerDeck) {
+    updatedDeck = conflict.serverDeck
+      ? conflict.serverDeck
+      : {uuid: conflict.change.uuid, deleted: true}
+  } else {
+    let cards
+    if (conflict.localDeck && conflict.localDeck.cards) {
+      cards = conflict.localDeck.cards.map(card=>{
+        let change = conflict.change.cards.find(c => c.uuid == card.uuid)
+        return change && change.action === "add"
+          ? {...card, uuid: undefined}
+          : card
+      })
+    }
+    let deck = {...conflict.localDeck, cards}
+    updatedDeck = await LibraryApi.overwriteDeck(deck)
+  }
+
+  return {
+    type: 'DECK_CONFLICT_RESOLVED',
+    updatedDeck,
+    change: conflict.change
   }
 }
 
