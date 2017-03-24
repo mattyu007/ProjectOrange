@@ -172,7 +172,16 @@ class LibraryHome extends React.Component {
       [
         {text: 'Cancel', style: 'cancel'},
         {text: 'Create', onPress: (deckName) => {
-          if (deckName && deckName.length) {
+          if (!deckName || !deckName.length) {
+            Alert.alert(
+              Platform.OS === 'android' ? 'Enter a deck name' : 'Enter a Deck Name',
+            )
+          } else if (deckName.length > 255) {
+            Alert.alert(
+              Platform.OS === 'android' ? 'Deck name too long' : 'Deck Name Too Long',
+              'Please enter a shorter deck name',
+            )
+          } else {
             let deck = this.props.onCreateDeck(deckName).deck
             this.props.navigator.push({deck})
           }
