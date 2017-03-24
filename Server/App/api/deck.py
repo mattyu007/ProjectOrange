@@ -181,7 +181,9 @@ class DeckUUIDHandler(BaseHandler):
                     card_obj = CardPolicy.belongs_to(card['uuid'], deck.uuid, connector)
                     if card_obj is None:
                         raise ValueError  # not allowed to edit this card
-                    card_obj.edit(deck.uuid, card['front'], card['back'], card['position'])
+
+                    card_obj.edit(deck.uuid, card['front'], card['back'])
+                    card_obj.move(deck.uuid, card['position'])
 
                 # Mark for review.
                 if card.get('needs_review') is not None and card_obj is not None:
