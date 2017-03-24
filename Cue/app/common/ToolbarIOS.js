@@ -1,7 +1,7 @@
 // @flow
 
 import React from 'react'
-import { View, Image, Text, TouchableOpacity } from 'react-native'
+import { View, Image, Text, StyleSheet, TouchableOpacity } from 'react-native'
 
 import CueColors from './CueColors'
 
@@ -11,8 +11,8 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'space-between',
     height: 44,
-    borderTopWidth: 1,
-    borderTopColor: CueColors.veryLightGrey,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: CueColors.mediumGrey,
   },
   iconContainer: {
     alignItems: 'center',

@@ -127,7 +127,7 @@ class DeckPreview extends React.Component {
     if (previewTabs[this.state.tab] == 'Info') {
       tabView = <DeckInfo deck={this.props.deck} />
     } else if (!this.state.isLoading && previewTabs[this.state.tab] == 'Cards')  {
-      tabView = <CardListView cards={this.state.cards} isFiltering={false} />
+      tabView = <CardListView cards={this.state.cards} />
     }
 
     return (

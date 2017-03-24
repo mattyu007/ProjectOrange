@@ -3,7 +3,7 @@
 'use strict';
 
 import React from 'react'
-import { View, Text, Image, ScrollView, ListView, Navigator, Platform, Alert } from 'react-native'
+import { View, Text, Image, ScrollView, ListView, Navigator, Platform, Alert, LayoutAnimation, UIManager } from 'react-native'
 
 import { connect } from 'react-redux'
 import { editDeck, flagCard, copyDeck, rateDeck } from '../../actions'
@@ -46,17 +46,26 @@ const styles = {
   },
 }
 
+// Uncommenting this will enable LayoutAnimation on Android, but unfortunately
+// it crashes our app, so only iOS gets animations for Edit state changes.
+// UIManager.setLayoutAnimationEnabledExperimental
+//   && UIManager.setLayoutAnimationEnabledExperimental(true)
+
 type Props = {
   navigator: Navigator,
   deckUuid: string,
 
   // From Redux:
   decks: Array<Deck>,
+  copyDeck: (deck: Deck) => any,
+  editDeckName: (deckUuid: string, name: string) => any,
+  rateDeck: (deckUuid: string, rating: number) => any,
+
   addCard: (deckUuid: string, front: string, back: string, position: number) => any,
   editCard: (deckUuid: string, cardUuid: string, front: string, back: string) => any,
+  deleteCard: (deckUuid: string, cardUuid: string) => any,
   flagCard: (deckUuid: string, cardUuid: string, flag: boolean) => any,
-  rateDeck: (deckUuid: string, rating: number) => any,
-  copyDeck: (deck: Deck) => any
+  moveCard: (deckUuid: string, cardUuid: string, from: number, to: number) => any,
 }
 
 class DeckView extends React.Component {
@@ -64,9 +73,8 @@ class DeckView extends React.Component {
 
   state: {
     deck: Deck,
-    isFiltering: boolean,
-    headerHeight: number,
-    scrollPosition: number,
+    editing: boolean,
+    filtering: boolean,
   }
 
   constructor(props: Props) {
@@ -74,9 +82,8 @@ class DeckView extends React.Component {
 
     this.state = {
       deck: this._findDeck(this.props.decks, this.props.deckUuid),
-      isFiltering: false,
-      headerHeight: 0,
-      scrollPosition: 0,
+      editing: false,
+      filtering: false,
     }
   }
 
@@ -86,7 +93,7 @@ class DeckView extends React.Component {
     })
   }
 
-  _findDeck = (decks: Array<Deck>, deckUuid: string) => {
+  _findDeck = (decks: Array<Deck>, deckUuid: string): Deck => {
     return decks.find((deck: Deck) => deck.uuid === deckUuid)
   }
 
@@ -129,26 +136,25 @@ class DeckView extends React.Component {
     )
   }
 
-  _onUpdateHeaderLayout = (event) => {
-    let height = event.nativeEvent.layout.height
-
-    if (height !== this.state.headerHeight) {
-      this.setState({
-        ...this.state,
-        headerHeight: height
-      })
-    }
+  _onDeckNameChanged = (name: string) => {
+    this.props.editDeckName(this.props.deckUuid, name)
   }
 
-  _onScroll = (event) => {
-    let position = event.nativeEvent.contentOffset.y
+  _onDeleteCard = (cardUuid: string) => {
+    this.props.deleteCard(this.props.deckUuid, cardUuid)
+  }
 
-    if (position !== this.state.scrollPosition) {
-      this.setState({
-        ...this.state,
-        scrollPosition: position
-      })
-    }
+  _onEditCard = (card: Card) => {
+    this.props.navigator.push({
+      cardEntry: card,
+      onSubmit: (front: string, back: string, existingUuid: string) => {
+        this.props.editCard(this.props.deckUuid, card.uuid, front, back)
+      }
+    })
+  }
+
+  _onMoveCard = (cardUuid: string, from: number, to: number) => {
+    this.props.moveCard(this.props.deckUuid, cardUuid, from, to)
   }
 
   _onPlayDeck = () => {
@@ -162,6 +168,28 @@ class DeckView extends React.Component {
       )
     } else {
       this.props.navigator.push({ playDeckSetup: this.state.deck, flagFilter: this.state.isFiltering })
+    }
+  }
+
+  _getEditToggleItem = () => {
+    if (this.state.editing) {
+      return {
+        title: 'Done',
+        icon: CueIcons.done,
+        onPress: () => {
+          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+          this.setState({editing: false})
+        }
+      }
+    } else {
+      return {
+        title: 'Edit',
+        icon: CueIcons.edit,
+        onPress: () => {
+          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+          this.setState({editing: true, filtering: false})
+        }
+      }
     }
   }
 
@@ -196,15 +224,12 @@ class DeckView extends React.Component {
         display: 'text',
         onPress: this._rateDeck
       },
-      editItem: {
-        title: 'Edit',
-        icon: CueIcons.edit,
-      },
+      editItem: this._getEditToggleItem(),
       filterItem: {
         title: 'Filter flagged cards',
-        icon: this.state.isFiltering ? CueIcons.filterToggleSelected : CueIcons.filterToggle,
+        icon: this.state.filtering ? CueIcons.filterToggleSelected : CueIcons.filterToggle,
         onPress: () => this.setState({
-          isFiltering: !this.state.isFiltering
+          filtering: !this.state.filtering
         }),
       },
       shareItem: {
@@ -218,11 +243,19 @@ class DeckView extends React.Component {
   }
 
   _getLeftItems = ({backItem}) => {
+    if (this.state.editing) {
+      return
+    }
+
     return backItem
   }
 
   _getRightItems = ({addItem, copyItem, rateItem, editItem, filterItem, shareItem}) => {
-    if (Platform.OS === 'android') {
+    if (this.state.editing) {
+      return [
+        editItem
+      ]
+    } else if (Platform.OS === 'android') {
       if (this.state.deck.accession === 'private') {
         return [
           filterItem,
@@ -261,7 +294,7 @@ class DeckView extends React.Component {
   }
 
   _renderFABs = () => {
-    if (Platform.OS === 'android') {
+    if (Platform.OS === 'android' && !this.state.editing) {
       const PrimaryFAB = MKButton.coloredFab()
         .withBackgroundColor(CueColors.primaryTint)
         .withStyle(styles.fab)
@@ -282,7 +315,7 @@ class DeckView extends React.Component {
   }
 
   _renderToolbar = ({filterItem, shareItem}) => {
-    if (Platform.OS !== 'android') {
+    if (Platform.OS !== 'android' && !this.state.editing) {
       let playItem = {
         icon: CueIcons.play,
         onPress: () => { this._onPlayDeck() }
@@ -307,23 +340,25 @@ class DeckView extends React.Component {
           leftItem={leftItem}
           rightItems={rightItems}
           overflowItems={overflowItems}
-          key={this.state.isFiltering.toString() + this.state.scrollPosition.toString()}
-          containerStyles={{elevation: this.state.scrollPosition > this.state.headerHeight ? 4 : 0}} />
-        <ScrollView
-          style={{flex: 1}}
-          onScroll={this._onScroll}>
+          key={this.state.filtering.toString()} />
+        <View style={{flex: 1}}>
           <DeckViewInfoHeader
-            deck={this.state.deck}
             key={this.state.deck.share_code}
-            onLayout={this._onUpdateHeaderLayout} />
+            deck={this.state.deck}
+            editing={this.state.editing}
+            onNameChanged={this._onDeckNameChanged} />
           <CardListView
             accession={this.state.deck.accession}
             cards={this.state.deck.cards}
-            isFiltering={this.state.isFiltering}
-            onFlagCard={this._flagCard} />
-        </ScrollView>
-        {this._renderFABs()}
-        {this._renderToolbar(allItems)}
+            editing={this.state.editing}
+            filtering={this.state.filtering}
+            onDeleteCard={this._onDeleteCard}
+            onEditCard={this._onEditCard}
+            onFlagCard={this._flagCard}
+            onMoveCard={this._onMoveCard} />
+          {this._renderFABs()}
+          {this._renderToolbar(allItems)}
+        </View>
       </View>
     )
   }
@@ -352,6 +387,18 @@ function actions(dispatch) {
       }
       return dispatch(editDeck(change))
     },
+    deleteCard: (deckUuid: string, cardUuid: string) => {
+      let change = {
+        uuid: deckUuid,
+        cards: [
+          {
+            action: 'delete',
+            uuid: cardUuid,
+          }
+        ]
+      }
+      return dispatch(editDeck(change))
+    },
     editCard: (deckUuid: string, cardUuid: string, front: string, back: string) => {
       let change = {
         uuid: deckUuid,
@@ -366,6 +413,13 @@ function actions(dispatch) {
       }
       return dispatch(editDeck(change))
     },
+    editDeckName: (deckUuid: string, name: string) => {
+      let change = {
+        uuid: deckUuid,
+        name
+      }
+      return dispatch(editDeck(change))
+    },
     flagCard: (deckUuid: string, cardUuid: string, flag: boolean) => {
       return dispatch(flagCard(deckUuid, cardUuid, flag))
     },
@@ -374,6 +428,19 @@ function actions(dispatch) {
     },
     copyDeck: (deck: Deck) => {
       return dispatch(copyDeck(deck))
+    },
+    moveCard: (deckUuid: string, cardUuid: string, from: number, to: number) => {
+      let change = {
+        uuid: deckUuid,
+        cards: [
+          {
+            action: 'edit',
+            uuid: cardUuid,
+            position: to
+          }
+        ]
+      }
+      return dispatch(editDeck(change))
     }
   }
 }

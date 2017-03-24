@@ -1,7 +1,8 @@
 // @flow
 
 import React from 'react'
-import { View, Dimensions, Platform, Text, Image, TouchableOpacity } from 'react-native'
+import { View, Platform, Text, TextInput, Image, TouchableOpacity } from 'react-native'
+import { MKTextField } from 'react-native-material-kit'
 
 import { connect } from 'react-redux'
 
@@ -16,10 +17,6 @@ const styles = {
     paddingBottom: 12,
     backgroundColor: CueColors.primaryTint,
     elevation: 4,
-
-    // Prevent overscroll from leaking underlying colour
-    paddingTop: Platform.OS === 'android' ? 0 : Dimensions.get('window').height,
-    marginTop: Platform.OS === 'android' ? 0 : -1 * Dimensions.get('window').height,
   },
   titleText: {
     fontSize: Platform.OS === 'android' ? 24 : 28,
@@ -58,37 +55,136 @@ const styles = {
     fontSize: 13,
     fontWeight: '600',
     letterSpacing: 0.1,
-  }
+  },
+  editTitleContainer: {
+    backgroundColor: 'transparent',
+  },
+  editTitleTextFieldInput: {
+    height: Platform.OS === 'android' ? undefined : 44,
+    fontSize: Platform.OS === 'android' ? 24 : 28,
+    color: 'white',
+    paddingHorizontal: Platform.OS == 'android' ? undefined : 8,
+    paddingTop: 0,
+    marginBottom: Platform.OS === 'android' ? 0 : 4,
+
+    // iOS (Android uses underlineColorAndroid)
+    borderWidth: Platform.OS === 'android' ? undefined : 1,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+    borderRadius: 4,
+  },
+  characterCounter: {
+    fontSize: Platform.OS === 'android' ? 14 : 13,
+    textAlign: 'right',
+    color: 'rgba(255, 255, 255, 0.75)',
+  },
 }
 
 type Props = {
   deck: Deck,
-
-  // Set by Redux:
-  userId: string
+  editing?: boolean,
+  onNameChanged?: (name: string) => void,
 }
-class DeckViewInfoHeader extends React.Component {
+
+const MAX_LENGTH = 255
+
+export default class DeckViewInfoHeader extends React.Component {
   props: Props
 
-  render() {
+  state: {
+    originalName: string,
+    text: string,
+  }
+
+  constructor(props: Props) {
+    super(props)
+
+    this.state = {
+      originalName: props.deck.name,
+      text: props.deck.name,
+    }
+  }
+
+  componentWillReceiveProps(newProps: Props) {
+    if (!this.props.editing && newProps.editing) {
+      this.setState({
+        originalName: newProps.deck.name,
+        text: newProps.deck.name,
+      })
+    }
+  }
+
+  _onChangeText = (text: string) => {
+    this.setState({
+      text
+    })
+
+    if (this.props.onNameChanged) {
+      // Re-store the original name if the text field is emptied
+      this.props.onNameChanged(text || this.state.originalName)
+    }
+  }
+
+  _getCharactersRemainingString = (text: string) => {
+    return text.length + '/' + MAX_LENGTH
+  }
+
+  _renderTitle = () => {
+    if (this.props.editing) {
+      return this._renderEditableTitle()
+    } else {
+      return this._renderNonEditableTitle()
+    }
+  }
+
+  _renderEditableTitle = () => {
+    return (
+      <View style={styles.editTitleContainer}>
+        <TextInput
+          style={styles.editTitleTextFieldInput}
+          underlineColorAndroid={'white'}
+          placeholder={Platform.OS === 'android' ? 'Deck name' : 'Deck Name'}
+          placeholderTextColor={'rgba(255, 255, 255, 0.75)'}
+          value={this.state.text}
+          maxLength={MAX_LENGTH}
+          onChangeText={this._onChangeText} />
+        <Text style={styles.characterCounter}>
+          {this._getCharactersRemainingString(this.state.text)}
+        </Text>
+      </View>
+    )
+  }
+
+  _renderNonEditableTitle = () => {
+    return (
+      <Text style={styles.titleText} numberOfLines={2}>
+        {this.props.deck.name}
+      </Text>
+    )
+  }
+
+  _renderSubtitle = () => {
+    if (this.props.editing) {
+      return
+    }
+
     let tag
     let subtitleText
-    if (this.props.deck.public) {
-      tag = <Text style={styles.publicTag}>PUBLIC</Text>
-
-      subtitleText = this.props.deck.owner === this.props.userId
-            ? " by you."
-            : (this.props.deck.author
-                  ? (" by " + this.props.deck.author + ".")
-                  : " by someone else.")
-    } else if (this.props.deck.share_code) {
+    if (this.props.deck.accession === 'private') {
+      if (this.props.deck.public) {
+        tag = <Text style={styles.publicTag}>PUBLIC</Text>
+        subtitleText = ' by you'
+      } else if (this.props.deck.share_code) {
+        tag = <Text style={styles.sharedTag}>SHARED</Text>
+        subtitleText = ' by you'
+      }
+    } else if (this.props.deck.accession === 'shared') {
       tag = <Text style={styles.sharedTag}>SHARED</Text>
-
-      subtitleText = this.props.deck.owner === this.props.userId
-          ? " by you."
-          : (this.props.deck.author
-                ? (" by " + this.props.deck.author + ".")
-                : " with you.")
+      subtitleText = ' by '
+        + (this.props.deck.author || 'someone else')
+    } else {
+      tag = <Text style={styles.publicTag}>PUBLIC</Text>
+      subtitleText = ' by '
+        + (this.props.deck.author || 'someone else')
     }
 
     let subtitleContainer
@@ -101,23 +197,17 @@ class DeckViewInfoHeader extends React.Component {
       </View>
     }
 
+    return subtitleContainer
+  }
+
+  render() {
     return (
       <View
         style={styles.container}
         {...this.props}>
-        <Text style={styles.titleText} numberOfLines={2}>
-          {this.props.deck.name}
-        </Text>
-        {subtitleContainer}
+        {this._renderTitle()}
+        {this._renderSubtitle()}
       </View>
     )
   }
 }
-
-function select(store) {
-  return {
-    userId: store.user.userId
-  }
-}
-
-module.exports = connect(select)(DeckViewInfoHeader)
