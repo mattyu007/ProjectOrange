@@ -6,7 +6,7 @@ import { searchDecks } from '../../actions'
 import type { State } from '../../reducers/user'
 import type { DeckMetadata } from '../../api/types'
 
-import { View, Text, Navigator, Platform, TextInput, Image  } from 'react-native'
+import { View, Text, Navigator, Platform, TextInput, Image, Alert } from 'react-native'
 
 import { connect } from 'react-redux'
 
@@ -53,11 +53,22 @@ type Props = {
   searchString: string,
   searchResults: Array<DeckMetadata>,
 
-  onSearch: (searchString: string, userState: State) => void,
+  onSearch: (searchString: string) => any,
 }
 
 class SearchHome extends React.Component {
   props: Props
+
+  search = (searchText) => {
+    this.props.onSearch(searchText)
+    .catch(e => {
+      console.warn('Failed to search for decks', e)
+      Alert.alert(
+        (Platform.OS === 'android' ? 'Failed to search for decks' : 'Failed to Search for Decks'),
+        'Check your Internet connection and try again.'
+      )
+    })
+  }
 
   render() {
     let menuItem
@@ -76,7 +87,7 @@ class SearchHome extends React.Component {
             defaultValue={this.props.searchString}
             placeholder='Search'
             placeholderTextColor= {placeHolderTextColor}
-            onSubmitEditing={(event) => this.props.onSearch(event.nativeEvent.text)}
+            onSubmitEditing={(event) => this.search(event.nativeEvent.text)}
             underlineColorAndroid='white'
             style={styles.searchBox}>
         </TextInput>

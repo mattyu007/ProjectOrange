@@ -1,7 +1,7 @@
 // @flow
 
 import React from 'react'
-import { View, Text, Image, ScrollView, ListView, RefreshControl, Navigator, Platform } from 'react-native'
+import { View, Text, Image, ScrollView, ListView, RefreshControl, Navigator, Platform, Alert } from 'react-native'
 import type { DeckMetadata } from '../../api/types';
 
 import { discoverDecks } from '../../actions'
@@ -60,11 +60,25 @@ class DiscoverHome extends React.Component {
     this.setState(this._getNewState(newProps))
   }
 
+  _fetchDiscoverDecks = () => {
+    this.props.onRefreshDiscover()
+    .catch(e => {
+      console.warn('Failed to fetch discover decks', e)
+      this.setState({
+        refreshing: false,
+      });
+      Alert.alert(
+        (Platform.OS === 'android' ? 'Failed to fetch Discovery decks' : 'Failed to Fetch Discovery Decks'),
+        'Check your Internet connection and try again.'
+      )
+    })
+  }
+
   _refresh = () => {
     this.setState({
       refreshing: true
     })
-    this.props.onRefreshDiscover()
+    this._fetchDiscoverDecks()
   }
 
   _getNewState = (props) => {
@@ -77,7 +91,7 @@ class DiscoverHome extends React.Component {
         refreshing: false
       }
     } else {
-      this.props.onRefreshDiscover()
+      this._fetchDiscoverDecks()
       return {
         dataSource: this.ds.cloneWithRowsAndSections({}),
         refreshing: true
