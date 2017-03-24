@@ -20,7 +20,8 @@ class Deck(object):
         deck_id = generate_uuid()
         try:
             connector.begin_transaction()
-            connector.call_procedure('CREATE_DECK', deck_id, name, user_id, device, ','.join(tags))
+            connector.call_procedure('CREATE_DECK', deck_id, name, user_id, device,
+                                     ','.join(tags) if len(tags) > 0 else None)
             for index in xrange(len(cards)):
                 Card.create(deck_id, cards[index]['front'], cards[index]['back'], index,
                             reposition=False, connector=connector)
