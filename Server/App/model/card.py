@@ -16,9 +16,23 @@ class Card(object):
         connector.call_procedure_transactionally(procedure_name, uuid, deck_id, front, back, position)
         return Card(uuid, connector)
 
-    def edit(self, deck_id, front, back, position):
-        self.connector.call_procedure_transactionally(
-            'EDIT_CARD', self.uuid, deck_id, front, back, position)
+    def edit(self, deck_id, front=None, back=None):
+        query = 'UPDATE Card SET {} WHERE deck_id=%s AND uuid=%s'
+        sub_list = []
+        arg_list = []
+        if front is not None:
+            sub_list.append('front=%s')
+            arg_list.append(front)
+        if back is not None:
+            sub_list.append('back=%s')
+            arg_list.append(back)
+
+        if len(sub_list) > 0:
+            self.connector.query_transactionally(query.format(','.join(sub_list)),
+                                                 *(arg_list + [deck_id, self.uuid]))
+
+    def move(self, deck_id, position):
+        self.connector.call_procedure_transactionally('MOVE_CARD', self.uuid, deck_id, position)
 
     def delete(self, deck_id):
         self.connector.call_procedure_transactionally(

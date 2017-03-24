@@ -99,7 +99,15 @@ class DeckUUIDHandler(BaseHandler):
                         card = CardPolicy.belongs_to(action['card_id'], deck.uuid, connector)
                         if card is None:
                             raise ValueError  # card does not belong to deck
-                        card.edit(deck.uuid, action['front'], action['back'], action['position'])
+
+                        # Make edits.
+                        if action.get('front') is not None or action.get('back') is not None:
+                            card.edit(deck.uuid, action.get('front'), action.get('back'))
+
+                        # Move card.
+                        if action.get('position') is not None:
+                            card.move(deck.uuid, action['position'])
+
                     elif action['action'] == 'delete':
                         card = CardPolicy.belongs_to(action['card_id'], deck.uuid, connector)
                         if card is None:

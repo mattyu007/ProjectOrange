@@ -92,17 +92,6 @@ BEGIN
 END$$
 
 
--- Edit a card and update card positions
-CREATE PROCEDURE EDIT_CARD
-(
-    IN u VARCHAR(36), IN d VARCHAR(36), IN f VARCHAR(255), IN b VARCHAR(255), IN p INTEGER
-)
-BEGIN
-    UPDATE Card SET front=f, back=b WHERE uuid=u AND deck_id=d;
-    CALL MOVE_CARD(u, d, p);
-END$$
-
-
 -- Move a card to a new position in a deck.
 CREATE PROCEDURE MOVE_CARD(IN u VARCHAR(36), IN d VARCHAR(36), IN p INTEGER)
 BEGIN
