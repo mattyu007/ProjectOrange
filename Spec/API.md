@@ -418,6 +418,7 @@ This response only contains metadata (does not include the cards in the deck).
     "uuid": "<uuid>",
     "name": "<name>",
     "rating": <rating>,
+    "user_rating": 1 | -1 | null
     "num_ratings": "<num-ratings>",
     "num_cards": <num-cards>,
     "tags": ["<tag1>", "<tag2>", ...],
@@ -440,6 +441,7 @@ Response description:
 - `uuid`: the unique identifier for the deck.
 - `name`: the name of the deck
 - `rating`: the deck rating (integer representing total net likes)
+- `user_rating`: the rating the user has given deck
 - `num_ratings`: the number of ratings this deck has
 - `num_cards`: the number of cards in the deck
 - `tags`: a list of strings describing the contents of the deck
