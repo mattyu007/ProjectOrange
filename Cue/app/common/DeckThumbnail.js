@@ -3,7 +3,7 @@
 'use strict';
 
 import React from 'react'
-import { View, Image, Text, TouchableHighlight, TouchableNativeFeedback, Dimensions, Navigator, Platform } from 'react-native'
+import { View, Image, Text, TouchableOpacity, TouchableHighlight, TouchableNativeFeedback, Dimensions, Navigator, Platform } from 'react-native'
 
 import type { Deck } from '../api/types'
 
