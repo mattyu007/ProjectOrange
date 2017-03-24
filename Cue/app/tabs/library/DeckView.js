@@ -6,7 +6,7 @@ import React from 'react'
 import { View, Text, Image, ScrollView, ListView, Navigator, Platform, Alert } from 'react-native'
 
 import { connect } from 'react-redux'
-import { editDeck } from '../../actions'
+import { editDeck, flagCard } from '../../actions'
 
 import type { Card, Deck } from '../../api/types'
 
@@ -313,18 +313,7 @@ function actions(dispatch) {
       return dispatch(editDeck(change))
     },
     flagCard: (deckUuid: string, cardUuid: string, flag: boolean) => {
-      let change = {
-        uuid: deckUuid,
-        cards: [
-          {
-            action: 'edit',
-            uuid: cardUuid,
-            needs_review: flag,
-          }
-        ]
-      }
-      /* TODO: Use flag card action */
-      return dispatch(editDeck(change))
+      return dispatch(flagCard(deckUuid, cardUuid, flag))
     }
   }
 }
