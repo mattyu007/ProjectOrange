@@ -15,7 +15,7 @@ import CueIcons from '../../common/CueIcons'
 import { MKButton } from 'react-native-material-kit'
 
 import LibraryListView from './LibraryListView'
-import { createDeck, loadLibrary, syncLibrary, deleteDeck } from '../../actions/library'
+import { createDeck, loadLibrary, syncLibrary, deleteDeck, copyDeck, clearInaccessibleDecks } from '../../actions/library'
 
 const styles = {
   container: {
@@ -47,13 +47,17 @@ type Props = {
   decks: Array<Deck>,
   navigator: Navigator,
   onPressMenu?: () => void,
-  localChanges: {},
 
   // From Redux:
+  localChanges: {},
+  inaccessibleDecks: ?Array<Deck>,
+
   onCreateDeck: (string) => any,
   onLoadLibrary: () => any,
   onSyncLibrary: (any) => any,
-  deleteDeck: (uuid: string) => any,
+  onDeleteDeck: (uuid: string) => any,
+  onClearInaccessibleDecks: () => any,
+  onCopyDeck: (deck: Deck) => any,
 }
 
 class LibraryHome extends React.Component {
@@ -69,7 +73,7 @@ class LibraryHome extends React.Component {
 
     let refreshing = false
 
-    if (!this.props.deck) {
+    if (this.props.deck === null) {
       refreshing = true
       this.props.onLoadLibrary().then(response => {
         this.setState({refreshing: false})
@@ -79,6 +83,25 @@ class LibraryHome extends React.Component {
     this.state = {
       editing: false,
       refreshing,
+    }
+  }
+
+  componentWillReceiveProps(newProps: Props) {
+    if (newProps.inaccessibleDecks && newProps.inaccessibleDecks.length > 0) {
+      newProps.inaccessibleDecks.forEach(deck => {
+        Alert.alert(
+          (Platform.OS === 'android' ?
+            'This deck is no longer available from the original owner' :
+            'This Deck Is No Longer Available from the Original Owner'),
+          'To continue using the deck “' + deck.name + '”, copy it into your library.',
+          [
+            {text: 'Remove', style: 'destructive'},
+            {text: 'Copy', onPress: () => this.props.onCopyDeck(deck)},
+          ]
+        )
+      })
+
+      this.props.onClearInaccessibleDecks()
     }
   }
 
@@ -152,7 +175,7 @@ class LibraryHome extends React.Component {
         {text: 'Cancel', style: 'cancel'},
         {text: buttonText, style: 'destructive',
           onPress: () => {
-            this.props.deleteDeck(deck.uuid)
+            this.props.onDeleteDeck(deck.uuid)
             this.props.navigator.pop()
           }
         }
@@ -263,6 +286,7 @@ function select(store) {
   return {
     decks: store.library.decks,
     localChanges: store.library.localChanges,
+    inaccessibleDecks: store.library.inaccessibleDecks,
   }
 }
 
@@ -271,7 +295,9 @@ function actions(dispatch) {
     onCreateDeck: (name: string) => dispatch(createDeck(name)),
     onLoadLibrary: () => dispatch(loadLibrary()),
     onSyncLibrary: (changes) => dispatch(syncLibrary(changes)),
-    deleteDeck: (uuid: string) => dispatch(deleteDeck(uuid)),
+    onDeleteDeck: (uuid: string) => dispatch(deleteDeck(uuid)),
+    onClearInaccessibleDecks: () => dispatch(clearInaccessibleDecks()),
+    onCopyDeck: (deck) => dispatch(copyDeck(deck)),
   }
 }
 

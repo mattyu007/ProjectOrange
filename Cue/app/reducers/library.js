@@ -5,11 +5,13 @@ import type { Deck } from '../api/types';
 
 export type State = {
   decks: ?Array<Deck>;
+  inaccessibleDecks: ?Array<Deck>;
   localChanges: [];
 };
 
 const initialState: State = {
   decks: null,
+  inaccessibleDecks: null,
   localChanges: [],
 };
 
@@ -17,18 +19,39 @@ const initialState: State = {
 // if state.decks size is 0, then library is empty
 function library(state: State = initialState, action: Action): State {
   let decks: Array<Deck> = state.decks == null ? [] : state.decks.slice()
+  let inaccessibleDecks: Array<Deck> = state.inaccessibleDecks == null ? [] : state.inaccessibleDecks.slice()
   let localChanges = state.localChanges.slice()
 
   if (action.type === 'LOADED_LIBRARY') {
-    decks = action.decks
+    inaccessibleDecks = []
+    let loadedDecks = action.decks.slice()
+
+    action.decks.forEach(deck => {
+        if (!deck.accessible || deck.deleted) {
+          let index = decks.findIndex(d => d.uuid == deck.uuid)
+          if (index != -1) {
+            inaccessibleDecks.push(decks[index])
+          }
+
+          localChanges.push({uuid: deck.uuid, action: 'delete'})
+
+          let loadIndex = loadedDecks.findIndex(d => d.uuid == deck.uuid)
+          if (loadIndex != -1) {
+            loadedDecks.splice(loadIndex,1)
+          }
+        }
+    })
+
+    decks = loadedDecks
+  } else if (action.type === 'CLEAR_INACCESSIBLE_DECKS') {
+    inaccessibleDecks = []
   } else if (action.type === 'DECK_ADDED_TO_LIBRARY') {
-    decks.push(action.deck)
+    decks.push(action.addedDeck)
   } else if (action.type === 'DECK_ALREADY_IN_LIBRARY') {
     decks = state.decks
   } else if (action.type === 'DECK_CREATED') {
     decks.push(action.deck)
     localChanges.push({...action.deck, action: "add"})
-
   } else if (action.type === 'DECK_DELETED') {
     let deckIndex = decks.findIndex(deck => deck.uuid == action.uuid)
     if (decks[deckIndex])
@@ -131,6 +154,7 @@ function library(state: State = initialState, action: Action): State {
 
   return {
     decks,
+    inaccessibleDecks,
     localChanges
   }
 }

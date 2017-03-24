@@ -26,6 +26,7 @@ export type DeckMetadata = {
   share_code?: string,
   deleted: boolean,
   accession?: string,
+  accessible: boolean,
 };
 
 export type Deck = DeckMetadata & {
