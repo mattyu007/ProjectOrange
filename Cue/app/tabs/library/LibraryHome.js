@@ -6,6 +6,7 @@ import { View, Text, Image, TouchableOpacity, Navigator, Platform, Alert } from 
 import { connect } from 'react-redux'
 
 import type { Deck } from '../../api/types'
+import LibraryApi from '../../api/Library'
 
 import CuePrompt from '../../common/CuePrompt'
 import CueColors from '../../common/CueColors'
@@ -125,6 +126,46 @@ class LibraryHome extends React.Component {
   }
 
   _onPressAddDeck = () => {
+    let buttons = [
+      {text: 'Cancel', style: 'cancel'},
+      {text: 'Look Up Share Code', onPress: this._onPressLookUpDeckByShareCode},
+      {text: 'Create New Deck', onPress: this._onPressCreateDeck},
+    ]
+
+    Alert.alert(
+      Platform.OS === 'android' ? 'Add deck' : 'Add Deck',
+      'You can create a new private deck or add a shared deck by entering a share code.',
+      Platform.OS === 'android' ? buttons : buttons.reverse(),
+    )
+  }
+
+  _onPressLookUpDeckByShareCode = () => {
+    CuePrompt.prompt(
+      Platform.OS === 'android' ? 'Look up share code' : 'Look Up Share Code',
+      '',
+      [
+        {text: 'Cancel', style: 'cancel'},
+        {text: 'Look Up', onPress: this._onEnterShareCode},
+      ]
+    )
+  }
+
+  _onEnterShareCode = (shareCode: string) => {
+    if (shareCode && shareCode.length) {
+      LibraryApi.getUuidByShareCode(shareCode).then(json => {
+        return LibraryApi.fetchDeck(json.uuid, shareCode)
+      }).then(deck => {
+        this.props.navigator.push({preview: deck})
+      }).catch(e => {
+        Alert.alert(
+          Platform.OS === 'android' ? 'Failed to look up share code' : 'Failed to Look Up Share Code',
+          'Could not add deck via share code "' + shareCode + '".',
+        )
+      })
+    }
+  }
+
+  _onPressCreateDeck = () => {
     CuePrompt.prompt(
       Platform.OS === 'android' ? 'Create new deck' : 'Create New Deck',
       '',
