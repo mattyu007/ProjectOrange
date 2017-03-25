@@ -137,7 +137,7 @@ export default class PlayDeckSetupView extends React.Component {
           selected={this.state.playbackOption === 'shuffled'}
           onPress={() => this._setFilterOption({playbackOption: 'shuffled'})} />
         <SelectableTextTableRow
-          text={'Start from a specific card'}
+          text={'Beginning at a specific card'}
           selected={this.state.playbackOption === 'custom'}
           onPress={() => this._setFilterOption({playbackOption: 'custom'})} />
       </View>
