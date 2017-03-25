@@ -95,28 +95,32 @@ class DeckView extends React.Component {
   }
 
   _rateDeck = () => {
+    let buttons = [
+      {text: 'Recommend',  onPress: () => this.props.rateDeck(this.state.deck.uuid, 1)},
+      {text: 'Would not Recommend', onPress: () => this.props.rateDeck(this.state.deck.uuid, -1)},
+      {text: 'Cancel', style: 'cancel'},
+    ]
+
     Alert.alert(
       (Platform.OS === 'android'
         ? 'Rate this deck'
         : 'Rate This Deck'),
       'Would you recommend this deck to others?',
-      [
-        {text: 'Cancel', style: 'destructive'},
-        {text: 'Would not Recommend', onPress: () => this.props.rateDeck(this.state.deck.uuid, -1)},
-        {text: 'Recommend',  onPress: () => this.props.rateDeck(this.state.deck.uuid, 1)},
-      ],
-
+      (Platform.OS === 'android'
+        ? buttons.reverse()
+        : buttons)
     )
   }
 
   _copyDeck = () => {
     Alert.alert(
       (Platform.OS === 'android'
-        ? 'Are you sure you want to copy this deck?'
-        : 'Are You Sure You Want to Copy This Deck?'),
-      'Copying will create a private version of this deck in your library',
+        ? 'Copy this deck?'
+        : 'Copy This Deck?'),
+      'Copying will create a private version of this deck in your library.'
+        + ' The copied deck will no longer receive updates from the original owner.',
       [
-        {text: 'Cancel', style: 'destructive'},
+        {text: 'Cancel', style: 'cancel'},
         {text: 'Copy', onPress: () => this.props.copyDeck(this.state.deck)}
       ]
     )
@@ -214,7 +218,7 @@ class DeckView extends React.Component {
     return backItem
   }
 
-  _getRightItems = ({addItem, copyItem, editItem, filterItem, shareItem}) => {
+  _getRightItems = ({addItem, copyItem, rateItem, editItem, filterItem, shareItem}) => {
     if (Platform.OS === 'android') {
       if (this.state.deck.accession === 'private') {
         return [

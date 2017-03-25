@@ -140,7 +140,6 @@ async function syncDeck(change) : PromiseAction {
     change = {...change, user_data_version: response.user_data_version}
   } else if (change.action === "rate") {
     await LibraryApi.rateDeck(change.uuid, change.user_rating)
-    change = {...change}
   }
   return {
     type: 'DECK_SYNCED',
