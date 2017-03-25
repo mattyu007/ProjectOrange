@@ -1,11 +1,24 @@
 // @flow
 'use strict'
 
+import { StatusBar } from 'react-native'
+
 import { serverURL } from '../env';
 
 class CueApi {
 	static userId  = null;
 	static accessToken = null;
+	static requestsPending = 0;
+
+	static setNetworkActivityIndicatorVisible(value: boolean) {
+		if (value) {
+			this.requestsPending++
+		} else {
+			this.requestsPending--
+		}
+
+		StatusBar.setNetworkActivityIndicatorVisible(this.requestsPending > 0)
+	}
 
 	static setAuthHeader(userId: ?string, accessToken: ?string) {
 		this.userId = userId;
@@ -21,6 +34,7 @@ class CueApi {
 				'X-CUE-ACCESS-TOKEN': this.accessToken,
 			}
 		}
+		this.setNetworkActivityIndicatorVisible(true)
 		return fetch(serverURL + endpoint, {
 			method: method,
 			headers: headers,
@@ -29,6 +43,7 @@ class CueApi {
 		.then(checkStatus)
 		.then(response => response.text())
 		.then(text => {
+			this.setNetworkActivityIndicatorVisible(false)
 			try {
 				return JSON.parse(text)
 			} catch (e) {
@@ -36,6 +51,7 @@ class CueApi {
 			}
 		})
 		.catch(e => {
+			this.setNetworkActivityIndicatorVisible(false)
 			throw (e)
 		});
 	}
