@@ -8,6 +8,8 @@ import { View, Text, Platform, ScrollView } from 'react-native'
 import type { DeckMetadata } from '../api/types'
 
 import CueColors from './CueColors'
+import Chip from './Chip'
+import ListViewHairlineSeparator from './ListViewHairlineSeparator'
 
 var dateFormat = require('dateformat');
 
@@ -28,7 +30,19 @@ const styles = {
   description: {
     color: CueColors.primaryText,
     fontSize: Platform.OS === 'android' ? 14 : 17,
-  }
+  },
+  tagsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  chip: {
+    marginRight: 8,
+    marginVertical: 4
+  },
+  noTagsText: {
+    color: CueColors.lightText,
+    fontStyle: 'italic',
+  },
 }
 
 export default class DeckInfo extends React.Component {
@@ -37,11 +51,29 @@ export default class DeckInfo extends React.Component {
   }
 
   render() {
-    let tags = this.props.deck.tags.join(', ')
+    let tags
+    if (!this.props.deck.tags || !this.props.deck.tags.length) {
+      tags = (
+        <Text style={[styles.description, styles.noTagsText]}>
+          No tags.
+        </Text>
+      )
+    } else {
+      tags = (
+        <View style={styles.tagsContainer}>
+          {this.props.deck.tags.map((tag: string) => (
+            <Chip
+              key={tag}
+              style={styles.chip}
+              text={tag} />
+          ))}
+        </View>
+      )
+    }
+
     let lastUpdated = dateFormat(this.props.deck.last_update, 'mmmm d, yyyy')
 
     let access
-
     if (this.props.deck.public) {
       access = 'Available to everyone'
     } else if (this.props.deck.share_code) {
@@ -56,10 +88,9 @@ export default class DeckInfo extends React.Component {
           <Text style={styles.infoHeader}>
             Tags
           </Text>
-          <Text style={styles.description}>
-            {tags}
-          </Text>
+          {tags}
         </View>
+        <ListViewHairlineSeparator />
         <View style={styles.section}>
           <Text style={styles.infoHeader}>
             Last Updated
@@ -68,6 +99,7 @@ export default class DeckInfo extends React.Component {
             {lastUpdated}
           </Text>
         </View>
+        <ListViewHairlineSeparator />
         <View style={styles.section}>
           <Text style={styles.infoHeader}>
             Permissions
@@ -76,6 +108,7 @@ export default class DeckInfo extends React.Component {
             {access}
           </Text>
         </View>
+        <ListViewHairlineSeparator />
       </ScrollView>
     )
   }
