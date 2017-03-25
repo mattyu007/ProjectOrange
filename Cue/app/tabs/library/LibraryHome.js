@@ -131,8 +131,8 @@ class LibraryHome extends React.Component {
       'You can create a new private deck or add a shared deck by entering a share code.',
       [
         {text: 'Cancel', style: 'cancel'},
-        {text: 'Look up share code', onPress: this._onPressLookUpDeckByShareCode},
-        {text: 'Create new deck', onPress: this._onPressCreateDeck},
+        {text: 'Look Up Share Code', onPress: this._onPressLookUpDeckByShareCode},
+        {text: 'Create New Deck', onPress: this._onPressCreateDeck},
       ]
     )
   }
@@ -143,7 +143,7 @@ class LibraryHome extends React.Component {
       '',
       [
         {text: 'Cancel', style: 'cancel'},
-        {text: 'Look up', onPress: this._onEnterShareCode},
+        {text: 'Look Up', onPress: this._onEnterShareCode},
       ]
     )
   }
@@ -151,12 +151,12 @@ class LibraryHome extends React.Component {
   _onEnterShareCode = (shareCode: string) => {
     if (shareCode && shareCode.length) {
       LibraryApi.getUuidByShareCode(shareCode).then(json => {
-        LibraryApi.fetchDeck(json.uuid, shareCode).then(deck => {
-          this.props.navigator.push({preview: deck})
-        })
+        return LibraryApi.fetchDeck(json.uuid, shareCode)
+      }).then(deck => {
+        this.props.navigator.push({preview: deck})
       }).catch(e => {
         Alert.alert(
-          Platform.OS === 'android' ? 'Deck add error' : 'Deck Add Error',
+          Platform.OS === 'android' ? 'Failed to look up share code' : 'Failed to Look Up Share Code',
           'Could not add deck via share code "' + shareCode + '".',
         )
       })
