@@ -11,6 +11,7 @@ from model.card import Card
 from model.deck import Deck
 from policy.card import CardPolicy
 from policy.deck import DeckPolicy
+from model.library import Library
 from utils.base_handler import BaseHandler
 from utils.wrappers import authorize_request_and_create_db_connector, require_params, \
     extract_user_id, optional_params, optional_query_string_params
@@ -139,8 +140,8 @@ class DeckUUIDHandler(BaseHandler):
 
     @authorize_request_and_create_db_connector
     @extract_user_id
-    @require_params('name', 'public', 'tags', 'cards', 'device')
-    def post(self, name, public, tags, cards, device, user_id, connector, uuid):
+    @require_params('name', 'public', 'deleted', 'tags', 'cards', 'device')
+    def post(self, name, public, deleted, tags, cards, device, user_id, connector, uuid):
         """Overwrite an existing deck."""
 
         deck = DeckPolicy.can_edit(uuid, user_id, connector)
@@ -158,10 +159,22 @@ class DeckUUIDHandler(BaseHandler):
                 raise TypeError
             if not isinstance(tags, list):
                 raise TypeError
-
+                
             deck.set_name(name)
             deck.set_public(public)
             deck.set_tags(tags)
+
+            deck_metadata = deck.get_metadata(user_id)
+            library = Library(user_id, connector=connector)
+            
+            if deleted and not deck_metadata['deleted']: 
+                library.remove(uuid)
+                connector.end_transaction()
+                return self.make_response(response=deck.full_deck_to_json(user_id))
+
+            if not deleted and deck_metadata['deleted']:
+                deck.set_delete_flag(False)
+                library.add(uuid, device, 'private')
 
             # Determine which cards need to be deleted.
             original_cards = deck.get_cards(user_id)
