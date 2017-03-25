@@ -40,7 +40,7 @@ export default class SwitchTableRow extends React.Component {
           {this.props.text}
         </Text>
         <Switch
-          onTintColor={Platform.OS === 'android' ? CueColors.primaryTintEvenLighter : CueColors.primaryTint}
+          onTintColor={Platform.OS === 'android' ? CueColors.primaryTintSlightlyLighter : CueColors.primaryTint}
           thumbTintColor={(Platform.OS === 'android' && this.props.value) ?
                             CueColors.primaryTint : undefined}
           value={this.props.value}

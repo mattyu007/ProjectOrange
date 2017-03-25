@@ -68,10 +68,8 @@ const baseSpringConfig = {
 type Props = {
   navigator: Navigator,
   deck: Deck,
-  shuffle?: boolean,
-  startIndex?: number,
-  flaggedOnly?: boolean,
-  answerFirst?: boolean,
+  startIndex: number,
+  cardFilter: (Array<Card>) => Array<Card>,
 
   // From Redux:
   flagCard: (deckUuid: string, cardUuid: string, flag: boolean) => any
@@ -105,18 +103,10 @@ class PlayDeckView extends React.Component {
   constructor(props: Props) {
     super(props)
 
-    // Take a snapshot of the Deck in props
-    let cards = (this.props.deck.cards || []).slice(0)
-
-    // Process play options
-    if (this.props.shuffle) cards = this._shuffled(cards)
-    else if (this.props.flaggedOnly) cards = this._flaggedOnly(cards)
-
-    // Process modifiers
-    if (this.props.answerFirst) cards = this._answerFirst(cards)
+    let cards = this.props.cardFilter(this.props.deck.cards || [])
 
     this.state = {
-      index: this.props.startIndex || 0,
+      index: this.props.startIndex,
       cards: cards,
       cardXY: new Animated.ValueXY(),
       cardOpacity: new Animated.Value(0),
@@ -151,27 +141,6 @@ class PlayDeckView extends React.Component {
 
   componentWillUnmount() {
     StatusBar.setHidden(false)
-  }
-
-  _flaggedOnly(array: Array<Deck>): Array<Deck> {
-    return array.filter(item => item.needs_review)
-  }
-
-  _answerFirst(array: Array<Deck>): Array<Deck> {
-    return array.map(deck => { return {...deck, front: deck.back, back: deck.front} })
-  }
-
-  _shuffled(array: Array<*>): Array<*> {
-    let ret = array.slice(0)
-
-    for (let i = ret.length - 1; i > 0; i--) {
-      let j = Math.floor(Math.random() * (i + 1))
-      let temp = ret[i]
-      ret[i] = ret[j]
-      ret[j] = temp
-    }
-
-    return ret
   }
 
 

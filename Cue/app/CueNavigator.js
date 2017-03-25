@@ -103,7 +103,7 @@ var CueNavigator = React.createClass({
     } else if (route.sharingOptions) {
       return <DeckSharingOptions navigator={navigator} deck={route.sharingOptions} {...route} />
     } else if (route.playDeckSetup) {
-      return <PlayDeckSetupView navigator={navigator} deck={route.playDeckSetup} flagFilter={route.flagFilter} {...route} />
+      return <PlayDeckSetupView navigator={navigator} deck={route.playDeckSetup} {...route} />
     } else if (route.playDeck) {
       return <PlayDeckView navigator={navigator} deck={route.playDeck} {...route} />
     } else if (route.preview) {
