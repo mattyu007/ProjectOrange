@@ -126,14 +126,16 @@ class LibraryHome extends React.Component {
   }
 
   _onPressAddDeck = () => {
+    let buttons = [
+      {text: 'Cancel', style: 'cancel'},
+      {text: 'Look Up Share Code', onPress: this._onPressLookUpDeckByShareCode},
+      {text: 'Create New Deck', onPress: this._onPressCreateDeck},
+    ]
+
     Alert.alert(
       Platform.OS === 'android' ? 'Add deck' : 'Add Deck',
       'You can create a new private deck or add a shared deck by entering a share code.',
-      [
-        {text: 'Cancel', style: 'cancel'},
-        {text: 'Look Up Share Code', onPress: this._onPressLookUpDeckByShareCode},
-        {text: 'Create New Deck', onPress: this._onPressCreateDeck},
-      ]
+      Platform.OS === 'android' ? buttons : buttons.reverse(),
     )
   }
 

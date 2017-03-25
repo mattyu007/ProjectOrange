@@ -84,7 +84,7 @@ var LibraryApi = {
     let body = JSON.stringify({
       uuid: uuid,
       device: DeviceInfo.getDeviceName(),
-      share_code: shareCode || null,
+      share_code: shareCode,
     });
     console.info('Adding deck "' + uuid + '" to library from endpoint: ' + endpoint)
     return CueApi.fetch(endpoint, method, body);
