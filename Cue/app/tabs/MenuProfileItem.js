@@ -49,8 +49,9 @@ class MenuProfileItem extends React.Component {
       this.props.syncLibrary(this.props.localChanges).then(failedSyncs =>{
         if (failedSyncs && failedSyncs.length) {
           Alert.alert(
-            'You have local changes which conflict with changes in the Cue cloud',
-            'If you sign out now without resolving these conflicts, you will lose all your local changes',
+            'Your device is out of sync with the Cue cloud',
+            'Changes were made on this device which conflict with changes in the Cue cloud.'
+              + '\n\nIf you sign out now without resolving these conflicts, you will lose all your local changes.',
             [
               {text: "Sign Out Anyway", onPress: () => this.props.logOut(), style: 'destructive'},
               {text: "Resolve Conflicts", onPress: () => this.props.navigator.push({failedSyncs})}
