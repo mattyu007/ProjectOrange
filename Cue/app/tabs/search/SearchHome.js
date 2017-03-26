@@ -23,7 +23,6 @@ const styles = {
   },
   bodyContainer: {
     flex: 1,
-
   },
   searchBox: {
     color: Platform.OS === 'android' ? 'white' : CueColors.primaryText,
@@ -51,7 +50,7 @@ type Props = {
   onPressMenu?: () => void,
 
   searchString: string,
-  searchResults: Array<DeckMetadata>,
+  searchResults: ?Array<DeckMetadata>,
 
   onSearch: (searchString: string) => any,
 }
@@ -102,7 +101,7 @@ class SearchHome extends React.Component {
           <SearchListView
             style={styles.bodyContainer}
             navigator={this.props.navigator}
-            decks={this.props.searchResults || []} />
+            decks={this.props.searchResults} />
       </View>
     )
   }

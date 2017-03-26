@@ -20,7 +20,7 @@ const styles = {
 
 type Props = {
   navigator: Navigator,
-  decks: Array<DeckMetadata>,
+  decks: ?Array<DeckMetadata>,
 }
 
 class SearchListView extends React.Component {
@@ -50,23 +50,26 @@ class SearchListView extends React.Component {
 
     this.state = {
       deviceOrientation: 'UNKNOWN',
-      dataSource: this.ds.cloneWithRows(props.decks)
+      dataSource: props.decks ? this.ds.cloneWithRows(props.decks) : null
     }
   }
 
-  componentWillReceiveProps(props) {
+  componentWillReceiveProps(newProps: Props) {
     this.setState({
-      ...this.state,
-      dataSource: this.ds.cloneWithRows(props.decks)
+      dataSource: newProps.decks ? this.ds.cloneWithRows(newProps.decks) : null
     })
   }
 
   render() {
+    if (!this.state.dataSource) {
+      return <View />
+    }
+
     if (this.state.dataSource.getRowCount() == 0) {
       return (
         <EmptyView
           icon={CueIcons.searchNoResults}
-          titleText={'There are no public decks matching your search'} />
+          titleText={'There are no public decks matching your search.'} />
       )
     }
     return (
