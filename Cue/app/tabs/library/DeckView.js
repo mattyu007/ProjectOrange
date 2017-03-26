@@ -121,7 +121,10 @@ class DeckView extends React.Component {
         + ' The copied deck will no longer receive updates from the original owner.',
       [
         {text: 'Cancel', style: 'cancel'},
-        {text: 'Copy', onPress: () => this.props.copyDeck(this.state.deck)}
+        {text: 'Copy', onPress: () => {
+          let action = this.props.copyDeck(this.state.deck)
+          this.props.navigator.push({deck: action.deck})
+        }}
       ]
     )
   }
