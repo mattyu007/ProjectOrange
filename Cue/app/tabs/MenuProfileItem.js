@@ -53,8 +53,9 @@ class MenuProfileItem extends React.Component {
             'Changes were made on this device which conflict with changes in the Cue cloud.'
               + '\n\nIf you sign out now without resolving these conflicts, you will lose all your local changes.',
             [
-              {text: "Sign Out Anyway", onPress: () => this.props.logOut(), style: 'destructive'},
-              {text: "Resolve Conflicts", onPress: () => this.props.navigator.push({failedSyncs})}
+              {text: 'Cancel', style: 'cancel'},
+              {text: 'Resolve Conflicts', onPress: () => this.props.navigator.push({failedSyncs})},
+              {text: 'Sign Out Anyway', onPress: () => this.props.logOut(), style: 'destructive'},
             ],
             { cancelable: false }
           )
