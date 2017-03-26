@@ -1,12 +1,10 @@
 // @flow
 
 import React from 'react'
-import { ActivityIndicator, View, Text, Image, Alert } from 'react-native'
+import { ActivityIndicator, View, Text, Image, StyleSheet, Alert } from 'react-native'
 
 import { connect } from 'react-redux'
 import { serverLogin } from '../actions';
-
-import LinearGradient from 'react-native-linear-gradient'
 
 import CueColors from '../common/CueColors'
 import CueIcons from '../common/CueIcons'
@@ -20,30 +18,38 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center'
   },
+  contentContainer: {
+    height: '55%',
+    position: 'absolute',
+    left: 24,
+    right: 24,
+    bottom: 32,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   heroText: {
     margin: 12,
+    marginTop: 0,
     backgroundColor: 'transparent',
     color: 'white',
     fontSize: 56,
-    fontWeight: '300',
+    fontWeight: '400',
     textAlign: 'center'
   },
   taglineText: {
     backgroundColor: 'transparent',
     color: 'white',
     fontSize: 24,
-    fontStyle: 'italic',
     fontWeight: '400',
     textAlign: 'center',
-    marginBottom: 64,
   },
   actionText: {
     backgroundColor: 'transparent',
     color: 'white',
-    fontSize: 20,
-    fontWeight: '500',
+    fontSize: 16,
+    fontWeight: '700',
     textAlign: 'center',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   loginContent: {
   }
@@ -90,21 +96,24 @@ class LoginScreen extends React.Component {
     let content = this.state.loading ? loginContent : spinner;
 
     return (
-      <LinearGradient
-        style={styles.container}
-        colors={[CueColors.primaryAccent, CueColors.primaryTintDarker]}>
-
-        <Image source={CueIcons.cueDeck} />
-        <Text style={styles.heroText}>
-          Cue
-        </Text>
-        <Text style={styles.taglineText}>
-          Flashcards for the modern student.
-        </Text>
-
-        {content}
-
-      </LinearGradient>
+      <View
+        style={styles.container}>
+        <Image
+          style={[StyleSheet.absoluteFill, {width: null, height: null}]}
+          resizeMode={'cover'}
+          source={CueIcons.loginBackground} />
+        <View style={styles.contentContainer}>
+          <View>
+            <Text style={styles.heroText}>
+              Cue
+            </Text>
+            <Text style={styles.taglineText}>
+              Flashcards for the modern student.
+            </Text>
+          </View>
+          {content}
+        </View>
+      </View>
     );
   }
 }
