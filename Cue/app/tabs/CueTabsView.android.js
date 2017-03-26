@@ -81,8 +81,7 @@ class CueTabsView extends React.Component {
         />
         <ListViewHairlineSeparator
           style={styles.separator} />
-        <MenuCreditsItem
-          version={'0.1'} />
+        <MenuCreditsItem />
       </View>
     );
   }
