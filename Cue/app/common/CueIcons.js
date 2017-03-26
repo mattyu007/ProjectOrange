@@ -37,6 +37,7 @@ module.exports = {
   emptyDeck: require('./img/deck_empty.png'),
   emptyFilteredDeck: require('./img/deck_empty_filtered.png'),
   emptyLibrary: require('./img/library_empty.png'),
+  loginBackground: require('./img/login_background.png'),
   searchNoResults: require('./img/search_no_results.png'),
 
   // Deck Play Mode Indicators
