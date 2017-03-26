@@ -17,7 +17,6 @@ import SwitchTableRow from '../../../common/SwitchTableRow'
 const styles = {
   container: {
     flex: 1,
-    paddingBottom: 40,
     backgroundColor: Platform.OS === 'android' ? 'white' : CueColors.coolLightGrey,
   },
 
@@ -217,7 +216,9 @@ export default class PlayDeckSetupView extends React.Component {
           leftItem={leftItem}
           title={'Play “' + this.props.deck.name + '”'}
           rightItems={rightItems} />
-        <ScrollView style={styles.container}>
+        <ScrollView
+          style={styles.container}
+          contentContainerStyle={{paddingBottom: 40}}>
           {this._renderPlaybackOptions()}
           {this._renderCustomSelection()}
           {this._renderModifiers()}
