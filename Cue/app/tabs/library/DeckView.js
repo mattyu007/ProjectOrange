@@ -97,7 +97,7 @@ class DeckView extends React.Component {
   _rateDeck = () => {
     let buttons = [
       {text: 'Recommend',  onPress: () => this.props.rateDeck(this.state.deck.uuid, 1)},
-      {text: 'Would not Recommend', onPress: () => this.props.rateDeck(this.state.deck.uuid, -1)},
+      {text: 'Would Not Recommend', onPress: () => this.props.rateDeck(this.state.deck.uuid, -1)},
       {text: 'Cancel', style: 'cancel'},
     ]
 
@@ -123,7 +123,7 @@ class DeckView extends React.Component {
         {text: 'Cancel', style: 'cancel'},
         {text: 'Copy', onPress: () => {
           let action = this.props.copyDeck(this.state.deck)
-          this.props.navigator.push({deck: action.deck})
+          this.props.navigator.replace({deck: action.deck})
         }}
       ]
     )
