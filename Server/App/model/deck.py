@@ -52,6 +52,10 @@ class Deck(object):
         self.connector.query_transactionally(
             'UPDATE Deck SET public=%s WHERE uuid=%s', public, self.uuid)
 
+    def set_delete_flag(self, delete):
+        self.connector.query_transactionally(
+            'UPDATE Deck SET deleted=%s WHERE uuid=%s', delete, self.uuid)
+
     def nullify_share_code(self):
         self.connector.call_procedure_transactionally('SET_SHARE_CODE', self.uuid, None)
 

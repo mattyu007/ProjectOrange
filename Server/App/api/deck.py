@@ -9,6 +9,7 @@ import logging
 from config import StatusCode
 from model.card import Card
 from model.deck import Deck
+from model.library import Library
 from policy.card import CardPolicy
 from policy.deck import DeckPolicy
 from utils.base_handler import BaseHandler
@@ -162,6 +163,13 @@ class DeckUUIDHandler(BaseHandler):
             deck.set_name(name)
             deck.set_public(public)
             deck.set_tags(tags)
+
+            deck_metadata = deck.get_metadata(user_id)
+            library = Library(user_id, connector=connector)
+           
+            if deck_metadata['deleted']:
+                deck.set_delete_flag(False)
+                library.add(uuid, device, 'private')
 
             # Determine which cards need to be deleted.
             original_cards = deck.get_cards(user_id)
