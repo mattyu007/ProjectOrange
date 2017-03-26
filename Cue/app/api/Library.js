@@ -125,6 +125,16 @@ var LibraryApi = {
     })
     console.info('Flagging card "' + body + '" at endpoint: ' + endpoint)
     return CueApi.fetch(endpoint, method, body);
+  },
+
+  rateDeck(uuid: string, rating: number) {
+    let endpoint = '/api/v1/deck/' + uuid + '/rate'
+    let method = 'POST'
+    let body = JSON.stringify({
+      rating
+    })
+    console.info('Rating deck "' + uuid + '" ' + rating + ' at endpoint: ' + endpoint)
+    return CueApi.fetch(endpoint, method, body);
   }
 
 }

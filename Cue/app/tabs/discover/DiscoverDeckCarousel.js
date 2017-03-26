@@ -27,16 +27,24 @@ export default class DiscoverDeckCarousel extends React.Component {
     dataSource: ListView.DataSource
   }
 
+  ds: ListView.DataSource
+
   constructor(props: Props) {
     super(props)
 
-    let ds = new ListView.DataSource({
+    this.ds = new ListView.DataSource({
       rowHasChanged: (r1, r2) => r1 !== r2
     })
 
     this.state = {
-      dataSource: ds.cloneWithRows(this.props.decks)
+      dataSource: this.ds.cloneWithRows(this.props.decks)
     }
+  }
+
+  componentWillReceiveProps(newProps: Props) {
+    this.setState({
+      dataSource: this.ds.cloneWithRows(newProps.decks)
+    })
   }
 
   render() {

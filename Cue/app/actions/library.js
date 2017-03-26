@@ -64,6 +64,17 @@ function flagCard(deckUuid: string, cardUuid: string, needs_review: Boolean): Ac
   }
   return {
     type: 'CARD_FLAGGED',
+    change,
+  }
+}
+
+function rateDeck(uuid: string, user_rating: number): Action {
+  let change = {
+    uuid,
+    user_rating
+  }
+  return {
+    type: 'DECK_RATED',
     change
   }
 }
@@ -127,6 +138,8 @@ async function syncDeck(change) : PromiseAction {
   } else if (change.action === "flag") {
     let response = await LibraryApi.flagCard(change)
     change = {...change, user_data_version: response.user_data_version}
+  } else if (change.action === "rate") {
+    await LibraryApi.rateDeck(change.uuid, change.user_rating)
   }
   return {
     type: 'DECK_SYNCED',
@@ -179,5 +192,5 @@ function copyDeck(localDeck: Deck) : Action {
 
 module.exports = {
   loadLibrary, createDeck, deleteDeck, editDeck, recordShareCode, resolveConflict,
-  syncDeck, syncLibrary, addLibrary, clearInaccessibleDecks, copyDeck, flagCard
+  syncDeck, syncLibrary, addLibrary, clearInaccessibleDecks, copyDeck, flagCard, rateDeck
 };

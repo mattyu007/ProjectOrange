@@ -122,6 +122,33 @@ function library(state: State = initialState, action: Action): State {
       })
     }
 
+  } else if (action.type === 'DECK_RATED') {
+    let change = action.change
+
+    let deckIndex = decks.findIndex(deck => deck.uuid == change.uuid)
+    if (decks[deckIndex]) {
+      let oldRating = decks[deckIndex].user_rating ? decks[deckIndex].user_rating : 0
+      decks[deckIndex] = {
+        ...decks[deckIndex],
+        rating: decks[deckIndex].rating + change.user_rating - oldRating,
+        num_ratings: decks[deckIndex].num_ratings + (oldRating ? 0 : 1),
+        user_rating: change.user_rating
+      }
+    }
+
+    let changeIndex = localChanges.findIndex(deck => deck.uuid == change.uuid && deck.user_rating)
+    if (localChanges[changeIndex]) {
+      localChanges[changeIndex] = {
+        ...localChanges[changeIndex],
+        user_rating: change.user_rating,
+      }
+    } else {
+      localChanges.push({
+        ...change,
+        action: 'rate',
+      })
+    }
+
   } else if (action.type === 'SHARE_CODE_GENERATED') {
     let deck = decks.find((deck: Deck) => deck.uuid === action.uuid)
     deck.share_code = action.code

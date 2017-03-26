@@ -20,7 +20,8 @@ export type Action =
 	| { type: 'DECK_ALREADY_IN_LIBRARY'}
 	| { type: 'DECK_ADDED_TO_LIBRARY', addedDeck: Deck}
 	| { type: 'CLEAR_INACCESSIBLE_DECKS'}
-;
+	| { type: 'DECK_RATED', change: {uuid: string, userRating: number}}
+	;
 
 export type Dispatch = (action: Action | ThunkAction | PromiseAction | Array<Action>) => any;
 export type GetState = () => Object;
