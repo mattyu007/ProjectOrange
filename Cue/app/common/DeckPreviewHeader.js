@@ -21,7 +21,7 @@ const styles = {
   },
   textContainer: {
     paddingHorizontal: 16,
-    paddingBottom: 16
+    paddingBottom: Platform.OS === 'android' ? 0 : 12,
   },
   deckTitle: {
     color: 'white',
@@ -66,7 +66,7 @@ export default class DeckPreviewHeader extends React.Component {
     deck: DeckMetadata,
     tabs: Array<string>,
     currentTab: number,
-    onChange: (tab) => void,
+    onChange: (tab: number) => void,
     addLibrary: () => void,
     deckInLibrary: ?Deck,
   }
