@@ -9,9 +9,9 @@ import logging
 from config import StatusCode
 from model.card import Card
 from model.deck import Deck
+from model.library import Library
 from policy.card import CardPolicy
 from policy.deck import DeckPolicy
-from model.library import Library
 from utils.base_handler import BaseHandler
 from utils.wrappers import authorize_request_and_create_db_connector, require_params, \
     extract_user_id, optional_params, optional_query_string_params
@@ -159,7 +159,7 @@ class DeckUUIDHandler(BaseHandler):
                 raise TypeError
             if not isinstance(tags, list):
                 raise TypeError
-                
+
             deck.set_name(name)
             deck.set_public(public)
             deck.set_tags(tags)
