@@ -17,6 +17,7 @@ import SwitchTableRow from '../../../common/SwitchTableRow'
 const styles = {
   container: {
     flex: 1,
+    paddingBottom: 40,
     backgroundColor: Platform.OS === 'android' ? 'white' : CueColors.coolLightGrey,
   },
 
@@ -53,7 +54,12 @@ export default class PlayDeckSetupView extends React.Component {
       flaggedOnly: this.props.flagFilter,
       answerFirst: false,
       customStartIndex: 0,
+      filteredCards: [],
     }
+
+    // Need to generate the filters with the state that is about to be set, but the cards
+    // need to be part of the state, so we have a bit of a chicken and egg problem.
+    // As a result, we have to create a proto-state to pass to this method.
     state.filteredCards = this._generateDeckFilter(state)(this.props.deck.cards || [])
     this.state = state
   }
@@ -103,6 +109,10 @@ export default class PlayDeckSetupView extends React.Component {
       ...option,
       customStartIndex: 0,
     }
+
+    // Need to generate the filters with the state that is about to be set, but the cards
+    // need to be part of the state, so we have a bit of a chicken and egg problem.
+    // As a result, we have to create a proto-state to pass to this method.
     newState.filteredCards = this._generateDeckFilter(newState)(this.props.deck.cards || [])
 
     this.setState(newState)
@@ -112,7 +122,7 @@ export default class PlayDeckSetupView extends React.Component {
     if (this.state.filteredCards.length === 0) {
       Alert.alert(
         Platform.OS === 'android' ? 'No cards to play' : 'No Cards To Play',
-        'Try turning off the "Flagged cards only" option'
+        'Try turning off the “Flagged cards only” option.'
       )
       return
     }

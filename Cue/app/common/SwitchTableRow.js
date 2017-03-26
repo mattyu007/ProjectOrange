@@ -34,7 +34,7 @@ export default class SwitchTableRow extends React.Component {
     return (
       <TableRow
         style={styles.container}
-        onPress={() => this.props.onPress(!this.props.value)}
+        onPress={() => this.props.onPress && this.props.onPress(!this.props.value)}
         disabled={Platform.OS !== 'android'} >
         <Text style={styles.text}>
           {this.props.text}
