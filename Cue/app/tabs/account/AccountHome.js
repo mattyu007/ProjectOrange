@@ -7,6 +7,8 @@ import { connect } from 'react-redux'
 import { logOut } from '../../actions/login'
 import { syncLibrary } from '../../actions/library'
 
+import { getCreditsLine } from '../../common/CueAppInfo'
+
 import CueColors from '../../common/CueColors'
 import CueHeader from '../../common/CueHeader'
 import CueIcons from '../../common/CueIcons'
@@ -128,7 +130,7 @@ class AccountHome extends React.Component {
           </View>
           <View style={styles.creditsContainer}>
             <Text style={styles.creditsText}>
-              Cue 0.1 by Project Orange
+              {getCreditsLine()}
             </Text>
           </View>
         </View>
