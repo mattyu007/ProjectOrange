@@ -1,7 +1,7 @@
 // @flow
 
 import React from 'react'
-import { View, Text, TouchableHighlight, Alert, Navigator } from 'react-native'
+import { View, Text, StyleSheet, TouchableHighlight, Alert, Navigator } from 'react-native'
 
 import { connect } from 'react-redux'
 import { logOut } from '../../actions/login'
@@ -33,15 +33,12 @@ const styles = {
     padding: 48,
     textAlign: 'center',
   },
-  signOutButtonContainer: {
-    flexDirection: 'row'
-  },
   signOutButton: {
-    flex: 1,
-    borderTopColor: CueColors.veryLightGrey,
-    borderTopWidth: 1,
-    borderBottomColor: CueColors.veryLightGrey,
-    borderBottomWidth: 1,
+    width: '100%',
+    borderTopColor: CueColors.lightGrey,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: CueColors.lightGrey,
+    borderBottomWidth: StyleSheet.hairlineWidth,
     paddingVertical: 12,
     paddingHorizontal: 16,
   },
@@ -117,16 +114,14 @@ class AccountHome extends React.Component {
             <Text style={styles.headerText}>
               {this.props.user.name || 'Cue'}
             </Text>
-            <View style={styles.signOutButtonContainer}>
-              <TouchableHighlight
-                style={styles.signOutButton}
-                underlayColor={CueColors.veryLightGrey}
-                onPress={this._logOut}>
-                <Text style={styles.signOutButtonText}>
-                  Sign Out
-                </Text>
-              </TouchableHighlight>
-            </View>
+            <TouchableHighlight
+              style={styles.signOutButton}
+              underlayColor={CueColors.veryLightGrey}
+              onPress={this._logOut}>
+              <Text style={styles.signOutButtonText}>
+                Sign Out
+              </Text>
+            </TouchableHighlight>
           </View>
           <View style={styles.creditsContainer}>
             <Text style={styles.creditsText}>
