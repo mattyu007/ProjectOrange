@@ -11,6 +11,7 @@ import MaterialTabs from 'react-native-material-tabs'
 
 const styles = {
   container: {
+    marginTop: 12,
   },
 }
 
@@ -18,7 +19,7 @@ export default class CueTabs extends React.Component {
   props: {
     tabs: Array<string>,
     currentTab: string,
-    onChange: (tab) => void,
+    onChange: (tab: number) => void,
   }
 
   render() {
