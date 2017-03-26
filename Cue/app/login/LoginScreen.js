@@ -19,11 +19,11 @@ const styles = {
     justifyContent: 'center'
   },
   contentContainer: {
-    height: '55%',
+    height: '60%',
     position: 'absolute',
     left: 24,
     right: 24,
-    bottom: 32,
+    bottom: 0,
     alignItems: 'center',
     justifyContent: 'space-between',
   },
@@ -52,7 +52,9 @@ const styles = {
     marginBottom: 8,
   },
   loginContent: {
-  }
+    flex: 1,
+    justifyContent: 'center',
+  },
 }
 
 class LoginScreen extends React.Component {
