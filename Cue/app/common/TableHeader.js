@@ -1,11 +1,15 @@
 // @flow
 
 import React from 'react'
-import { View, Text, Platform } from 'react-native'
+import { View, Text, StyleSheet, Platform } from 'react-native'
 
 import CueColors from './CueColors'
 
 const iosStyles = {
+  container: {
+    borderBottomColor: CueColors.lightGrey,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
   headerText: {
     paddingHorizontal: 16,
     paddingTop: 32,
@@ -37,9 +41,11 @@ export default class TableHeader extends React.Component {
     let text = Platform.OS === 'ios' ? this.props.text.toUpperCase() : this.props.text
 
     return (
-      <Text style={styles.headerText}>
-        {text}
-      </Text>
+      <View style={styles.container || undefined}>
+        <Text style={styles.headerText}>
+          {text}
+        </Text>
+      </View>
     )
   }
 }

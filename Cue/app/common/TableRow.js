@@ -9,10 +9,12 @@ const iosStyles = {
   row: {
     minHeight: 44,
     backgroundColor: 'white',
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: CueColors.lightGrey,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: CueColors.lightGrey,
+  },
+  rowTopBorder: {
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: CueColors.lightGrey,
   },
   contentContainer: {
     flexDirection: 'row',
@@ -35,6 +37,7 @@ export default class TableRow extends React.Component {
 
   props: {
     disabled?: boolean,
+    showTopBorder?: boolean,
     style?: Object,
     onPress?: () => void
   }
@@ -49,14 +52,14 @@ export default class TableRow extends React.Component {
     if (this.props.disabled) {
       return (
         <View
-          style={iosStyles.row}>
+          style={[iosStyles.row, this.props.showTopBorder ? iosStyles.rowTopBorder : undefined]}>
           {content}
         </View>
       )
     } else {
       return (
         <TouchableHighlight
-          style={iosStyles.row}
+          style={[iosStyles.row, this.props.showTopBorder ? iosStyles.rowTopBorder : undefined]}
           underlayColor={CueColors.veryLightGrey}
           onPress={this.props.onPress}>
           {content}
