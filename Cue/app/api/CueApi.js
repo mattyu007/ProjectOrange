@@ -1,7 +1,7 @@
 // @flow
 'use strict'
 
-import { StatusBar } from 'react-native'
+import { StatusBar, Platform } from 'react-native'
 
 import { serverURL } from '../env';
 
@@ -11,13 +11,15 @@ class CueApi {
 	static requestsPending = 0;
 
 	static setNetworkActivityIndicatorVisible(value: boolean) {
-		if (value) {
-			this.requestsPending++
-		} else {
-			this.requestsPending--
-		}
+		if (Platform.OS === 'ios') {
+			if (value) {
+				this.requestsPending++
+			} else {
+				this.requestsPending--
+			}
 
-		StatusBar.setNetworkActivityIndicatorVisible(this.requestsPending > 0)
+			StatusBar.setNetworkActivityIndicatorVisible(this.requestsPending > 0)
+		}
 	}
 
 	static setAuthHeader(userId: ?string, accessToken: ?string) {
