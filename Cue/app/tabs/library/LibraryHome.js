@@ -142,7 +142,7 @@ class LibraryHome extends React.Component {
   _onPressLookUpDeckByShareCode = () => {
     CuePrompt.prompt(
       Platform.OS === 'android' ? 'Look up share code' : 'Look Up Share Code',
-      '',
+      'Spaces and capitalization aren’t important.',
       [
         {text: 'Cancel', style: 'cancel'},
         {text: 'Look Up', onPress: this._onEnterShareCode},
@@ -150,10 +150,17 @@ class LibraryHome extends React.Component {
     )
   }
 
+  _normalizeShareCode = (shareCode: string): string => {
+    return (shareCode || '').toUpperCase()
+      .replace(new RegExp('[^A-Z0-9]', 'g'), '')
+  }
+
   _onEnterShareCode = (shareCode: string) => {
-    if (shareCode && shareCode.length) {
-      LibraryApi.getUuidByShareCode(shareCode).then(json => {
-        return LibraryApi.fetchDeck(json.uuid, shareCode)
+    let normalizedShareCode = this._normalizeShareCode(shareCode)
+
+    if (normalizedShareCode.length) {
+      LibraryApi.getUuidByShareCode(normalizedShareCode).then(json => {
+        return LibraryApi.fetchDeck(json.uuid, normalizedShareCode)
       }).then(deck => {
         this.props.navigator.push({preview: deck})
       }).catch(e => {
