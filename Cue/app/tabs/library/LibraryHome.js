@@ -1,7 +1,7 @@
 // @flow
 
 import React from 'react'
-import { View, Text, Image, TouchableOpacity, Navigator, Platform, Alert } from 'react-native'
+import { View, Text, Image, TouchableHighlight, TouchableNativeFeedback, Navigator, Platform, Alert, NetInfo } from 'react-native'
 
 import { connect } from 'react-redux'
 
@@ -42,6 +42,17 @@ const styles = {
   fabIcon: {
     tintColor: 'white',
   },
+  connectivityWarningContainer: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: CueColors.warningTint,
+  },
+  connectivityWarningText: {
+    textAlign: 'center',
+    fontWeight: '600',
+    fontSize: 14,
+    color: 'white',
+  },
 }
 
 type Props = {
@@ -65,6 +76,7 @@ class LibraryHome extends React.Component {
   props: Props
 
   state: {
+    connected: ?boolean,
     editing: boolean,
     refreshing: boolean,
   }
@@ -73,13 +85,33 @@ class LibraryHome extends React.Component {
     super(props)
 
     this.state = {
+      connected: null,
       editing: false,
       refreshing: false,
     }
   }
 
+  _onNetworkIsConnectedChanged = (isConnected: boolean) => {
+    if (isConnected !== this.state.connected) {
+      console.log('Network status changed: '
+        + (isConnected ? 'connected' : 'not connected'))
+
+      this.setState({connected: isConnected})
+
+      if (isConnected) {
+        this._refresh()
+      }
+    }
+  }
+
   componentDidMount() {
-    this._refresh()
+    // Android doesn't give us an initial callback when we add an event listener,
+    // but iOS will return 'false' for fetch() even if there is connectivity.
+    if (Platform.OS === 'android') {
+      NetInfo.isConnected.fetch().then(this._onNetworkIsConnectedChanged)
+    }
+
+    NetInfo.isConnected.addEventListener('change', this._onNetworkIsConnectedChanged)
   }
 
   componentWillReceiveProps(newProps: Props) {
@@ -99,6 +131,10 @@ class LibraryHome extends React.Component {
 
       this.props.onClearInaccessibleDecks()
     }
+  }
+
+  componentWillUnmount() {
+    NetInfo.isConnected.addEventListener('change', this._onNetworkIsConnectedChanged)
   }
 
   _refresh = () => {
@@ -290,6 +326,44 @@ class LibraryHome extends React.Component {
     }
   }
 
+  _onPressConnectivityWarning = () => {
+    Alert.alert(
+      Platform.OS === 'android' ? 'You’re offline' : 'You’re Offline',
+      'You can continue to use your decks as normal. '
+        + 'Sync will resume automatically when you reconnect to the Internet.'
+    )
+  }
+
+  _renderConnectivityWarning = () => {
+    if (this.state.connected === false) {
+      let content = (
+        <View style={styles.connectivityWarningContainer}>
+          <Text
+            style={styles.connectivityWarningText}>
+            Offline Mode
+          </Text>
+        </View>
+      )
+
+      if (Platform.OS === 'android') {
+        return (
+          <TouchableNativeFeedback
+            background={TouchableNativeFeedback.SelectableBackground()}
+            onPress={this._onPressConnectivityWarning}>
+            {content}
+          </TouchableNativeFeedback>
+        )
+      } else {
+        return (
+          <TouchableHighlight
+            onPress={this._onPressConnectivityWarning}>
+            {content}
+          </TouchableHighlight>
+        )
+      }
+    }
+  }
+
   _renderFAB = () => {
     if (Platform.OS !== 'android' || this.state.editing) {
       return
@@ -324,6 +398,7 @@ class LibraryHome extends React.Component {
           title='Library'
           key={this.state.editing}
           rightItems={rightItems} />
+        {this._renderConnectivityWarning()}
         <LibraryListView
           style={styles.bodyContainer}
           navigator={this.props.navigator}
