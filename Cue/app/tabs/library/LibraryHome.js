@@ -72,6 +72,8 @@ type Props = {
   onCopyDeck: (deck: Deck) => any,
 }
 
+const NETWORK_SYNC_TRIGGER_THROTTLE_MS = 30000
+
 class LibraryHome extends React.Component {
   props: Props
 
@@ -79,6 +81,7 @@ class LibraryHome extends React.Component {
     connected: ?boolean,
     editing: boolean,
     refreshing: boolean,
+    lastSyncTime: ?Date,
   }
 
   constructor(props: Props) {
@@ -88,18 +91,31 @@ class LibraryHome extends React.Component {
       connected: null,
       editing: false,
       refreshing: false,
+      lastSyncTime: null,
     }
   }
 
   _onNetworkIsConnectedChanged = (isConnected: boolean) => {
     if (isConnected !== this.state.connected) {
-      console.log('Network status changed: '
-        + (isConnected ? 'connected' : 'not connected'))
-
+      console.info(`Network status changed: ${(isConnected ? 'connected' : 'not connected')}`)
       this.setState({connected: isConnected})
 
-      if (isConnected) {
+      // We can sometimes receive multiple callbacks with [true, false, true]
+      // in quick succession when the network is reconnecting. Throttle calls to
+      // _refresh to avoid redundantly refreshing and potentially showing the
+      // Resolve Conflicts screen multiple times.
+      let msSinceLastSync = this.state.lastSyncTime
+        ? new Date() - this.state.lastSyncTime
+        : Infinity
+      let shouldThrottle = msSinceLastSync < NETWORK_SYNC_TRIGGER_THROTTLE_MS
+      let shouldSync = isConnected && !shouldThrottle
+
+      if (shouldSync) {
+        console.info('Triggering sync due to network status change')
         this._refresh()
+      } else {
+        console.info(`Not triggering sync (isConnected: ${isConnected}, `
+          + `shouldThrottle: ${shouldThrottle}, msSinceLastSync: ${msSinceLastSync})`)
       }
     }
   }
@@ -142,11 +158,11 @@ class LibraryHome extends React.Component {
       this.setState({refreshing: true})
       this.props.onSyncLibrary(this.props.localChanges).then(failedSyncs =>{
         if (failedSyncs && failedSyncs.length) {
-          this.setState({refreshing: false})
+          this.setState({refreshing: false, lastSyncTime: new Date()})
           this.props.navigator.push({failedSyncs})
         } else {
           this.props.onLoadLibrary().then(response => {
-            this.setState({refreshing: false})
+            this.setState({refreshing: false, lastSyncTime: new Date()})
           })
         }
       })
