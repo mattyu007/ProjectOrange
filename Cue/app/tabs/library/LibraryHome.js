@@ -114,8 +114,8 @@ class LibraryHome extends React.Component {
         console.info('Triggering sync due to network status change')
         this._refresh()
       } else {
-        console.info(`Not triggering sync (isConnected: ${isConnected}, `
-          + `shouldThrottle: ${shouldThrottle}, msSinceLastSync: ${msSinceLastSync})`)
+        console.info(`Not triggering sync (isConnected: ${isConnected.toString()}, `
+          + `shouldThrottle: ${shouldThrottle.toString()}, msSinceLastSync: ${msSinceLastSync.toString()})`)
       }
     }
   }
