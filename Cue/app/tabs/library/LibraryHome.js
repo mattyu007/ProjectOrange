@@ -150,7 +150,7 @@ class LibraryHome extends React.Component {
   }
 
   componentWillUnmount() {
-    NetInfo.isConnected.addEventListener('change', this._onNetworkIsConnectedChanged)
+    NetInfo.isConnected.removeEventListener('change', this._onNetworkIsConnectedChanged)
   }
 
   _refresh = () => {
