@@ -169,12 +169,12 @@ class DeckSharingOptions extends React.Component {
         })
         .catch(e => {
           console.warn('Failed to generate share code', e)
+
           Alert.alert(
             (Platform.OS === 'android'
               ? 'Could not generate share code'
               : 'Could Not Generate Share Code'),
-            'Check your Internet connection and try again.',
-            [{text: 'OK', style: 'cancel'}]
+            e.recoveryMessage
           )
         })
     } else {

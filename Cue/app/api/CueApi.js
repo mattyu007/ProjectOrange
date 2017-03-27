@@ -54,7 +54,10 @@ class CueApi {
 		})
 		.catch(e => {
 			this.setNetworkActivityIndicatorVisible(false)
-			throw (e)
+			if (!e.recoveryMessage) {
+				e.recoveryMessage = 'Check your Internet connection and try again.'
+			}
+			throw e
 		});
 	}
 }
@@ -64,8 +67,9 @@ var checkStatus = function(response) {
 		return response;
 	} else {
 		console.warn('Cue API request returned bad status code', response)
-		let error = new Error(response);
+		let error = new Error(response.status);
 		error.response = response;
+		error.recoveryMessage = `An error occurred (${response.status}). Try again in a few moments.`
 		throw error;
 	}
 }

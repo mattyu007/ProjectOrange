@@ -117,9 +117,10 @@ class LibraryHome extends React.Component {
       .catch(e => {
         this.setState({refreshing: false})
         console.warn('Failed to sync changes', e)
+        
         Alert.alert(
           (Platform.OS === 'android' ? 'Cue cloud sync failed' : 'Cue Cloud Sync Failed'),
-          'Check your Internet connection and try again.'
+          e.recoveryMessage
         )
       })
     }
