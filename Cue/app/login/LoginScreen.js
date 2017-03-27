@@ -93,7 +93,7 @@ class LoginScreen extends React.Component {
       </View>
     );
 
-    let spinner = <ActivityIndicator color={'white'} />;
+    let spinner = <ActivityIndicator style={styles.loginContent} color={'white'} />;
 
     let content = this.state.loading ? loginContent : spinner;
 
