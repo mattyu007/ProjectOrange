@@ -24,7 +24,7 @@ class DBConfig(object):
     PASSWORD = os.getenv('DB_PASSWORD', 'root')
     HOST = os.getenv('DB_HOST', 'localhost')
     DB_NAME = 'Cue'
-    CHARSET = 'utf8'
+    CHARSET = 'utf8mb4'
     SCHEMA_PATH = 'SQL/schema.sql'
     PROCEDURE_PATH = 'SQL/procedures.sql'
     TESTDATA_DIRECTORY = 'SQL/Testdata'

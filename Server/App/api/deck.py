@@ -166,7 +166,7 @@ class DeckUUIDHandler(BaseHandler):
 
             deck_metadata = deck.get_metadata(user_id)
             library = Library(user_id, connector=connector)
-           
+
             if deck_metadata['deleted']:
                 deck.set_delete_flag(False)
                 library.add(uuid, device, 'private')
