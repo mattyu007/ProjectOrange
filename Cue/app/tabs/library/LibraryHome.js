@@ -165,7 +165,9 @@ class LibraryHome extends React.Component {
     }
   }
 
+
   _onPressCreateDeck = () => {
+    const MAX_LENGTH = 255
     CuePrompt.prompt(
       Platform.OS === 'android' ? 'Create new deck' : 'Create New Deck',
       '',
@@ -174,12 +176,12 @@ class LibraryHome extends React.Component {
         {text: 'Create', onPress: (deckName) => {
           if (!deckName || !deckName.length) {
             Alert.alert(
-              Platform.OS === 'android' ? 'Enter a deck name' : 'Enter a Deck Name',
+              'Deck Name Can’t Be Empty',
             )
-          } else if (deckName.length > 255) {
+          } else if (deckName.length > MAX_LENGTH) {
             Alert.alert(
               Platform.OS === 'android' ? 'Deck name too long' : 'Deck Name Too Long',
-              'Please enter a shorter deck name',
+              'Use a shorter name for your deck.',
             )
           } else {
             let deck = this.props.onCreateDeck(deckName).deck
