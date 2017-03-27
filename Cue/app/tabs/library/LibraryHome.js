@@ -165,14 +165,25 @@ class LibraryHome extends React.Component {
     }
   }
 
+
   _onPressCreateDeck = () => {
+    const MAX_LENGTH = 255
     CuePrompt.prompt(
       Platform.OS === 'android' ? 'Create new deck' : 'Create New Deck',
       '',
       [
         {text: 'Cancel', style: 'cancel'},
         {text: 'Create', onPress: (deckName) => {
-          if (deckName && deckName.length) {
+          if (!deckName || !deckName.length) {
+            Alert.alert(
+              'Deck Name Can’t Be Empty',
+            )
+          } else if (deckName.length > MAX_LENGTH) {
+            Alert.alert(
+              Platform.OS === 'android' ? 'Deck name too long' : 'Deck Name Too Long',
+              'Use a shorter name for your deck.',
+            )
+          } else {
             let deck = this.props.onCreateDeck(deckName).deck
             this.props.navigator.push({deck})
           }
