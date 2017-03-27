@@ -14,7 +14,7 @@ const styles = {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: Platform.OS === 'android' ? 16 : undefined,
+    paddingVertical: Platform.OS === 'android' ? 8 : undefined,
   },
   text: {
     color: CueColors.primaryText,
@@ -30,9 +30,11 @@ const styles = {
     fontSize: Platform.OS === 'android' ? 13 : 14,
   },
   icon: {
+    flex: 0,
     tintColor: CueColors.primaryTint,
   },
   iconDisabled: {
+    flex: 0,
     tintColor: CueColors.mediumGrey,
   }
 }
@@ -47,14 +49,16 @@ export default class SelectableTextTableRow extends React.Component {
   }
 
   _renderText = () => {
+    let subText
+    if (this.props.subText) {
+      subText = <Text style={styles.textSecondary}>{this.props.subText}</Text>
+    }
     return (
-      <View>
+      <View style={{flex: 1}}>
         <Text style={this.props.disabled ? styles.textDisabled : styles.text}>
           {this.props.text}
         </Text>
-        <Text style={styles.textSecondary}>
-          {this.props.subText}
-        </Text>
+        { subText }
       </View>
     )
   }

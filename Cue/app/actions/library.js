@@ -79,7 +79,7 @@ function rateDeck(uuid: string, user_rating: number): Action {
   }
 }
 
-type Conflict = {
+export type Conflict = {
   localDeck: ?Deck,
   serverDeck: ?Deck,
   change: {},
@@ -117,7 +117,7 @@ async function syncDeck(change) : PromiseAction {
     // check if any other changes need to be synced
     for (let key in change) {
       if((key === 'cards' && change.cards.length) || (change[key] != updatedDeck[key] && !key.match("^(?:cards|uuid|action)$"))) {
-        serverDeck = await LibraryApi.editDeck({
+        updatedDeck = await LibraryApi.editDeck({
           ...change,
           uuid: updatedDeck.uuid,
           parent_deck_version: updatedDeck.user_data_version,
@@ -130,15 +130,16 @@ async function syncDeck(change) : PromiseAction {
   } else if (change.action === "delete") {
     await LibraryApi.deleteDeck(change.uuid)
   } else if (change.action === "flag") {
-    let response = await LibraryApi.flagCard(change).catch(e=>{
-      if (e.response && e.response.status === 404) {
-        //server deck deleted
+    let response = await LibraryApi.flagCard(change).catch(e => {
+      if (e.response && (e.response.status === 404 || e.response.status === 400)) {
+        // flagging private deleted deck returns 404
+        // flagging remote deleted deck returns 400
         return {uuid: change.uuid, deleted: true}
       } else {
         throw e
       }
     })
-    change = {...change, user_data_version: response.user_data_version}
+    change = {...change, ...response}
   } else if (change.action === "rate") {
     await LibraryApi.rateDeck(change.uuid, change.user_rating)
   }

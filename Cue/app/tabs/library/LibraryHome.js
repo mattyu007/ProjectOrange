@@ -127,7 +127,8 @@ class LibraryHome extends React.Component {
           [
             {text: 'Remove', style: 'destructive'},
             {text: 'Copy', onPress: () => this.props.onCopyDeck(deck)},
-          ]
+          ],
+          { cancelable: false }
         )
       })
 

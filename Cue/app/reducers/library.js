@@ -164,8 +164,11 @@ function library(state: State = initialState, action: Action): State {
     if (decks[deckIndex]) {
       if (change.user_data_version) {
         decks[deckIndex] = {...decks[deckIndex], user_data_version: change.user_data_version}
-      } else if (updatedDeck.deleted) {
-        decks.splice(deckIndex,1)
+      } else if (change.deleted) {
+        if (decks[deckIndex].accession !== "private") {
+          inaccessibleDecks.push(decks[deckIndex])
+        }
+       decks.splice(deckIndex,1)
       } else {
         decks[deckIndex] = updatedDeck
       }
