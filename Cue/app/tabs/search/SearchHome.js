@@ -62,9 +62,10 @@ class SearchHome extends React.Component {
     this.props.onSearch(searchText)
     .catch(e => {
       console.warn('Failed to search for decks', e)
+      
       Alert.alert(
         (Platform.OS === 'android' ? 'Failed to search for decks' : 'Failed to Search for Decks'),
-        'Check your Internet connection and try again.'
+        e.recoveryMessage
       )
     })
   }

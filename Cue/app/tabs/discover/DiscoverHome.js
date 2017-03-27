@@ -67,9 +67,10 @@ class DiscoverHome extends React.Component {
       this.setState({
         refreshing: false,
       });
+
       Alert.alert(
         (Platform.OS === 'android' ? 'Failed to fetch Discovery decks' : 'Failed to Fetch Discovery Decks'),
-        'Check your Internet connection and try again.'
+        e.recoveryMessage
       )
     })
   }
