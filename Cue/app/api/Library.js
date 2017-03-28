@@ -32,7 +32,7 @@ var LibraryApi = {
       device: DeviceInfo.getDeviceName(),
       cards: cards,
     })
-		console.info('Creating deck "' + name + '" at endpoint ' + endpoint)
+		console.info(`Creating deck "${name}" with body ${body} at endpoint: ${endpoint}`)
     return CueApi.fetch(endpoint, 'POST', body)
   },
 
@@ -56,7 +56,7 @@ var LibraryApi = {
       actions
     })
 
-    console.info('editing deck' + body + ' at endpoint ' + endpoint)
+    console.info(`Editing deck ${body} at endpoint: ${endpoint}`)
     return CueApi.fetch(endpoint, 'PUT', body)
   },
 

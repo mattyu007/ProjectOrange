@@ -102,7 +102,7 @@ function syncLibrary(localChanges): ThunkAction {
         .catch(e => {
           if (e.response && e.response.status === 409)  // Sync conflict
             failedSyncs.push(change)
-          else // Network error
+          else // Network or server error
             throw e
         }))
     })
@@ -114,17 +114,26 @@ function syncLibrary(localChanges): ThunkAction {
 }
 
 // change should only contain changes in the deck to avoid sending excess data
-// ex: { uuid: string, action: 'add', name: string } if a deck was added
+// ex: { uuid: string, action: 'add', name: string, cards:Array<Card> } if a deck was added
 // ex: { uuid: string, action: 'edit', cards: [{action: 'edit', uuid: string, front: "fox", back: "20XX"}] } if 1 card in deck was changed
 async function syncDeck(change) : PromiseAction {
   let serverDeck = {}
   if (change.action === "add") {
-    serverDeck = await LibraryApi.createDeck(change.name, change.tags);
+    serverDeck = await LibraryApi.createDeck(change.name, change.tags, change.cards);
     // check if any other changes need to be synced
     for (let key in change) {
-      if((key === 'cards' && change.cards.length) || (change[key] != serverDeck[key] && !key.match("^(?:cards|uuid|action)$"))) {
+      if (change[key] !== serverDeck[key]
+          // Server deck uses 0 instead of a real boolean
+          && (key === 'public' ? Boolean(change[key]) !== Boolean(serverDeck[key]) : true)
+          && !key.match("^(?:cards|uuid|action|tags)$")) {
+        console.info(`Performing post-add edit due to extra edit on key: ${key}`
+          + ` (change: ${change[key]}, server: ${serverDeck[key]})`)
         serverDeck = await LibraryApi.editDeck({
           ...change,
+          // Don't re-sync properties handled by createDeck
+          name: undefined,
+          tags: undefined,
+          cards: undefined,
           uuid: serverDeck.uuid,
           parent_deck_version: serverDeck.user_data_version,
           parent_user_data_version: serverDeck.deck_version})
