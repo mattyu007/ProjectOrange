@@ -46,6 +46,7 @@ const styles = {
     paddingVertical: 8,
     paddingHorizontal: 16,
     backgroundColor: CueColors.warningTint,
+    elevation: 4,
   },
   connectivityWarningText: {
     textAlign: 'center',
@@ -61,7 +62,7 @@ type Props = {
   onPressMenu?: () => void,
 
   // From Redux:
-  localChanges: {},
+  localChanges: Array<*>,
   inaccessibleDecks: ?Array<Deck>,
 
   onCreateDeck: (string) => any,
@@ -82,7 +83,10 @@ class LibraryHome extends React.Component {
     editing: boolean,
     refreshing: boolean,
     lastSyncTime: ?Date,
+    needsSync: boolean,
   }
+
+  _navigationListenerToken: any
 
   constructor(props: Props) {
     super(props)
@@ -92,18 +96,52 @@ class LibraryHome extends React.Component {
       editing: false,
       refreshing: false,
       lastSyncTime: null,
+      needsSync: false,
+    }
+  }
+
+  _isLibraryHomeInForeground = () => {
+    let routes = this.props.navigator.getCurrentRoutes()
+    let currentRoute = routes[routes.length - 1]
+
+    // The top-level route is just {}
+    return Object.keys(currentRoute).length === 0
+  }
+
+  _onNavigatorEvent = ({data: {route}}: {data: {route: Object}}) => {
+    // The top-level route is just {}
+    if (Object.keys(route).length === 0) {
+      console.info('_onNavigatorEvent: Navigator is at LibraryHome')
+
+      // Trigger a sync if someone set needsSync or if there are any pending localChanges
+      if (this.state.needsSync || this.props.localChanges.length) {
+        if (this.state.connected) {
+          console.info('_onNavigatorEvent: Sync is pending and network is available; refreshing now '
+            + `(needsSync: ${this.state.needsSync.toString()}, `
+            + `localChanges.length: ${this.props.localChanges.length.toString()})`)
+          this._refresh()
+        } else {
+          console.info('_onNavigatorEvent: Sync is pending but network is not available; doing nothing '
+            + `(needsSync: ${this.state.needsSync.toString()}, `
+            + `localChanges.length: ${this.props.localChanges.length.toString()})`)
+        }
+      } else {
+        console.info(`_onNavigatorEvent: No sync pending `
+          + `(needsSync: ${this.state.needsSync.toString()}, `
+          + `localChanges.length: ${this.props.localChanges.length.toString()})`)
+      }
     }
   }
 
   _onNetworkIsConnectedChanged = (isConnected: boolean) => {
     if (isConnected !== this.state.connected) {
-      console.info(`Network status changed: ${(isConnected ? 'connected' : 'not connected')}`)
+      console.info(`_onNetworkIsConnectedChanged: Network status changed: `
+        + `${(isConnected ? 'connected' : 'not connected')}`)
       this.setState({connected: isConnected})
 
       // We can sometimes receive multiple callbacks with [true, false, true]
       // in quick succession when the network is reconnecting. Throttle calls to
-      // _refresh to avoid redundantly refreshing and potentially showing the
-      // Resolve Conflicts screen multiple times.
+      // _refresh to avoid redundantly refreshing multiple times.
       let msSinceLastSync = this.state.lastSyncTime
         ? new Date() - this.state.lastSyncTime
         : Infinity
@@ -111,16 +149,33 @@ class LibraryHome extends React.Component {
       let shouldSync = isConnected && !shouldThrottle
 
       if (shouldSync) {
-        console.info('Triggering sync due to network status change')
-        this._refresh()
+        console.info('_onNetworkIsConnectedChanged: Requesting sync due to network status change')
+
+        // The top-level route is just {}
+        if (this._isLibraryHomeInForeground()) {
+          console.info('_onNetworkIsConnectedChanged: '
+            + 'LibraryHome is in the foreground; refreshing now')
+          this._refresh()
+        } else {
+          console.info('_onNetworkIsConnectedChanged: '
+            + 'LibraryHome is not in the foreground, setting needsSync')
+          this.setState({
+            needsSync: true
+          })
+        }
       } else {
-        console.info(`Not triggering sync (isConnected: ${isConnected.toString()}, `
-          + `shouldThrottle: ${shouldThrottle.toString()}, msSinceLastSync: ${msSinceLastSync.toString()})`)
+        console.info(`_onNetworkIsConnectedChanged: `
+          + `Not triggering sync (isConnected: ${isConnected.toString()}, `
+          + `shouldThrottle: ${shouldThrottle.toString()}, `
+          + `msSinceLastSync: ${msSinceLastSync.toString()})`)
       }
     }
   }
 
   componentDidMount() {
+    // Register to listen to navigation events
+    this._navigationListenerToken = this.props.navigator.navigationContext.addListener('didfocus', this._onNavigatorEvent)
+
     // Android doesn't give us an initial callback when we add an event listener,
     // but iOS will return 'false' for fetch() even if there is connectivity.
     if (Platform.OS === 'android') {
@@ -135,8 +190,8 @@ class LibraryHome extends React.Component {
       newProps.inaccessibleDecks.forEach(deck => {
         Alert.alert(
           (Platform.OS === 'android' ?
-            'This deck is no longer available from the original owner' :
-            'This Deck Is No Longer Available from the Original Owner'),
+            'A deck is no longer available from the original owner' :
+            'A Deck Is No Longer Available from the Original Owner'),
           'To continue using the deck “' + deck.name + '”, copy it into your library.',
           [
             {text: 'Remove', style: 'destructive'},
@@ -147,10 +202,16 @@ class LibraryHome extends React.Component {
 
       this.props.onClearInaccessibleDecks()
     }
+
+    if (newProps.navigator !== this.props.navigator) {
+      this._navigationListenerToken.remove()
+      this._navigationListenerToken = newProps.navigator.navigationContext.addListener('didfocus', this._onNavigatorEvent)
+    }
   }
 
   componentWillUnmount() {
     NetInfo.isConnected.removeEventListener('change', this._onNetworkIsConnectedChanged)
+    this._navigationListenerToken.remove()
   }
 
   _refresh = () => {
@@ -158,11 +219,11 @@ class LibraryHome extends React.Component {
       this.setState({refreshing: true})
       this.props.onSyncLibrary(this.props.localChanges).then(failedSyncs =>{
         if (failedSyncs && failedSyncs.length) {
-          this.setState({refreshing: false, lastSyncTime: new Date()})
+          this.setState({refreshing: false, lastSyncTime: new Date(), needsSync: false})
           this.props.navigator.push({failedSyncs})
         } else {
           this.props.onLoadLibrary().then(response => {
-            this.setState({refreshing: false, lastSyncTime: new Date()})
+            this.setState({refreshing: false, lastSyncTime: new Date(), needsSync: false})
           })
         }
       })
