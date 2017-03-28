@@ -29,6 +29,9 @@ function library(state: State = initialState, action: Action): State {
     action.decks.forEach(deck => {
         if (!deck.accessible || deck.deleted) {
           let index = decks.findIndex(d => d.uuid == deck.uuid)
+
+          // If we have a local copy, we can go into the "inaccessible deck flow".
+          // Otherwise we just silently remove the deck from our library.
           if (index != -1) {
             inaccessibleDecks.push(decks[index])
           }

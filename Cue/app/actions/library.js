@@ -10,7 +10,12 @@ async function loadLibrary(): PromiseAction {
   let promises : Array<Promise<Deck>> = []
 
   for (let deckMetadata of library) {
-  	promises.push(LibraryApi.fetchDeck(deckMetadata.uuid));
+    if (deckMetadata.accessible && !deckMetadata.deleted) {
+      promises.push(LibraryApi.fetchDeck(deckMetadata.uuid));
+    } else {
+      // Deal with this in the reducer.
+      promises.push(Promise.resolve(deckMetadata));
+    }
   }
   let decks = await Promise.all(promises);
 
