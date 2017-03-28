@@ -226,7 +226,7 @@ class SyncConflict extends React.Component {
        content = <ActivityIndicator/>
     } else {
       content =
-        <View>
+        <View style={{flex: 1}}>
           <Text style={styles.headerText}>{headerText}</Text>
           <ListView
             dataSource={this.state.dataSource}
