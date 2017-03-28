@@ -136,6 +136,11 @@ export default class CardListView extends React.Component {
       )
     }
 
+    let removeClippedSubviews
+    if (Platform.OS === 'ios') {
+      removeClippedSubviews = false
+    }
+
     return (
       <SortableListView
         ref={'list'}
@@ -148,7 +153,8 @@ export default class CardListView extends React.Component {
         onRowMoved={this._onRowMoved}
         sortRowStyle={styles.liftedRowStyle}
         renderRow={this._renderRow}
-        renderSeparator={(section, row) => <ListViewHairlineSeparator key={row} />} />
+        renderSeparator={(section, row) => <ListViewHairlineSeparator key={row} />}
+        removeClippedSubviews={removeClippedSubviews} />
     )
   }
 }

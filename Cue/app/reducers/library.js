@@ -50,8 +50,9 @@ function library(state: State = initialState, action: Action): State {
   } else if (action.type === 'DECK_ALREADY_IN_LIBRARY') {
     decks = state.decks
   } else if (action.type === 'DECK_CREATED') {
-    decks.push(action.deck)
+    decks.push({...action.deck, last_update: new Date()})
     localChanges.push({...action.deck, action: "add"})
+
   } else if (action.type === 'DECK_DELETED') {
     let deckIndex = decks.findIndex(deck => deck.uuid == action.uuid)
     if (decks[deckIndex])
@@ -75,7 +76,8 @@ function library(state: State = initialState, action: Action): State {
         ...decks[deckIndex],
         ...change,
         cards: _applyCardChangesDecks(decks[deckIndex].cards, change.cards),
-        action: undefined
+        action: undefined,
+        last_update: new Date(),
       }
     }
     //update localChanges
@@ -105,6 +107,7 @@ function library(state: State = initialState, action: Action): State {
       decks[deckIndex] = {
         ...decks[deckIndex],
         cards: _applyCardChangesDecks(decks[deckIndex].cards, change.cards),
+        last_update: new Date()
       }
     }
     let changeIndex = localChanges.findIndex(deck => deck.uuid == change.uuid)
@@ -152,29 +155,28 @@ function library(state: State = initialState, action: Action): State {
   } else if (action.type === 'SHARE_CODE_GENERATED') {
     let deck = decks.find((deck: Deck) => deck.uuid === action.uuid)
     deck.share_code = action.code
+    deck.last_update = new Date()
 
-  } else if (action.type === 'DECK_SYNCED') {
+  } else if (action.type === 'DECK_SYNCED' || action.type === 'DECK_CONFLICT_RESOLVED') {
     let change = action.change
-    let serverDeck = action.serverDeck
-    let deckIndex = decks.findIndex(deck => deck.uuid == change.uuid || deck.uuid == serverDeck.uuid)
+    let updatedDeck = action.updatedDeck
+    let deckIndex = decks.findIndex(deck => deck.uuid == change.uuid || deck.uuid == updatedDeck.uuid)
     if (decks[deckIndex]) {
-      if (change.user_data_version)
+      if (change.user_data_version) {
         decks[deckIndex] = {...decks[deckIndex], user_data_version: change.user_data_version}
-      else
-        decks[deckIndex] = serverDeck
+      } else if (updatedDeck.deleted) {
+        if (decks[deckIndex].accession !== "private") {
+          inaccessibleDecks.push(decks[deckIndex])
+        }
+       decks.splice(deckIndex,1)
+      } else {
+        decks[deckIndex] = updatedDeck
+      }
     }
     let changeIndex = localChanges.findIndex(deck => deck.uuid == change.uuid)
     if (localChanges[changeIndex])
       localChanges.splice(changeIndex,1)
 
-  } else if (action.type === 'DECK_CONFLICT_RESOLVED') {
-    let updatedDeck = action.updatedDeck
-    let deckIndex = decks.findIndex(deck => deck.uuid == updatedDeck.uuid)
-    if (decks[deckIndex])
-      decks[deckIndex] = updatedDeck
-    let changeIndex = localChanges.findIndex(deck => deck.uuid == updatedDeck.uuid)
-    if (localChanges[changeIndex])
-      localChanges.splice(changeIndex,1)
   } else {
     return state
   }
@@ -187,7 +189,7 @@ function library(state: State = initialState, action: Action): State {
 }
 
 //apply card changes to a deck.cards
-function _applyCardChangesDecks(cards, changes) {
+function _applyCardChangesDecks(cards: Array<Card>, changes) {
   console.debug('_applyCardChangesDecks', cards, changes)
   if (!cards && !changes) return []
   if (!changes) return cards
@@ -238,7 +240,7 @@ function _applyCardChangesDecks(cards, changes) {
 }
 
 //apply card changes to a localChange.cards
-function _applyCardChangesLocalChanges(cards, changes) {
+function _applyCardChangesLocalChanges(cards: Array<Card>, changes) {
   console.debug('_applyCardChangesLocalChanges', cards, changes)
   if (!cards && !changes) return []
   if (!cards) return changes

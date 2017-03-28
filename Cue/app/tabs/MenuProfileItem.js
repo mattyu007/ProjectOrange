@@ -41,7 +41,8 @@ class MenuProfileItem extends React.Component {
 
     // From Redux:
     logOut: () => void,
-    localChanges: {},
+    syncLibrary: (changes: [{}]) => any,
+    localChanges: [{}],
   }
 
   _onMenuAction = (index: number) => {
@@ -112,7 +113,7 @@ function select(store) {
 function actions(dispatch) {
   return {
     logOut: () => dispatch(logOut()),
-    syncLibrary: (changes) => dispatch(syncLibrary(changes))
+    syncLibrary: (changes: [{}]) => dispatch(syncLibrary(changes))
   }
 }
 

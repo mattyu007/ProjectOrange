@@ -129,6 +129,11 @@ class LibraryListView extends React.Component {
   }
 
   render() {
+    let removeClippedSubviews
+    if (Platform.OS === 'ios') {
+      removeClippedSubviews = false
+    }
+
     let refreshControl = (
       <RefreshControl
         colors={[CueColors.primaryTint]}
@@ -150,7 +155,8 @@ class LibraryListView extends React.Component {
             style={StyleSheet.absoluteFill}
             dataSource={this.state.dataSource}
             renderRow={() => {}}
-            refreshControl={refreshControl} />
+            refreshControl={refreshControl}
+            removeClippedSubviews={removeClippedSubviews} />
         </View>
       )
     }
@@ -167,7 +173,8 @@ class LibraryListView extends React.Component {
         pageSize={2}
         refreshControl={refreshControl}
         renderSectionHeader={(decks, category) => <ListViewHeader style={{marginLeft: -16}} section={category} />}
-        renderRow={this._renderRow} />
+        renderRow={this._renderRow}
+        removeClippedSubviews={removeClippedSubviews} />
       )
   }
 };
