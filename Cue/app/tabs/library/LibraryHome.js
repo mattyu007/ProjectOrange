@@ -73,7 +73,7 @@ type Props = {
   onCopyDeck: (deck: Deck) => any,
 }
 
-const NETWORK_SYNC_TRIGGER_THROTTLE_MS = 30000
+const AUTO_SYNC_TRIGGER_THROTTLE_MS = 30000
 
 class LibraryHome extends React.Component {
   props: Props
@@ -156,6 +156,27 @@ class LibraryHome extends React.Component {
     return Object.keys(currentRoute).length === 0
   }
 
+  _shouldThrottleAutoSync = () => {
+    // Throttle calls to _refresh to avoid calling _refresh because:
+    //  1. We can sometimes receive multiple callbacks with [true, false, true]
+    //     in quick succession when the network is reconnecting.
+    //  2. If the SyncConflicts view is dismissed, LibraryHome will re-enter
+    //     the foreground, which can trigger another sync, which will re-push
+    //     SyncConflicts back onto the Navigator stack.
+
+    let msSinceLastSync = this.state.lastSyncTime
+      ? new Date() - this.state.lastSyncTime
+      : Infinity
+    let shouldThrottle = msSinceLastSync < AUTO_SYNC_TRIGGER_THROTTLE_MS
+
+    if (shouldThrottle) {
+      console.warn('_shouldThrottleAutoSync: Auto sync is being throttled (last sync was '
+        + `${msSinceLastSync.toString()} ms ago)`)
+    }
+
+    return shouldThrottle
+  }
+
   _onNavigatorEvent = () => {
     if (this._isLibraryHomeInForeground()) {
       console.info('_onNavigatorEvent: Navigator is at LibraryHome')
@@ -163,11 +184,17 @@ class LibraryHome extends React.Component {
       // Trigger a sync if needsSync is set or if there are any pending localChanges
       if (this.state.needsSync || this.props.localChanges.length) {
         if (this.state.connected) {
-          console.info('_onNavigatorEvent: Sync is pending and network is available; refreshing now '
-            + `(needsSync: ${this.state.needsSync.toString()}, `
-            + `localChanges.length: ${this.props.localChanges.length.toString()})`)
+          if (!this._shouldThrottleAutoSync()) {
+            console.info('_onNavigatorEvent: Sync is pending and network is available; refreshing now '
+              + `(needsSync: ${this.state.needsSync.toString()}, `
+              + `localChanges.length: ${this.props.localChanges.length.toString()})`)
 
-          this._refresh()
+            this._refresh()
+          } else {
+            console.info('_onNavigatorEvent: Sync is pending and network is available but sync is being throttled; doing nothing '
+              + `(needsSync: ${this.state.needsSync.toString()}, `
+              + `localChanges.length: ${this.props.localChanges.length.toString()})`)
+          }
         } else {
           console.info('_onNavigatorEvent: Sync is pending but network is not available; doing nothing '
             + `(needsSync: ${this.state.needsSync.toString()}, `
@@ -188,14 +215,7 @@ class LibraryHome extends React.Component {
 
       this.setState({connected: isConnected})
 
-      // We can sometimes receive multiple callbacks with [true, false, true]
-      // in quick succession when the network is reconnecting. Throttle calls to
-      // _refresh to avoid redundantly refreshing multiple times.
-      let msSinceLastSync = this.state.lastSyncTime
-        ? new Date() - this.state.lastSyncTime
-        : Infinity
-      let shouldThrottle = msSinceLastSync < NETWORK_SYNC_TRIGGER_THROTTLE_MS
-      let shouldSync = isConnected && !shouldThrottle
+      let shouldSync = isConnected && !this._shouldThrottleAutoSync()
 
       if (shouldSync) {
         console.info('_onNetworkIsConnectedChanged: Requesting sync due to network status change')
@@ -213,9 +233,7 @@ class LibraryHome extends React.Component {
         }
       } else {
         console.info(`_onNetworkIsConnectedChanged: `
-          + `Not triggering sync (isConnected: ${isConnected.toString()}, `
-          + `shouldThrottle: ${shouldThrottle.toString()}, `
-          + `msSinceLastSync: ${msSinceLastSync.toString()})`)
+          + `Not triggering sync (isConnected: ${isConnected.toString()})`)
       }
     }
   }
