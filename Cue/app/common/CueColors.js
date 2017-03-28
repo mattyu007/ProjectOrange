@@ -12,6 +12,7 @@ module.exports = {
   primaryTintDarker: '#193C70', // or Material Blue 900 '#0D47A1'?
 
   dangerTint: '#FF3B30',
+  warningTint: '#FF9500',
 
   primaryText: '#53585F',
   lightText: 'rgba(0, 0, 0, 0.4)',

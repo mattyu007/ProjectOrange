@@ -1,7 +1,7 @@
 // @flow
 
 import React from 'react'
-import { View, Text, Image, TouchableOpacity, Navigator, Platform, Alert } from 'react-native'
+import { View, Text, Image, TouchableHighlight, TouchableNativeFeedback, Navigator, Platform, Alert, NetInfo } from 'react-native'
 
 import { connect } from 'react-redux'
 
@@ -42,6 +42,18 @@ const styles = {
   fabIcon: {
     tintColor: 'white',
   },
+  connectivityWarningContainer: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: CueColors.warningTint,
+    elevation: 4,
+  },
+  connectivityWarningText: {
+    textAlign: 'center',
+    fontWeight: '600',
+    fontSize: 14,
+    color: 'white',
+  },
 }
 
 type Props = {
@@ -50,7 +62,7 @@ type Props = {
   onPressMenu?: () => void,
 
   // From Redux:
-  localChanges: {},
+  localChanges: Array<*>,
   inaccessibleDecks: ?Array<Deck>,
 
   onCreateDeck: (string) => any,
@@ -61,25 +73,47 @@ type Props = {
   onCopyDeck: (deck: Deck) => any,
 }
 
+const AUTO_SYNC_TRIGGER_THROTTLE_MS = 30000
+
 class LibraryHome extends React.Component {
   props: Props
 
   state: {
+    connected: ?boolean,
     editing: boolean,
     refreshing: boolean,
+    lastSyncTime: ?Date,
+    needsSync: boolean,
   }
+
+  _navigationListenerToken: any
 
   constructor(props: Props) {
     super(props)
 
     this.state = {
+      connected: null,
       editing: false,
       refreshing: false,
+      lastSyncTime: null,
+      needsSync: false,
     }
   }
 
+
+  /* ==================== Component Lifecycle ==================== */
+
   componentDidMount() {
-    this._refresh()
+    // Register to listen to navigation events
+    this._navigationListenerToken = this.props.navigator.navigationContext.addListener('didfocus', this._onNavigatorEvent)
+
+    // Android doesn't give us an initial callback when we add an event listener,
+    // but iOS will return 'false' for fetch() even if there is connectivity.
+    if (Platform.OS === 'android') {
+      NetInfo.isConnected.fetch().then(this._onNetworkIsConnectedChanged)
+    }
+
+    NetInfo.isConnected.addEventListener('change', this._onNetworkIsConnectedChanged)
   }
 
   componentWillReceiveProps(newProps: Props) {
@@ -87,8 +121,8 @@ class LibraryHome extends React.Component {
       newProps.inaccessibleDecks.forEach(deck => {
         Alert.alert(
           (Platform.OS === 'android' ?
-            'This deck is no longer available from the original owner' :
-            'This Deck Is No Longer Available from the Original Owner'),
+            'A deck is no longer available from the original owner' :
+            'A Deck Is No Longer Available from the Original Owner'),
           'To continue using the deck “' + deck.name + '”, copy it into your library.',
           [
             {text: 'Remove', style: 'destructive'},
@@ -99,6 +133,109 @@ class LibraryHome extends React.Component {
 
       this.props.onClearInaccessibleDecks()
     }
+
+    if (newProps.navigator !== this.props.navigator) {
+      this._navigationListenerToken.remove()
+      this._navigationListenerToken = newProps.navigator.navigationContext.addListener('didfocus', this._onNavigatorEvent)
+    }
+  }
+
+  componentWillUnmount() {
+    NetInfo.isConnected.removeEventListener('change', this._onNetworkIsConnectedChanged)
+    this._navigationListenerToken.remove()
+  }
+
+
+  /* ==================== Sync Support ==================== */
+
+  _isLibraryHomeInForeground = () => {
+    let routes = this.props.navigator.getCurrentRoutes()
+    let currentRoute = routes[routes.length - 1]
+
+    // The top-level route is just {}
+    return Object.keys(currentRoute).length === 0
+  }
+
+  _shouldThrottleAutoSync = () => {
+    // Throttle calls to _refresh to avoid calling _refresh because:
+    //  1. We can sometimes receive multiple callbacks with [true, false, true]
+    //     in quick succession when the network is reconnecting.
+    //  2. If the SyncConflicts view is dismissed, LibraryHome will re-enter
+    //     the foreground, which can trigger another sync, which will re-push
+    //     SyncConflicts back onto the Navigator stack.
+
+    let msSinceLastSync = this.state.lastSyncTime
+      ? new Date() - this.state.lastSyncTime
+      : Infinity
+    let shouldThrottle = msSinceLastSync < AUTO_SYNC_TRIGGER_THROTTLE_MS
+
+    if (shouldThrottle) {
+      console.warn('_shouldThrottleAutoSync: Auto sync is being throttled (last sync was '
+        + `${msSinceLastSync.toString()} ms ago)`)
+    }
+
+    return shouldThrottle
+  }
+
+  _onNavigatorEvent = () => {
+    if (this._isLibraryHomeInForeground()) {
+      console.info('_onNavigatorEvent: Navigator is at LibraryHome')
+
+      // Trigger a sync if needsSync is set or if there are any pending localChanges
+      if (this.state.needsSync || this.props.localChanges.length) {
+        if (this.state.connected) {
+          if (!this._shouldThrottleAutoSync()) {
+            console.info('_onNavigatorEvent: Sync is pending and network is available; refreshing now '
+              + `(needsSync: ${this.state.needsSync.toString()}, `
+              + `localChanges.length: ${this.props.localChanges.length.toString()})`)
+
+            this._refresh()
+          } else {
+            console.info('_onNavigatorEvent: Sync is pending and network is available but sync is being throttled; doing nothing '
+              + `(needsSync: ${this.state.needsSync.toString()}, `
+              + `localChanges.length: ${this.props.localChanges.length.toString()})`)
+          }
+        } else {
+          console.info('_onNavigatorEvent: Sync is pending but network is not available; doing nothing '
+            + `(needsSync: ${this.state.needsSync.toString()}, `
+            + `localChanges.length: ${this.props.localChanges.length.toString()})`)
+        }
+      } else {
+        console.info(`_onNavigatorEvent: No sync pending `
+          + `(needsSync: ${this.state.needsSync.toString()}, `
+          + `localChanges.length: ${this.props.localChanges.length.toString()})`)
+      }
+    }
+  }
+
+  _onNetworkIsConnectedChanged = (isConnected: boolean) => {
+    if (isConnected !== this.state.connected) {
+      console.info(`_onNetworkIsConnectedChanged: Network status changed: `
+        + `${(isConnected ? 'connected' : 'not connected')}`)
+
+      this.setState({connected: isConnected})
+
+      let shouldSync = isConnected && !this._shouldThrottleAutoSync()
+
+      if (shouldSync) {
+        console.info('_onNetworkIsConnectedChanged: Requesting sync due to network status change')
+
+        if (this._isLibraryHomeInForeground()) {
+          console.info('_onNetworkIsConnectedChanged: '
+            + 'LibraryHome is in the foreground; refreshing now')
+
+          this._refresh()
+        } else {
+          console.info('_onNetworkIsConnectedChanged: '
+            + 'LibraryHome is not in the foreground, setting needsSync')
+
+          this.setState({needsSync: true})
+        }
+      } else {
+        console.info(`_onNetworkIsConnectedChanged: `
+          + `Not triggering sync (isConnected: ${isConnected.toString()})`)
+      }
+    }
   }
 
   _refresh = () => {
@@ -106,11 +243,11 @@ class LibraryHome extends React.Component {
       this.setState({refreshing: true})
       this.props.onSyncLibrary(this.props.localChanges).then(failedSyncs =>{
         if (failedSyncs && failedSyncs.length) {
-          this.setState({refreshing: false})
+          this.setState({refreshing: false, lastSyncTime: new Date(), needsSync: false})
           this.props.navigator.push({failedSyncs})
         } else {
-          this.props.onLoadLibrary().then(response => {
-            this.setState({refreshing: false})
+          return this.props.onLoadLibrary().then(response => {
+            this.setState({refreshing: false, lastSyncTime: new Date(), needsSync: false})
           })
         }
       })
@@ -125,6 +262,9 @@ class LibraryHome extends React.Component {
       })
     }
   }
+
+
+  /* ==================== Buttons and Callbacks ==================== */
 
   _onPressAddDeck = () => {
     let buttons = [
@@ -173,7 +313,6 @@ class LibraryHome extends React.Component {
     }
   }
 
-
   _onPressCreateDeck = () => {
     const MAX_LENGTH = 255
     CuePrompt.prompt(
@@ -198,6 +337,14 @@ class LibraryHome extends React.Component {
         }},
       ],
       'My Great Deck')
+  }
+
+  _onPressConnectivityWarning = () => {
+    Alert.alert(
+      Platform.OS === 'android' ? 'You’re offline' : 'You’re Offline',
+      'You can continue to use your decks as normal. '
+        + 'Sync will resume automatically when you reconnect to the Internet.'
+    )
   }
 
   _onDeleteDeck = (deck: Deck) => {
@@ -239,6 +386,9 @@ class LibraryHome extends React.Component {
       ]
     )
   }
+
+
+  /* ==================== Render ==================== */
 
   _getLeftItem = () => {
     if (Platform.OS === 'android') {
@@ -291,6 +441,36 @@ class LibraryHome extends React.Component {
     }
   }
 
+  _renderConnectivityWarning = () => {
+    if (this.state.connected === false) {
+      let content = (
+        <View style={styles.connectivityWarningContainer}>
+          <Text
+            style={styles.connectivityWarningText}>
+            Offline Mode
+          </Text>
+        </View>
+      )
+
+      if (Platform.OS === 'android') {
+        return (
+          <TouchableNativeFeedback
+            background={TouchableNativeFeedback.SelectableBackground()}
+            onPress={this._onPressConnectivityWarning}>
+            {content}
+          </TouchableNativeFeedback>
+        )
+      } else {
+        return (
+          <TouchableHighlight
+            onPress={this._onPressConnectivityWarning}>
+            {content}
+          </TouchableHighlight>
+        )
+      }
+    }
+  }
+
   _renderFAB = () => {
     if (Platform.OS !== 'android' || this.state.editing) {
       return
@@ -325,6 +505,7 @@ class LibraryHome extends React.Component {
           title='Library'
           key={this.state.editing}
           rightItems={rightItems} />
+        {this._renderConnectivityWarning()}
         <LibraryListView
           style={styles.bodyContainer}
           navigator={this.props.navigator}
