@@ -287,7 +287,7 @@ BEGIN
     ELSEIF (type = 'new') THEN
         SET sort_criteria = 'Deck.created';
     ELSE
-	SET sort_criteria = 'Deck.rating';
+        SET sort_criteria = 'Deck.rating';
     END IF;
 
     SET page_offset = (page - 1) * page_size;

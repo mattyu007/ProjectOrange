@@ -28,7 +28,7 @@ class Discover(object):
         return self.fetch('new', page)
 
     def new_to_json(self, page=1):
-        return json.dumps(self.top(page), default=serializer)
+        return json.dumps(self.new(page), default=serializer)
 
     def search(self, query, page=1):
         deck_uuids = self.connector.call_procedure('SEARCH_DECKS', query, page)
