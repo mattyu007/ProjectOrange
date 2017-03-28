@@ -178,7 +178,7 @@ class LibraryHome extends React.Component {
     const MAX_LENGTH = 255
     CuePrompt.prompt(
       Platform.OS === 'android' ? 'Create new deck' : 'Create New Deck',
-      'Enter a name for your new deck.',
+      'Enter a name for your deck.',
       [
         {text: 'Cancel', style: 'cancel'},
         {text: 'Create', onPress: (deckName) => {
