@@ -167,7 +167,7 @@ class DeckView extends React.Component {
         [{text: 'OK', style: 'cancel'}]
       )
     } else {
-      this.props.navigator.push({ playDeckSetup: this.state.deck, flagFilter: this.state.isFiltering })
+      this.props.navigator.push({ playDeckSetup: this.state.deck, flagFilter: this.state.filtering })
     }
   }
 
