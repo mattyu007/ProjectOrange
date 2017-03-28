@@ -4,7 +4,6 @@
 
 import React from 'react'
 import { View, Text, TextInput, Platform } from 'react-native'
-import { remove as stripDiacritics } from 'diacritics'
 
 import Chip from '../../common/Chip'
 import CueColors from '../../common/CueColors'
@@ -48,10 +47,9 @@ export default class TagsTableRow extends React.Component {
   _onEndEditing = ({nativeEvent: {text}}) => {
     this.textInputRef.clear()
 
-    let tag = stripDiacritics(text)
+    let tag = text
       .trim()
       .toLowerCase()
-      .replace(new RegExp('[^-a-z0-9 ]', 'g'), '')
       .replace(new RegExp(' +', 'g'), ' ')
 
     if (tag.length > 0) {

@@ -5,6 +5,7 @@
 import React from 'react'
 import { View, Text, Navigator, Platform, Alert } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview'
+import { remove as stripDiacritics } from 'diacritics'
 
 import type { Deck } from '../../api/types'
 
@@ -287,14 +288,18 @@ class DeckSharingOptions extends React.Component {
   /* ==================== Tags ==================== */
 
   _onTagAdded = (tag: string) => {
-    if (!this.state.tags.includes(tag)) {
+    // We store tags with diacritics and everything, but we disallow storing
+    // multiple tags which are the same when diacritics are stripped.
+    let canonicalizedTag = stripDiacritics(tag)
+    let tagExists = this.state.tags.some((value: string) => stripDiacritics(value) === canonicalizedTag)
+
+    if (!tagExists) {
       if (this.state.tags.concat([tag]).join(',').length > MAX_TAGS_LENGTH) {
         Alert.alert(
           (Platform.OS === 'android'
             ? 'Tags limit exceeded'
             : 'Tags Limit Exceeded'),
           'The combined length of all the tags must be less than 500 characters.',
-          [{text: 'OK', style: 'cancel'}]
         )
       } else {
         this.setState({
