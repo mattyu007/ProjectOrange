@@ -246,7 +246,7 @@ class LibraryHome extends React.Component {
           this.setState({refreshing: false, lastSyncTime: new Date(), needsSync: false})
           this.props.navigator.push({failedSyncs})
         } else {
-          this.props.onLoadLibrary().then(response => {
+          return this.props.onLoadLibrary().then(response => {
             this.setState({refreshing: false, lastSyncTime: new Date(), needsSync: false})
           })
         }
