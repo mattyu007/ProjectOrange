@@ -134,7 +134,8 @@ async function syncDeck(change) : PromiseAction {
       if (e.response && (e.response.status === 404 || e.response.status === 400)) {
         // flagging private deleted deck returns 404
         // flagging remote deleted deck returns 400
-        return {uuid: change.uuid, deleted: true}
+        updatedDeck = {uuid: change.uuid, deleted: true}
+        return {}
       } else {
         throw e
       }

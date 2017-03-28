@@ -164,7 +164,7 @@ function library(state: State = initialState, action: Action): State {
     if (decks[deckIndex]) {
       if (change.user_data_version) {
         decks[deckIndex] = {...decks[deckIndex], user_data_version: change.user_data_version}
-      } else if (change.deleted) {
+      } else if (updatedDeck.deleted) {
         if (decks[deckIndex].accession !== "private") {
           inaccessibleDecks.push(decks[deckIndex])
         }
