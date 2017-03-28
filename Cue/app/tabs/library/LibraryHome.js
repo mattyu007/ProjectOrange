@@ -100,77 +100,8 @@ class LibraryHome extends React.Component {
     }
   }
 
-  _isLibraryHomeInForeground = () => {
-    let routes = this.props.navigator.getCurrentRoutes()
-    let currentRoute = routes[routes.length - 1]
 
-    // The top-level route is just {}
-    return Object.keys(currentRoute).length === 0
-  }
-
-  _onNavigatorEvent = ({data: {route}}: {data: {route: Object}}) => {
-    // The top-level route is just {}
-    if (Object.keys(route).length === 0) {
-      console.info('_onNavigatorEvent: Navigator is at LibraryHome')
-
-      // Trigger a sync if someone set needsSync or if there are any pending localChanges
-      if (this.state.needsSync || this.props.localChanges.length) {
-        if (this.state.connected) {
-          console.info('_onNavigatorEvent: Sync is pending and network is available; refreshing now '
-            + `(needsSync: ${this.state.needsSync.toString()}, `
-            + `localChanges.length: ${this.props.localChanges.length.toString()})`)
-          this._refresh()
-        } else {
-          console.info('_onNavigatorEvent: Sync is pending but network is not available; doing nothing '
-            + `(needsSync: ${this.state.needsSync.toString()}, `
-            + `localChanges.length: ${this.props.localChanges.length.toString()})`)
-        }
-      } else {
-        console.info(`_onNavigatorEvent: No sync pending `
-          + `(needsSync: ${this.state.needsSync.toString()}, `
-          + `localChanges.length: ${this.props.localChanges.length.toString()})`)
-      }
-    }
-  }
-
-  _onNetworkIsConnectedChanged = (isConnected: boolean) => {
-    if (isConnected !== this.state.connected) {
-      console.info(`_onNetworkIsConnectedChanged: Network status changed: `
-        + `${(isConnected ? 'connected' : 'not connected')}`)
-      this.setState({connected: isConnected})
-
-      // We can sometimes receive multiple callbacks with [true, false, true]
-      // in quick succession when the network is reconnecting. Throttle calls to
-      // _refresh to avoid redundantly refreshing multiple times.
-      let msSinceLastSync = this.state.lastSyncTime
-        ? new Date() - this.state.lastSyncTime
-        : Infinity
-      let shouldThrottle = msSinceLastSync < NETWORK_SYNC_TRIGGER_THROTTLE_MS
-      let shouldSync = isConnected && !shouldThrottle
-
-      if (shouldSync) {
-        console.info('_onNetworkIsConnectedChanged: Requesting sync due to network status change')
-
-        // The top-level route is just {}
-        if (this._isLibraryHomeInForeground()) {
-          console.info('_onNetworkIsConnectedChanged: '
-            + 'LibraryHome is in the foreground; refreshing now')
-          this._refresh()
-        } else {
-          console.info('_onNetworkIsConnectedChanged: '
-            + 'LibraryHome is not in the foreground, setting needsSync')
-          this.setState({
-            needsSync: true
-          })
-        }
-      } else {
-        console.info(`_onNetworkIsConnectedChanged: `
-          + `Not triggering sync (isConnected: ${isConnected.toString()}, `
-          + `shouldThrottle: ${shouldThrottle.toString()}, `
-          + `msSinceLastSync: ${msSinceLastSync.toString()})`)
-      }
-    }
-  }
+  /* ==================== Component Lifecycle ==================== */
 
   componentDidMount() {
     // Register to listen to navigation events
@@ -214,6 +145,82 @@ class LibraryHome extends React.Component {
     this._navigationListenerToken.remove()
   }
 
+
+  /* ==================== Sync Support ==================== */
+
+  _isLibraryHomeInForeground = () => {
+    let routes = this.props.navigator.getCurrentRoutes()
+    let currentRoute = routes[routes.length - 1]
+
+    // The top-level route is just {}
+    return Object.keys(currentRoute).length === 0
+  }
+
+  _onNavigatorEvent = () => {
+    if (this._isLibraryHomeInForeground()) {
+      console.info('_onNavigatorEvent: Navigator is at LibraryHome')
+
+      // Trigger a sync if needsSync is set or if there are any pending localChanges
+      if (this.state.needsSync || this.props.localChanges.length) {
+        if (this.state.connected) {
+          console.info('_onNavigatorEvent: Sync is pending and network is available; refreshing now '
+            + `(needsSync: ${this.state.needsSync.toString()}, `
+            + `localChanges.length: ${this.props.localChanges.length.toString()})`)
+
+          this._refresh()
+        } else {
+          console.info('_onNavigatorEvent: Sync is pending but network is not available; doing nothing '
+            + `(needsSync: ${this.state.needsSync.toString()}, `
+            + `localChanges.length: ${this.props.localChanges.length.toString()})`)
+        }
+      } else {
+        console.info(`_onNavigatorEvent: No sync pending `
+          + `(needsSync: ${this.state.needsSync.toString()}, `
+          + `localChanges.length: ${this.props.localChanges.length.toString()})`)
+      }
+    }
+  }
+
+  _onNetworkIsConnectedChanged = (isConnected: boolean) => {
+    if (isConnected !== this.state.connected) {
+      console.info(`_onNetworkIsConnectedChanged: Network status changed: `
+        + `${(isConnected ? 'connected' : 'not connected')}`)
+
+      this.setState({connected: isConnected})
+
+      // We can sometimes receive multiple callbacks with [true, false, true]
+      // in quick succession when the network is reconnecting. Throttle calls to
+      // _refresh to avoid redundantly refreshing multiple times.
+      let msSinceLastSync = this.state.lastSyncTime
+        ? new Date() - this.state.lastSyncTime
+        : Infinity
+      let shouldThrottle = msSinceLastSync < NETWORK_SYNC_TRIGGER_THROTTLE_MS
+      let shouldSync = isConnected && !shouldThrottle
+
+      if (shouldSync) {
+        console.info('_onNetworkIsConnectedChanged: Requesting sync due to network status change')
+
+        // The top-level route is just {}
+        if (this._isLibraryHomeInForeground()) {
+          console.info('_onNetworkIsConnectedChanged: '
+            + 'LibraryHome is in the foreground; refreshing now')
+
+          this._refresh()
+        } else {
+          console.info('_onNetworkIsConnectedChanged: '
+            + 'LibraryHome is not in the foreground, setting needsSync')
+
+          this.setState({needsSync: true})
+        }
+      } else {
+        console.info(`_onNetworkIsConnectedChanged: `
+          + `Not triggering sync (isConnected: ${isConnected.toString()}, `
+          + `shouldThrottle: ${shouldThrottle.toString()}, `
+          + `msSinceLastSync: ${msSinceLastSync.toString()})`)
+      }
+    }
+  }
+
   _refresh = () => {
     if (!this.state.refreshing) {
       this.setState({refreshing: true})
@@ -237,6 +244,9 @@ class LibraryHome extends React.Component {
       })
     }
   }
+
+
+  /* ==================== Buttons and Callbacks ==================== */
 
   _onPressAddDeck = () => {
     let buttons = [
@@ -285,7 +295,6 @@ class LibraryHome extends React.Component {
     }
   }
 
-
   _onPressCreateDeck = () => {
     const MAX_LENGTH = 255
     CuePrompt.prompt(
@@ -310,6 +319,14 @@ class LibraryHome extends React.Component {
         }},
       ],
       'My Great Deck')
+  }
+
+  _onPressConnectivityWarning = () => {
+    Alert.alert(
+      Platform.OS === 'android' ? 'You’re offline' : 'You’re Offline',
+      'You can continue to use your decks as normal. '
+        + 'Sync will resume automatically when you reconnect to the Internet.'
+    )
   }
 
   _onDeleteDeck = (deck: Deck) => {
@@ -351,6 +368,9 @@ class LibraryHome extends React.Component {
       ]
     )
   }
+
+
+  /* ==================== Render ==================== */
 
   _getLeftItem = () => {
     if (Platform.OS === 'android') {
@@ -401,14 +421,6 @@ class LibraryHome extends React.Component {
         }
       }
     }
-  }
-
-  _onPressConnectivityWarning = () => {
-    Alert.alert(
-      Platform.OS === 'android' ? 'You’re offline' : 'You’re Offline',
-      'You can continue to use your decks as normal. '
-        + 'Sync will resume automatically when you reconnect to the Internet.'
-    )
   }
 
   _renderConnectivityWarning = () => {
