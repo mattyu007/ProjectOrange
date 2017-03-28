@@ -117,7 +117,7 @@ class LibraryHome extends React.Component {
       .catch(e => {
         this.setState({refreshing: false})
         console.warn('Failed to sync changes', e)
-        
+
         Alert.alert(
           (Platform.OS === 'android' ? 'Cue cloud sync failed' : 'Cue Cloud Sync Failed'),
           e.recoveryMessage
@@ -178,7 +178,7 @@ class LibraryHome extends React.Component {
     const MAX_LENGTH = 255
     CuePrompt.prompt(
       Platform.OS === 'android' ? 'Create new deck' : 'Create New Deck',
-      '',
+      'Enter a name for your new deck.',
       [
         {text: 'Cancel', style: 'cancel'},
         {text: 'Create', onPress: (deckName) => {

@@ -28,7 +28,6 @@ const CuePrompt = {
         message,
         buttons,
         'plain-text',
-        placeholder
       )
     }
   }
