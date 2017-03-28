@@ -88,13 +88,32 @@ export default class DeckThumbnail extends React.Component {
     onPressDelete?: () => void,
   }
 
+  _getWidth = () => {
+    const paddingOneSide = 16
+    const minWidth = 160
+    const windowWidth = Dimensions.get('window').width
+
+    // With n columns, we have n + 1 instances of 16 pt horizontal margins,
+    // so subtract one extra 16 pt from the window width to get the number
+    // of columns we can hold given the window width.
+    const effectiveWindowWidth = windowWidth - paddingOneSide
+
+    // However, we should always show at least 2 columns, even if it falls
+    // below the minimm width.
+    let numColumns = Math.max(
+      2,
+      Math.floor(effectiveWindowWidth / (minWidth + paddingOneSide)))
+
+    return Math.floor(effectiveWindowWidth / numColumns) - paddingOneSide
+  }
+
   render() {
     // Add the width style prop based on the current window dimens
     let styles = {
       ...baseStyles,
       itemContainer: {
         ...baseStyles.itemContainer,
-        width: Math.floor((Dimensions.get('window').width - 48) / 2),
+        width: this._getWidth(),
       }
     }
 

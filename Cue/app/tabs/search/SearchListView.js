@@ -30,7 +30,7 @@ class SearchListView extends React.Component {
 
   state: {
     dataSource: ListView.DataSource,
-    deviceOrientation: string
+    deviceOrientation: 'LANDSCAPE' | 'PORTRAIT' | 'UNKNOWN',
   }
 
   _onLayout = () => {
@@ -74,7 +74,10 @@ class SearchListView extends React.Component {
     }
     return (
       <ListView
+        key={this.state.deviceOrientation}
         onLayout={this._onLayout}
+        automaticallyAdjustContentInsets={false}
+        contentInset={{bottom: 49}}
         contentContainerStyle={styles.list}
         dataSource={this.state.dataSource}
         renderRow={deck => <SearchListViewItem navigator={this.props.navigator} deck={deck} />}
