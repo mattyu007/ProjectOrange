@@ -294,6 +294,9 @@ class DeckShareHandler(BaseHandler):
         """Generate a share code for a deck."""
 
         deck = DeckPolicy.owned_by(uuid, user_id, connector=connector)
+        if deck is None:
+            return self.make_response(status=StatusCode.NOT_FOUND)
+
         share_code = deck.get_share_code()
         return self.make_response(response=json.dumps({'share_code': share_code}))
 
