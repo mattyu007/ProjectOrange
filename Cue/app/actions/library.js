@@ -177,7 +177,7 @@ function copyDeck(localDeck: Deck) : Action {
   })
 
   let deck = {
-    name: localDeck.name,
+    name: 'Copy of ' + localDeck.name,
     uuid: uuidV4(),
     public: false,
     cards: newCards,
