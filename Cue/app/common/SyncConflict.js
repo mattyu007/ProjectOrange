@@ -114,7 +114,9 @@ class SyncConflict extends React.Component {
   }
 
   _getRightItems = () => {
-    if (this.state.conflicts && !this.state.conflicts.find(c => c.useServerDeck==null)) {
+    if (this.state.conflicts
+      && !this.state.conflicts.find(c => typeof c.useServerDeck === 'undefined')
+      && !this.state.loading) {
       return [{
         title: 'Done',
         icon: CueIcons.done,
@@ -162,7 +164,7 @@ class SyncConflict extends React.Component {
     if (interval >= 1) {
       return interval + ' minute' + (interval > 1 ? 's' : '') + ' ago'
     }
-    return ' just now'
+    return 'just now'
   }
 
   _renderRow = (conflict: Conflict) => {
@@ -206,16 +208,14 @@ class SyncConflict extends React.Component {
 
   render() {
     let title
+    let removeClippedSubviews
     if (Platform.OS === 'android') {
       title = 'Resolve conflicts'
     } else {
       title = 'Resolve Conflicts'
+      removeClippedSubviews = false
     }
 
-    let options = [
-      { label: 'Use server copy', value: true },
-      { label: 'Use local copy', value: false }
-    ]
     let headerText = 'Changes were made to the following deck'
       + (this.state.conflicts.length > 1 ? 's' : '')
       + ' at the same time on multiple devices. Choose which version'
@@ -223,14 +223,15 @@ class SyncConflict extends React.Component {
 
     let content
     if (this.state.loading) {
-       content = <ActivityIndicator/>
+       content = <ActivityIndicator style={{flex: 1}}/>
     } else {
       content =
         <View style={{flex: 1}}>
           <Text style={styles.headerText}>{headerText}</Text>
           <ListView
             dataSource={this.state.dataSource}
-            renderRow={this._renderRow}/>
+            renderRow={this._renderRow}
+            removeClippedSubviews={removeClippedSubviews}/>
         </View>
     }
 
