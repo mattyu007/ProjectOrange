@@ -1,7 +1,7 @@
 // @flow
 
 import React from 'react'
-import { ActivityIndicator, View, Text, Image, StyleSheet, Alert } from 'react-native'
+import { ActivityIndicator, View, Text, Image, StyleSheet, Alert, Platform } from 'react-native'
 
 import { connect } from 'react-redux'
 import { serverLogin } from '../actions';
@@ -76,7 +76,10 @@ class LoginScreen extends React.Component {
           onLoginFinished={(error, result) => {
             if (error) {
               console.warn("Facebook login failed", error)
-              Alert.alert("Facebook login failed");
+              Alert.alert(
+                Platform.OS === 'android'
+                  ? 'Facebook login failed'
+                  : 'Facebook Login Failed');
             } else if (result.isCancelled) {
               //do nothing
             } else {
@@ -84,8 +87,13 @@ class LoginScreen extends React.Component {
               this.props.dispatch(serverLogin())
                 .catch(e => {
                   console.warn("Cue login failed", e)
+
                   this.setState({ loading: !this.state.loading });
-                  Alert.alert ("Authentication with cue servers failed");
+                  Alert.alert(
+                    Platform.OS === 'android'
+                      ? 'Cue server login failed'
+                      : 'Cue Server Login Failed',
+                    e.recoveryMessage);
                 })
             }
           }}
