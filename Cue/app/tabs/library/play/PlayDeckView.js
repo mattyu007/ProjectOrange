@@ -211,18 +211,20 @@ class PlayDeckView extends React.Component {
       case 'flag':
         toValue = {
           x: 0,
-          y: -1 * windowLayout.height
+          // Approximately adjust to keep the flag somewhat centred when released
+          y: -1.25 * (windowLayout.height - 68),
         }
         break
       case 'next':
         toValue = {
-          x: -1 * windowLayout.width,
+          // Account for 0.4:1 damping + width + 1.5x padding of indicator
+          x: -1.25 * (windowLayout.width - 68),
           y: 0
         }
         break
       case 'back':
         toValue = {
-          x: windowLayout.width,
+          x: 1.25 * (windowLayout.width - 68),
           y: 0
         }
         break
