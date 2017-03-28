@@ -162,7 +162,7 @@ class SyncConflict extends React.Component {
     if (interval >= 1) {
       return interval + ' minute' + (interval > 1 ? 's' : '') + ' ago'
     }
-    return "just now"
+    return ' just now'
   }
 
   _renderRow = (conflict: Conflict) => {
