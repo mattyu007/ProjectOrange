@@ -1,7 +1,7 @@
 // @flow
 
 import React from 'react'
-import { View, Text, Image, ScrollView, ListView, RefreshControl, Navigator, Platform, Alert } from 'react-native'
+import { View, Text, Image, ScrollView, ListView, RefreshControl, Navigator, Platform, Dimensions, Alert } from 'react-native'
 import type { DeckMetadata } from '../../api/types';
 
 import { discoverDecks } from '../../actions'
@@ -40,7 +40,8 @@ class DiscoverHome extends React.Component {
 
   state: {
     dataSource: ListView.DataSource,
-    refreshing: boolean
+    refreshing: boolean,
+    deviceOrientation: 'LANDSCAPE' | 'PORTRAIT' | 'UNKNOWN',
   }
 
   ds: ListView.DataSource
@@ -53,11 +54,21 @@ class DiscoverHome extends React.Component {
       sectionHeaderHasChanged: (s1, s2) => s1 !== s2
     })
 
-    this.state = this._getNewState(props)
+    this.state = {
+      ...this._getNewState(props),
+      deviceOrientation: 'UNKNOWN',
+    }
   }
 
   componentWillReceiveProps(newProps) {
     this.setState(this._getNewState(newProps))
+  }
+
+  _onLayout = () => {
+    let { width, height } = Dimensions.get('window')
+    this.setState({
+      deviceOrientation: width > height ? 'LANDSCAPE' : 'PORTRAIT',
+    })
   }
 
   _fetchDiscoverDecks = () => {
@@ -124,6 +135,8 @@ class DiscoverHome extends React.Component {
           leftItem={menuItem}
           title='Discover' />
         <ListView
+          key={this.state.deviceOrientation}
+          onLayout={this._onLayout}
           automaticallyAdjustContentInsets={false}
           contentInset={{bottom: 49}}
           style={styles.bodyContainer}

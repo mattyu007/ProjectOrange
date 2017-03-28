@@ -16,11 +16,11 @@ import DeckThumbnail from '../../common/DeckThumbnail'
 
 const styles = {
   list: {
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'flex-start',
-    paddingHorizontal: 16,
+    paddingLeft: 16,
 
     // FAB height (56) + FAB padding (16) - to avoid crashing into FAB
     paddingBottom: Platform.OS === 'android' ? 72 : undefined,
@@ -48,7 +48,7 @@ class LibraryListView extends React.Component {
 
   state: {
     dataSource: ListView.DataSource,
-    deviceOrientation: string
+    deviceOrientation: 'LANDSCAPE' | 'PORTRAIT' | 'UNKNOWN',
   }
 
   _onLayout = () => {
@@ -121,6 +121,7 @@ class LibraryListView extends React.Component {
         <DeckThumbnail
           deck={deck}
           deletable={this.props.editing}
+          style={{marginRight: 16}}
           onPress={() => this.props.navigator.push({deck: deck})}
           onPressDelete={() => this.props.onDeleteDeck(deck)}/>
       </View>
