@@ -27,6 +27,7 @@ const styles = {
   },
   cardContainer: {
     marginBottom: 16,
+    marginRight: 16,
   }
 }
 
@@ -121,7 +122,6 @@ class LibraryListView extends React.Component {
         <DeckThumbnail
           deck={deck}
           deletable={this.props.editing}
-          style={{marginRight: 16}}
           onPress={() => this.props.navigator.push({deck: deck})}
           onPressDelete={() => this.props.onDeleteDeck(deck)}/>
       </View>
