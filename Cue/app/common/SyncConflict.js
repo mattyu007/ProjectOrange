@@ -107,7 +107,7 @@ class SyncConflict extends React.Component {
 
   _getLeftItem = () => {
     return {
-      title: 'Cancel',
+      title: 'Later',
       icon: CueIcons.cancel,
       onPress: () => { this.props.navigator.pop() }
     }
