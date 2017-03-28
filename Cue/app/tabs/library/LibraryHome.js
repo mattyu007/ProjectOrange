@@ -200,7 +200,6 @@ class LibraryHome extends React.Component {
       if (shouldSync) {
         console.info('_onNetworkIsConnectedChanged: Requesting sync due to network status change')
 
-        // The top-level route is just {}
         if (this._isLibraryHomeInForeground()) {
           console.info('_onNetworkIsConnectedChanged: '
             + 'LibraryHome is in the foreground; refreshing now')
