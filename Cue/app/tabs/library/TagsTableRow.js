@@ -47,8 +47,9 @@ export default class TagsTableRow extends React.Component {
   _onEndEditing = ({nativeEvent: {text}}) => {
     this.textInputRef.clear()
 
-    let tag = text.trim().toLowerCase()
-      .replace(new RegExp('[^-a-z ]', 'g'), '')
+    let tag = text
+      .trim()
+      .toLowerCase()
       .replace(new RegExp(' +', 'g'), ' ')
 
     if (tag.length > 0) {
