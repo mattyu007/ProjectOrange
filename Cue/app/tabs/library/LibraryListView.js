@@ -61,6 +61,15 @@ class LibraryListView extends React.Component {
   }
 
   _categorizeDecks(decks: Array<Deck>) {
+    decks.sort((a: Deck, b: Deck) => {
+      let left = a.name.toUpperCase()
+      let right = b.name.toUpperCase()
+
+      if (left < right) return -1
+      if (left > right) return 1
+      return 0
+    })
+    
     let data = {}
     let addToData = (section, deck) => {
       if (!data[section]) {
