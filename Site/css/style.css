@@ -63,7 +63,7 @@ html {
 body {
   padding-top: 70px;
   margin-bottom: 80px;
-  font-family: 'Clear Sans';
+  font-family: 'Clear Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 .page-footer {
