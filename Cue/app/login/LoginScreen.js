@@ -21,7 +21,7 @@ const styles = {
   },
   contentContainer: {
     height: '60%',
-    minHeight: 240,
+    minHeight: 220,
     position: 'absolute',
     left: 24,
     right: 24,
