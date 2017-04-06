@@ -1,11 +1,12 @@
 // @flow
 
 import React from 'react'
-import { View, Text, Image, TouchableNativeFeedback, Alert, Navigator } from 'react-native'
+import { View, Text, Image, TouchableNativeFeedback, Alert, Navigator, Linking } from 'react-native'
 
 import { connect } from 'react-redux'
 import { logOut } from '../actions/login'
 import { syncLibrary } from '../actions/library'
+import { tosURL, privacyURL } from '../env'
 
 import CueColors from '../common/CueColors'
 import CueIcons from '../common/CueIcons'
@@ -45,7 +46,35 @@ class MenuProfileItem extends React.Component {
     localChanges: [{}],
   }
 
+  _popupMenuActions = [
+    'Terms of service',
+    'Privacy policy',
+    'Sign out',
+  ]
+
   _onMenuAction = (index: number) => {
+    switch (index) {
+      case 0:
+        this._onPressTermsOfService();
+        break;
+      case 1:
+        this._onPressPrivacyPolicy();
+        break;
+      case 2:
+        this._onPressLogOut();
+        break;
+    }
+  }
+
+  _onPressTermsOfService = () => {
+    Linking.openURL(tosURL)
+  }
+
+  _onPressPrivacyPolicy = () => {
+    Linking.openURL(privacyURL)
+  }
+
+  _onPressLogOut = () => {
     if (this.props.localChanges && this.props.localChanges.length) {
       this.props.syncLibrary(this.props.localChanges).then(failedSyncs =>{
         if (failedSyncs && failedSyncs.length) {
@@ -96,7 +125,7 @@ class MenuProfileItem extends React.Component {
           <PopupMenuAndroid
             icon={CueIcons.dropdown}
             iconStyle={styles.icon}
-            actions={['Sign out']}
+            actions={this._popupMenuActions}
             onAction={this._onMenuAction} />
         </View>
       </View>

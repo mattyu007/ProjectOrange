@@ -1,17 +1,19 @@
 // @flow
 
 import React from 'react'
-import { View, Text, StyleSheet, TouchableHighlight, Alert, Navigator } from 'react-native'
+import { View, Text, StyleSheet, TouchableHighlight, Alert, Navigator, ScrollView, Linking } from 'react-native'
 
 import { connect } from 'react-redux'
 import { logOut } from '../../actions/login'
 import { syncLibrary } from '../../actions/library'
 
 import { getCreditsLine } from '../../common/CueAppInfo'
+import { tosURL, privacyURL } from '../../env'
 
 import CueColors from '../../common/CueColors'
 import CueHeader from '../../common/CueHeader'
 import CueIcons from '../../common/CueIcons'
+import TableHeader from '../../common/TableHeader'
 
 const styles = {
   container: {
@@ -33,16 +35,18 @@ const styles = {
     padding: 48,
     textAlign: 'center',
   },
-  signOutButton: {
+  actionButton: {
     width: '100%',
-    borderTopColor: CueColors.lightGrey,
-    borderTopWidth: StyleSheet.hairlineWidth,
     borderBottomColor: CueColors.lightGrey,
     borderBottomWidth: StyleSheet.hairlineWidth,
     paddingVertical: 12,
     paddingHorizontal: 16,
   },
-  signOutButtonText: {
+  actionButtonWithTopBorder: {
+    borderTopColor: CueColors.lightGrey,
+    borderTopWidth: StyleSheet.hairlineWidth,
+  },
+  actionButtonText: {
     color: CueColors.primaryTint,
     fontSize: 17,
   },
@@ -116,19 +120,40 @@ class AccountHome extends React.Component {
           title='Account' />
         <View
           style={styles.bodyContainer}>
-          <View style={styles.accountContainer}>
+          <ScrollView
+            automaticallyAdjustContentInsets={false}
+            contentContainerStyle={styles.accountContainer}>
             <Text style={styles.headerText}>
               {this.props.user.name || 'Cue'}
             </Text>
             <TouchableHighlight
-              style={styles.signOutButton}
+              style={[styles.actionButton, styles.actionButtonWithTopBorder]}
               underlayColor={CueColors.veryLightGrey}
               onPress={this._logOut}>
-              <Text style={styles.signOutButtonText}>
+              <Text style={styles.actionButtonText}>
                 Sign Out
               </Text>
             </TouchableHighlight>
-          </View>
+            <TableHeader
+              style={{width: '100%'}}
+              text={"Legal"} />
+            <TouchableHighlight
+              style={styles.actionButton}
+              underlayColor={CueColors.veryLightGrey}
+              onPress={() => Linking.openURL(tosURL)}>
+              <Text style={styles.actionButtonText}>
+                Terms of Service
+              </Text>
+            </TouchableHighlight>
+            <TouchableHighlight
+              style={styles.actionButton}
+              underlayColor={CueColors.veryLightGrey}
+              onPress={() => Linking.openURL(privacyURL)}>
+              <Text style={styles.actionButtonText}>
+                Privacy Policy
+              </Text>
+            </TouchableHighlight>
+          </ScrollView>
           <View style={styles.creditsContainer}>
             <Text style={styles.creditsText}>
               {getCreditsLine()}
