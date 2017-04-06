@@ -1,0 +1,130 @@
+@font-face {
+    font-family: 'Clear Sans';
+    font-weight: 100;
+    font-style: normal;
+    src: url('../fonts/ClearSans-Thin-webfont.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Clear Sans';
+    font-weight: 200;
+    font-style: normal;
+    src: url('../fonts/ClearSans-Light-webfont.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Clear Sans';
+    font-weight: 400;
+    font-style: normal;
+    src: url('../fonts/ClearSans-Regular-webfont.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Clear Sans';
+    font-weight: 400;
+    font-style: italic;
+    src: url('../fonts/ClearSans-Italic-webfont.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Clear Sans';
+    font-weight: 500;
+    font-style: normal;
+    src: url('../fonts/ClearSans-Medium-webfont.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Clear Sans';
+    font-weight: 500;
+    font-style: italic;
+    src: url('../fonts/ClearSans-MediumItalic-webfont.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Clear Sans';
+    font-weight: 700;
+    font-style: normal;
+    src: url('../fonts/ClearSans-Bold-webfont.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'Clear Sans';
+    font-weight: 700;
+    font-style: italic;
+    src: url('../fonts/ClearSans-BoldItalic-webfont.woff') format('woff');
+}
+
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  padding-top: 70px;
+  margin-bottom: 80px;
+  font-family: 'Clear Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.page-footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 60px;
+}
+
+.page-footer p {
+  margin: 20px 0;
+}
+
+.navbar-inverse .navbar-btn {
+  background-color: transparent;
+  border-color: white;
+  color: #ffffff;
+}
+
+.navbar-inverse .navbar-btn:active {
+  background-color: transparent;
+  border-color: white;
+  color: #ffffff;
+  opacity: 0.65;
+} 
+
+.navbar-inverse .navbar-btn:hover {
+  background-color: transparent;
+  border-color: white;
+  color: #ffffff;
+}
+
+.navbar-header {
+  width: 100%;
+}
+
+.navbar-brand {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.navbar-text {
+  margin: 18px 0 12px 0;
+}
+
+.carousel-caption {
+  position: static;
+  padding-top: 0;
+  padding-bottom: 60px;
+}
+
+.carousel-caption h3 {
+  margin-top: 0;
+}
+
+.carousel-control {
+  background-image: none !important;
+}
+
+.carousel-image {
+  width: 100%;
+  max-width: 600px !important;
+  margin: auto;
+}

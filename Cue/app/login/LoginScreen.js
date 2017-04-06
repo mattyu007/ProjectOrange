@@ -1,10 +1,11 @@
 // @flow
 
 import React from 'react'
-import { ActivityIndicator, View, Text, Image, StyleSheet, Alert, Platform } from 'react-native'
+import { ActivityIndicator, View, Text, Image, StyleSheet, Alert, Platform, Linking } from 'react-native'
 
 import { connect } from 'react-redux'
 import { serverLogin } from '../actions';
+import { tosURL, privacyURL } from '../env'
 
 import CueColors from '../common/CueColors'
 import CueIcons from '../common/CueIcons'
@@ -20,6 +21,7 @@ const styles = {
   },
   contentContainer: {
     height: '60%',
+    minHeight: 220,
     position: 'absolute',
     left: 24,
     right: 24,
@@ -53,8 +55,24 @@ const styles = {
   },
   loginContent: {
     flex: 1,
+    alignItems: 'center',
     justifyContent: 'center',
   },
+  termsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  termsText: {
+    fontSize: 14,
+    backgroundColor: 'transparent',
+    color: 'rgba(255, 255, 255, 0.85)',
+    fontWeight: '400',
+    textAlign: 'center',
+    marginTop: 8,
+  },
+  termsLink: {
+    fontWeight: '700',
+  }
 }
 
 class LoginScreen extends React.Component {
@@ -98,6 +116,23 @@ class LoginScreen extends React.Component {
             }
           }}
         />
+        <View style={styles.termsContainer}>
+          <Text style={styles.termsText}>
+            By continuing with Facebook, you agree to our{' '}
+            <Text
+              style={styles.termsLink}
+              onPress={() => Linking.openURL(tosURL)}>
+              Terms of Service
+            </Text>
+            {' '}and our{' '}
+            <Text
+              style={styles.termsLink}
+              onPress={() => Linking.openURL(privacyURL)}>
+              Privacy Policy
+            </Text>
+            .
+          </Text>
+        </View>
       </View>
     );
 

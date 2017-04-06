@@ -33,6 +33,7 @@ const androidStyles = {
 
 export default class TableHeader extends React.Component {
   props: {
+    style?: Object,
     text: string
   }
 
@@ -41,7 +42,7 @@ export default class TableHeader extends React.Component {
     let text = Platform.OS === 'ios' ? this.props.text.toUpperCase() : this.props.text
 
     return (
-      <View style={styles.container || undefined}>
+      <View style={[styles.container || undefined, this.props.style]}>
         <Text style={styles.headerText}>
           {text}
         </Text>
