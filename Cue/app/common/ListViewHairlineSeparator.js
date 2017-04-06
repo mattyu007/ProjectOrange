@@ -10,7 +10,7 @@ const styles = {
     flex: 1,
     height: StyleSheet.hairlineWidth,
     marginLeft: 16,
-    backgroundColor: CueColors.veryLightGrey,
+    backgroundColor: CueColors.lightGrey,
   }
 }
 
