@@ -128,3 +128,7 @@ body {
   max-width: 600px !important;
   margin: auto;
 }
+
+.app-store-download-button {
+  margin: 10px;
+}
