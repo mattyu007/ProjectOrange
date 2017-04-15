@@ -328,7 +328,10 @@ BEGIN
     SELECT
         Library.deck_id
     FROM Library
-    WHERE Library.user_id=uid;
+        LEFT JOIN (SELECT uuid, name FROM Deck) as D
+        ON D.uuid = Library.deck_id
+    WHERE Library.user_id=uid
+    ORDER BY D.name ASC;
 END$$
 
 -- Add deck to user library
