@@ -40,6 +40,8 @@ export default class TextEntryTableRow extends React.Component {
     focused: boolean,
   }
 
+  textInputRef: ?TextInput
+
   constructor(props: Props) {
     super(props)
 
@@ -48,6 +50,14 @@ export default class TextEntryTableRow extends React.Component {
       height: 0,
       focused: false,
     }
+  }
+
+  getTextInputRef = (): ?TextInput => {
+    return this.textInputRef
+  }
+
+  _onTextInputRef = (textInputRef: TextInput) => {
+    this.textInputRef = textInputRef
   }
 
   // We need both onChange and onContentSizeChange for height since:
@@ -105,6 +115,7 @@ export default class TextEntryTableRow extends React.Component {
       <TableRow style={tableRowExtraStyle}>
         <TextInput
           style={[styles.textInput, {height: this.state.height}]}
+          ref={this._onTextInputRef}
           multiline
           onChange={this._onChange}
           onContentSizeChange={this._onContentSizeChange}

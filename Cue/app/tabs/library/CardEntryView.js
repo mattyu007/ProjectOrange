@@ -3,7 +3,8 @@
 'use strict'
 
 import React from 'react'
-import { View, ScrollView, Text, Navigator, Platform } from 'react-native'
+import { View, Text, Navigator, Platform } from 'react-native'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview'
 
 import type { Card } from '../../api/types'
 
@@ -41,6 +42,9 @@ export default class CardEntryView extends React.Component {
     backText: string
   }
 
+  frontRowRef: ?TextEntryTableRow
+  backRowRef: ?TextEntryTableRow
+
   constructor(props: Props) {
     super(props)
 
@@ -55,6 +59,14 @@ export default class CardEntryView extends React.Component {
       && this.state.frontText.length <= MAX_LENGTH
       && this.state.backText.length > 0
       && this.state.backText.length <= MAX_LENGTH
+  }
+
+  _onFrontRowRef = (ref: TextEntryTableRow) => {
+    this.frontRowRef = ref
+  }
+
+  _onBackRowRef = (ref: TextEntryTableRow) => {
+    this.backRowRef = ref
   }
 
   _onFrontTextChange = (text: string) => {
@@ -117,10 +129,14 @@ export default class CardEntryView extends React.Component {
           leftItem={leftItem}
           rightItems={rightItems} />
 
-        <ScrollView style={{flex: 1}}>
+        <KeyboardAwareScrollView
+          style={{flex: 1}}
+          getTextInputRefs={() => [this.frontRowRef ? this.frontRowRef.getTextInputRef() : undefined,
+                                   this.backRowRef ? this.backRowRef.getTextInputRef() : undefined]}>
           <TableHeader
             text={'Card front'} />
           <TextEntryTableRow
+            ref={this._onFrontRowRef}
             initialText={this.props.existingCard ? this.props.existingCard.front : undefined}
             placeholder={'Card front text'}
             maxLength={MAX_LENGTH}
@@ -132,6 +148,7 @@ export default class CardEntryView extends React.Component {
           <TableHeader
             text={'Card back'} />
           <TextEntryTableRow
+            ref={this._onBackRowRef}
             initialText={this.props.existingCard ? this.props.existingCard.back : undefined}
             placeholder={'Card back text'}
             maxLength={MAX_LENGTH}
@@ -139,7 +156,7 @@ export default class CardEntryView extends React.Component {
           <TableFooter
             style={styles.characterCounter}
             text={this._getCharactersRemainingString(this.state.backText)} />
-        </ScrollView>
+        </KeyboardAwareScrollView>
       </View>
     )
   }
