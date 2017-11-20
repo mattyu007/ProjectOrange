@@ -33,8 +33,6 @@ module.exports = {
 
   // Images
   cueDeck: require('./img/cue_deck.png'),
-  deckInsetPublic: require('./img/deck_inset_public.png'),
-  deckInsetShared: require('./img/deck_inset_shared.png'),
   deckPlaceholder: require('./img/deck_placeholder.png'),
   emptyDeck: require('./img/deck_empty.png'),
   emptyFilteredDeck: require('./img/deck_empty_filtered.png'),
