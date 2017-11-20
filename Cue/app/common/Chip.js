@@ -15,7 +15,7 @@ const styles = {
     borderRadius: Platform.OS === 'android' ? 16 : 4,
     height: Platform.OS === 'android' ? 32 : 28,
     alignItems: 'center',
-    paddingHorizontal: Platform.OS === 'android' ? 12 : 6,
+    paddingHorizontal: Platform.OS === 'android' ? 12 : 8,
   },
   containerRemovable: {
     paddingRight: 0,
@@ -23,6 +23,7 @@ const styles = {
   text: {
     color: CueColors.primaryText,
     fontSize: 14,
+    fontWeight: Platform.OS === 'android' ? undefined : '600',
   },
   iconContainer: {
     width: 24,
