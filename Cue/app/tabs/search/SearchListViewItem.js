@@ -42,7 +42,7 @@ export default class SearchListViewItem extends React.Component {
     let contents = (
       <View style={styles.itemContainer}>
         <View style={styles.cardContainer}>
-          <DeckThumbnail hideInsets deck={this.props.deck} />
+          <DeckThumbnail hideSharingStatus deck={this.props.deck} />
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.firstText} numberOfLines={2}>By {this.props.deck.author} </Text>
