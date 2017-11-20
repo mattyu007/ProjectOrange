@@ -1,6 +1,7 @@
 // @flow
 
 import React from 'react'
+import PropTypes from 'prop-types'
 import { Navigator, View, StyleSheet, Text } from 'react-native'
 
 import { connect } from 'react-redux'
@@ -130,7 +131,7 @@ class CueTabsView extends React.Component {
 }
 
 CueTabsView.childContextTypes = {
-  openDrawer: React.PropTypes.func,
+  openDrawer: PropTypes.func,
 };
 
 function select(store) {

@@ -1,6 +1,7 @@
 // @flow
 
 import React from 'react'
+import PropTypes from 'prop-types'
 import { Platform, BackAndroid, Navigator, Text, StyleSheet } from 'react-native'
 
 import { connect } from 'react-redux'
@@ -118,8 +119,8 @@ var CueNavigator = React.createClass({
 });
 
 CueNavigator.childContextTypes = {
-  addBackButtonListener: React.PropTypes.func,
-  removeBackButtonListener: React.PropTypes.func,
+  addBackButtonListener: PropTypes.func,
+  removeBackButtonListener: PropTypes.func,
 };
 
 var styles = StyleSheet.create({

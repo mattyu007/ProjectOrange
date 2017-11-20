@@ -1,7 +1,8 @@
 // @flow
 
-var React = require('React');
-var DrawerLayoutAndroid = require('DrawerLayoutAndroid');
+import React from 'react'
+import PropTypes from 'prop-types'
+import DrawerLayoutAndroid from 'DrawerLayoutAndroid'
 
 class CueDrawerLayout extends React.Component {
   _drawer: ?DrawerLayoutAndroid;
@@ -58,8 +59,8 @@ class CueDrawerLayout extends React.Component {
 }
 
 CueDrawerLayout.contextTypes = {
-  addBackButtonListener: React.PropTypes.func,
-  removeBackButtonListener: React.PropTypes.func,
+  addBackButtonListener: PropTypes.func,
+  removeBackButtonListener: PropTypes.func,
 };
 
 module.exports = CueDrawerLayout;
