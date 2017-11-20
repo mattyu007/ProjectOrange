@@ -24,8 +24,8 @@ module.exports = {
 
   coolLightGrey: '#F5F5FA',
 
-  sharedInsetTint: '#70BF41',
-  publicInsetTint: '#51A7F9',
+  sharedTint: '#70BF41',
+  publicTint: '#51A7F9',
 
   nextIndicatorTint: '#70BF41',
   flagIndicatorTint: '#F39019',

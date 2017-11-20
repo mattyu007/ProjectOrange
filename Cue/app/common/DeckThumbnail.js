@@ -55,33 +55,44 @@ const baseStyles = {
   deleteOverlayIcon: {
     tintColor: CueColors.dangerTint,
   },
-  itemPublicInset: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    tintColor: CueColors.publicInsetTint,
+  sharingStatusPublic: {
+    backgroundColor: CueColors.publicTint,
+    paddingVertical: 1,
+    paddingHorizontal: 2,
+    marginLeft: 8,
     borderRadius: 2,
+    overflow: 'hidden',
+    color: 'white',
+    fontSize: 10,
+    fontWeight: '600',
   },
-  itemSharedInset: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    tintColor: CueColors.sharedInsetTint,
+  sharingStatusShared: {
+    backgroundColor: CueColors.sharedTint,
+    paddingVertical: 1,
+    paddingHorizontal: 2,
+    marginLeft: 8,
     borderRadius: 2,
+    overflow: 'hidden',
+    color: 'white',
+    fontSize: 10,
+    fontWeight: '600',
+  },
+  metadataContainer: {
+    flexDirection: 'row',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
   },
   cardNumber: {
     fontSize: 12,
     color: CueColors.lightText,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
   }
 }
 
 export default class DeckThumbnail extends React.Component {
   props: {
     deck: Deck,
-    hideInsets?: boolean,
+    hideSharingStatus?: boolean,
     deletable?: boolean,
     style?: Object,
     onPress?: () => void,
@@ -118,7 +129,6 @@ export default class DeckThumbnail extends React.Component {
     }
 
     let numCards = this.props.deck.cards ? this.props.deck.cards.length : this.props.deck.num_cards
-
     let subText = (
       <Text style={styles.cardNumber}>
         {numCards
@@ -153,17 +163,21 @@ export default class DeckThumbnail extends React.Component {
       }
     }
 
-    let inset
-    if (!this.props.hideInsets) {
+    let sharingStatusView
+    if (!this.props.hideSharingStatus) {
       if (this.props.deck.accession === 'private') {
         if (this.props.deck.public) {
-          inset = (
-            <Image style={styles.itemPublicInset} source={CueIcons.deckInsetPublic} />
+          sharingStatusView = (
+            <Text style={styles.sharingStatusPublic}>
+              Public
+            </Text>
           );
         }
         else if (this.props.deck.share_code) {
-          inset = (
-            <Image style={styles.itemSharedInset} source={CueIcons.deckInsetShared} />
+          sharingStatusView = (
+            <Text style={styles.sharingStatusShared}>
+              Shared
+            </Text>
           );
         }
       }
@@ -174,13 +188,14 @@ export default class DeckThumbnail extends React.Component {
         <Text style={styles.itemText} numberOfLines={2}>
           {this.props.deck.name}
         </Text>
-        {subText}
+        <View style={styles.metadataContainer}>
+          {subText}{sharingStatusView}
+        </View>
       </View>
     )
     content = (
       <View style={[styles.itemContainer, this.props.style]}>
         {content}
-        {inset}
         {deleteOverlayIcon}
       </View>
     )

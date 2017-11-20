@@ -35,26 +35,24 @@ const styles = {
     paddingBottom: 2,
   },
   sharedTag: {
-    backgroundColor: CueColors.sharedInsetTint,
+    backgroundColor: CueColors.sharedTint,
     paddingVertical: 2,
-    paddingHorizontal: 6,
+    paddingHorizontal: 4,
     borderRadius: 2,
     overflow: 'hidden',
     color: 'white',
     fontSize: 13,
     fontWeight: '600',
-    letterSpacing: 0.1,
   },
   publicTag: {
-    backgroundColor: CueColors.publicInsetTint,
+    backgroundColor: CueColors.publicTint,
     paddingVertical: 2,
-    paddingHorizontal: 6,
+    paddingHorizontal: 4,
     borderRadius: 2,
     overflow: 'hidden',
     color: 'white',
     fontSize: 13,
     fontWeight: '600',
-    letterSpacing: 0.1,
   },
   editTitleContainer: {
     backgroundColor: 'transparent',
@@ -171,18 +169,18 @@ export default class DeckViewInfoHeader extends React.Component {
     let subtitleText
     if (this.props.deck.accession === 'private') {
       if (this.props.deck.public) {
-        tag = <Text style={styles.publicTag}>PUBLIC</Text>
+        tag = <Text style={styles.publicTag}>Public</Text>
         subtitleText = ' by you'
       } else if (this.props.deck.share_code) {
-        tag = <Text style={styles.sharedTag}>SHARED</Text>
+        tag = <Text style={styles.sharedTag}>Shared</Text>
         subtitleText = ' by you'
       }
     } else if (this.props.deck.accession === 'shared') {
-      tag = <Text style={styles.sharedTag}>SHARED</Text>
+      tag = <Text style={styles.sharedTag}>Shared</Text>
       subtitleText = ' by '
         + (this.props.deck.author || 'someone else')
     } else {
-      tag = <Text style={styles.publicTag}>PUBLIC</Text>
+      tag = <Text style={styles.publicTag}>Public</Text>
       subtitleText = ' by '
         + (this.props.deck.author || 'someone else')
     }
