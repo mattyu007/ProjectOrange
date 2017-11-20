@@ -4,7 +4,7 @@
 
 import React from 'react'
 import { View, Text, Navigator, Platform, Alert } from 'react-native'
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { remove as stripDiacritics } from 'diacritics'
 
 import type { Deck } from '../../api/types'
@@ -55,10 +55,6 @@ class DeckSharingOptions extends React.Component {
     tags: Array<string>,
   }
 
-  // A reference to the text input inside TagsTableRow, used so
-  // KeyboardAwareScrollView knows how far to scroll to keep it visible
-  newTagTextInputRef: any
-
   constructor(props: Props) {
     super(props)
 
@@ -69,12 +65,6 @@ class DeckSharingOptions extends React.Component {
       shareCode: props.deck.share_code,
       tags: props.deck.tags || [],
     }
-
-    this.newTagTextInputRef = null
-  }
-
-  _onTagsTableRowRef = (ref: TagsTableRow) => {
-    this.newTagTextInputRef = ref ? ref.textInputRef : null
   }
 
   _sharingStatusForDeck = (deck: Deck): SharingStatus => {
@@ -335,7 +325,6 @@ class DeckSharingOptions extends React.Component {
         <TableHeader
           text={'Tags'} />
         <TagsTableRow
-          ref={this._onTagsTableRowRef}
           disabled={this.props.deck.accession !== 'private'}
           tags={this.state.tags}
           onTagAdded={this._onTagAdded}
@@ -386,9 +375,8 @@ class DeckSharingOptions extends React.Component {
           title={'Sharing'}
           leftItem={this._getLeftItem()}
           rightItems={this._getRightItems()}/>
-        <KeyboardAwareScrollView
+        <KeyboardAwareScrollView>
           style={styles.container}
-          getTextInputRefs={() => [this.newTagTextInputRef]}>
           {this.props.deck.accession !== 'private' ? this._renderDisabledHeader() : undefined}
           {this._renderSharingOptions()}
           {this.state.selectedOption === 'shared' ? this._renderShareCode() : undefined}

@@ -5,7 +5,7 @@ import thunk from 'redux-thunk';
 import {persistStore, autoRehydrate} from 'redux-persist';
 import promise from './promise';
 var reducers = require('../reducers');
-var createLogger = require('redux-logger');
+import { createLogger } from 'redux-logger';
 var {AsyncStorage} = require('react-native');
 
 var isDebuggingInChrome = __DEV__;

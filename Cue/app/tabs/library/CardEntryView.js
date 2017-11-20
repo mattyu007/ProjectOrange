@@ -4,7 +4,7 @@
 
 import React from 'react'
 import { View, Text, Navigator, Platform } from 'react-native'
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 import type { Card } from '../../api/types'
 

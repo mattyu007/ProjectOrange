@@ -17,7 +17,7 @@
     "react-native-device-info": "^0.12.1",
     "react-native-fbsdk": "^0.6.0",
     "react-native-flip-card": "^3.3.3",
-    "react-native-keyboard-aware-scrollview": "^1.1.5",
+    "react-native-keyboard-aware-scroll-view": "^0.4.1",
     "react-native-linear-gradient": "^2.0.0",
     "react-native-material-kit": "^0.5.1",
     "react-native-material-tabs": "^3.0.3",
@@ -27,7 +27,7 @@
     "react-redux": "^5.0.6",
     "redux": "^3.6.0",
     "redux-logger": "^3.0.6",
-    "redux-persist": "^5.4.0",
+    "redux-persist": "^4.x.x",
     "redux-thunk": "^2.2.0",
     "uuid": "^3.0.1"
   },

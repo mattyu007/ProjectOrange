@@ -11,21 +11,21 @@ import CueColors from './common/CueColors'
 
 var { connect } = require('react-redux');
 
-var CueApp = React.createClass({
-  componentDidMount: function() {
+class CueApp extends React.Component {
+
+  componentDidMount() {
     AppState.addEventListener('change', this.handleAppStateChange);
-  },
+  }
 
-  componentWillUnmount: function() {
+  componentWillUnmount() {
     AppState.removeEventListener('change', this.handleAppStateChange);
+  }
 
-  },
+  handleAppStateChange(appState) {
 
-  handleAppStateChange: function(appState) {
+  }
 
-  },
-
-  render: function() {
+  render() {
     if (!this.props.isLoggedIn) {
       return <LoginScreen />;
     }
@@ -39,9 +39,8 @@ var CueApp = React.createClass({
         <CueNavigator />
       </View>
     );
-  },
-
-});
+  }
+}
 
 var styles = StyleSheet.create({
   container: {

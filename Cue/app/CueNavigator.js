@@ -17,33 +17,40 @@ import PlayDeckView from './tabs/library/play/PlayDeckView'
 import DeckPreview from './common/DeckPreview'
 import SyncConflict from './common/SyncConflict'
 
-var CueNavigator = React.createClass({
-  _handlers: ([]: Array<() => boolean>),
+class CueNavigator extends React.Component {
 
-  componentDidMount: function() {
+  _handlers: Array<() => boolean>
+
+  constructor(props) {
+    super(props)
+    
+    this._handlers = []
+  }
+
+  componentDidMount() {
     BackAndroid.addEventListener('hardwareBackPress', this.handleBackButton);
-  },
+  }
 
-  componentWillUnmount: function() {
+  componentWillUnmount() {
     BackAndroid.removeEventListener('hardwareBackPress', this.handleBackButton);
-  },
+  }
 
   getChildContext() {
     return {
       addBackButtonListener: this.addBackButtonListener,
       removeBackButtonListener: this.removeBackButtonListener,
     };
-  },
+  }
 
-  addBackButtonListener: function(listener) {
+  addBackButtonListener(listener) {
     this._handlers.push(listener);
-  },
+  }
 
-  removeBackButtonListener: function(listener) {
+  removeBackButtonListener(listener) {
     this._handlers = this._handlers.filter((handler) => handler !== listener);
-  },
+  }
 
-  handleBackButton: function() {
+  handleBackButton() {
     for (let i = this._handlers.length - 1; i >= 0; i--) {
       if (this._handlers[i]()) {
         return true;
@@ -62,9 +69,9 @@ var CueNavigator = React.createClass({
     }
 
     return false;
-  },
+  }
 
-  render: function() {
+  render() {
     return (
       <Navigator
         ref="navigator"
@@ -96,9 +103,9 @@ var CueNavigator = React.createClass({
         renderScene={this.renderScene}
       />
     );
-  },
+  }
 
-  renderScene: function(route, navigator) {
+  renderScene(route, navigator) {
     if (route.deck) {
       return <DeckView navigator={navigator} deckUuid={route.deck.uuid}/>
     } else if (route.sharingOptions) {
@@ -115,8 +122,8 @@ var CueNavigator = React.createClass({
       return <CardEntryView navigator={navigator} existingCard={route.cardEntry} {...route} />
     }
     return <CueTabsView navigator={navigator} />;
-  },
-});
+  }
+}
 
 CueNavigator.childContextTypes = {
   addBackButtonListener: PropTypes.func,
