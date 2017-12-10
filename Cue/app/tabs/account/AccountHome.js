@@ -1,7 +1,10 @@
 // @flow
 
 import React from 'react'
-import { View, Text, StyleSheet, TouchableHighlight, Alert, Navigator, ScrollView, Linking } from 'react-native'
+import { View, Text, StyleSheet, TouchableHighlight, Alert, ScrollView, Linking } from 'react-native'
+
+import { Navigator } from 'react-native-navigation'
+import { CueScreens } from '../../CueNavigation'
 
 import { connect } from 'react-redux'
 import { logOut } from '../../actions/login'
@@ -17,14 +20,8 @@ import TableHeader from '../../common/TableHeader'
 
 const styles = {
   container: {
-    flex: 1,
+    ...StyleSheet.absoluteFillObject,
     backgroundColor: 'white',
-    paddingBottom: 49, // To avoid overlap with the tab bar
-  },
-  bodyContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'space-between'
   },
   accountContainer: {
     alignItems: 'center',
@@ -64,12 +61,13 @@ type Props = {
   navigator: Navigator,
 
   // From Redux:
-  user: Object,
+  user: any,
   logOut: () => void,
-  syncLibrary: () => void,
+  syncLibrary: (any) => Promise<*>,
 }
 
-class AccountHome extends React.Component {
+class AccountHome extends React.Component<Props, *> {
+  props: Props
 
   _logOut = () => {
     if (this.props.localChanges && this.props.localChanges.length) {
@@ -80,9 +78,21 @@ class AccountHome extends React.Component {
             'Changes were made on this device which conflict with changes in the Cue cloud.'
               + '\n\nIf you sign out now without resolving these conflicts, you will lose all your local changes.',
             [
-              {text: 'Sign Out Anyway', onPress: () => this.props.logOut(), style: 'destructive'},
-              {text: 'Resolve Conflicts', onPress: () => this.props.navigator.push({failedSyncs})},
-              {text: 'Cancel', style: 'cancel'}
+              {
+                text: 'Sign Out Anyway',
+                onPress: () => this.props.logOut(),
+                style: 'destructive'
+              },
+              {
+                text: 'Resolve Conflicts',
+                onPress: () => this.props.navigator.showModal({
+                  screen: CueScreens.syncConflict,
+                  passProps: { failedSyncs }})
+              },
+              {
+                text: 'Cancel',
+                style: 'cancel'
+              }
             ],
             { cancelable: false }
           )
@@ -116,49 +126,43 @@ class AccountHome extends React.Component {
     return (
       <View
         style={styles.container}>
-        <CueHeader
-          title='Account' />
-        <View
-          style={styles.bodyContainer}>
-          <ScrollView
-            automaticallyAdjustContentInsets={false}
-            contentContainerStyle={styles.accountContainer}>
-            <Text style={styles.headerText}>
-              {this.props.user.name || 'Cue'}
+        <ScrollView
+          contentContainerStyle={styles.accountContainer}>
+          <Text style={styles.headerText}>
+            {this.props.user.name || 'Cue'}
+          </Text>
+          <TouchableHighlight
+            style={[styles.actionButton, styles.actionButtonWithTopBorder]}
+            underlayColor={CueColors.veryLightGrey}
+            onPress={this._logOut}>
+            <Text style={styles.actionButtonText}>
+              Sign Out
             </Text>
-            <TouchableHighlight
-              style={[styles.actionButton, styles.actionButtonWithTopBorder]}
-              underlayColor={CueColors.veryLightGrey}
-              onPress={this._logOut}>
-              <Text style={styles.actionButtonText}>
-                Sign Out
-              </Text>
-            </TouchableHighlight>
-            <TableHeader
-              style={{width: '100%'}}
-              text={"Legal"} />
-            <TouchableHighlight
-              style={styles.actionButton}
-              underlayColor={CueColors.veryLightGrey}
-              onPress={() => Linking.openURL(tosURL)}>
-              <Text style={styles.actionButtonText}>
-                Terms of Service
-              </Text>
-            </TouchableHighlight>
-            <TouchableHighlight
-              style={styles.actionButton}
-              underlayColor={CueColors.veryLightGrey}
-              onPress={() => Linking.openURL(privacyURL)}>
-              <Text style={styles.actionButtonText}>
-                Privacy Policy
-              </Text>
-            </TouchableHighlight>
-          </ScrollView>
-          <View style={styles.creditsContainer}>
-            <Text style={styles.creditsText}>
-              {getCreditsLine()}
+          </TouchableHighlight>
+          <TableHeader
+            style={{width: '100%'}}
+            text={"Legal"} />
+          <TouchableHighlight
+            style={styles.actionButton}
+            underlayColor={CueColors.veryLightGrey}
+            onPress={() => Linking.openURL(tosURL)}>
+            <Text style={styles.actionButtonText}>
+              Terms of Service
             </Text>
-          </View>
+          </TouchableHighlight>
+          <TouchableHighlight
+            style={styles.actionButton}
+            underlayColor={CueColors.veryLightGrey}
+            onPress={() => Linking.openURL(privacyURL)}>
+            <Text style={styles.actionButtonText}>
+              Privacy Policy
+            </Text>
+          </TouchableHighlight>
+        </ScrollView>
+        <View style={styles.creditsContainer}>
+          <Text style={styles.creditsText}>
+            {getCreditsLine()}
+          </Text>
         </View>
       </View>
     )

@@ -13,6 +13,7 @@ import CardEntryView from './tabs/library/CardEntryView'
 import PlayDeckSetupView from './tabs/library/play/PlayDeckSetupView'
 import PlayDeckView from './tabs/library/play/PlayDeckView'
 import DeckSharingOptions from './tabs/library/DeckSharingOptions'
+import SyncConflict from './common/SyncConflict'
 
 import DiscoverHome from './tabs/discover/DiscoverHome'
 import DeckPreview from './common/DeckPreview'
@@ -30,6 +31,7 @@ export const CueScreens = {
   playDeckSetupView: 'cue.library.play.PlayDeckSetupView',
   playDeckView: 'cue.library.play.PlayDeckView',
   deckSharingOptions: 'cue.library.DeckSharingOptions',
+  syncConflict: 'cue.library.SyncConflict',
 
   discoverHome: 'cue.discover.DiscoverHome',
   deckPreview: 'cue.discover.DeckPreview',
@@ -48,6 +50,7 @@ export function registerScreens(store: any, provider: any) {
   Navigation.registerComponent(CueScreens.playDeckSetupView, () => PlayDeckSetupView, store, provider)
   Navigation.registerComponent(CueScreens.playDeckView, () => PlayDeckView, store, provider)
   Navigation.registerComponent(CueScreens.deckSharingOptions, () => DeckSharingOptions, store, provider)
+  Navigation.registerComponent(CueScreens.syncConflict, () => SyncConflict, store, provider)
 
   Navigation.registerComponent(CueScreens.discoverHome, () => DiscoverHome, store, provider)
   Navigation.registerComponent(CueScreens.deckPreview, () => DeckPreview, store, provider)
