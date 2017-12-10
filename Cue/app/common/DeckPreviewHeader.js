@@ -3,11 +3,14 @@
 'use strict';
 
 import React from 'react'
-import { View, Text, Platform, Navigator } from 'react-native'
+import { View, Text, Platform } from 'react-native'
+
+import { Navigator } from 'react-native-navigation'
+import { CueScreens } from '../CueNavigation'
 
 import Button from 'react-native-button'
 
-import type { DeckMetadata } from '../api/types'
+import type { Deck, DeckMetadata } from '../api/types'
 
 import CueColors from './CueColors'
 
@@ -21,7 +24,6 @@ const styles = {
   },
   textContainer: {
     paddingHorizontal: 16,
-    paddingBottom: Platform.OS === 'android' ? 0 : 12,
   },
   deckTitle: {
     color: 'white',
@@ -45,12 +47,11 @@ const styles = {
     borderRadius: 4,
     fontSize: 13,
     fontWeight: '600',
-    paddingTop: 6,
-    paddingBottom: 4,
+    paddingVertical: 4,
     paddingHorizontal: 8,
   },
   thirdRow: {
-    marginTop: 10,
+    marginTop: 12,
     flexDirection: 'row',
     alignItems: 'center'
   },
@@ -59,30 +60,40 @@ const styles = {
   },
 }
 
+type Props = {
+  navigator: Navigator,
+  deck: DeckMetadata,
+  deckInLibrary: ?Deck,
+  tabs: Array<string>,
+  currentTab: number,
+  onChange: (tab: number) => void,
+  addLibrary: () => void,
+}
 
-export default class DeckPreviewHeader extends React.Component {
-  props: {
-    navigator: Navigator,
-    deck: DeckMetadata,
-    tabs: Array<string>,
-    currentTab: number,
-    onChange: (tab: number) => void,
-    addLibrary: () => void,
-    deckInLibrary: ?Deck,
-  }
+export default class DeckPreviewHeader extends React.Component<Props, *> {
+  props: Props
 
   render() {
     let iosButton
     if (Platform.OS === 'ios') {
-      if (this.props.deckInLibrary) {
+      if (this.props.deckInLibrary && this.props.deckInLibrary.uuid) {
         iosButton = (
-          <Button onPress={() => this.props.navigator.push({deck: this.props.deckInLibrary})} style={styles.addButton}>
+          <Button
+            style={styles.addButton}
+            onPress={() => this.props.navigator.push({
+              screen: CueScreens.deckView,
+              passProps: {
+                // $FlowSuppress UUID is always present
+                deckUuid: this.props.deckInLibrary.uuid
+              }})}>
             OPEN
           </Button>
         )
       } else {
         iosButton = (
-          <Button onPress={this.props.addLibrary} style={styles.addButton}>
+          <Button
+            style={styles.addButton}
+            onPress={this.props.addLibrary}>
             ADD TO LIBRARY
           </Button>
         )

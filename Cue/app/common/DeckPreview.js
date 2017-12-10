@@ -3,7 +3,10 @@
 'use strict';
 
 import React from 'react'
-import { View, Text, ListView, Navigator, Platform } from 'react-native'
+import { View, Text, ListView, Platform } from 'react-native'
+
+import { Navigator } from 'react-native-navigation'
+import { CueScreens, makeButton } from '../CueNavigation'
 
 import { connect } from 'react-redux'
 
@@ -41,14 +44,15 @@ type Props = {
   addLibrary: (uuid: string, shareCode: ?string) => any,
 }
 
-class DeckPreview extends React.Component {
-  props: Props
+type State = {
+  cards: Array<Card>,
+  tab: number,
+  isLoading: boolean
+}
 
-  state: {
-    cards: Array<Card>,
-    tab: number,
-    isLoading: boolean
-  }
+class DeckPreview extends React.Component<Props, State> {
+  props: Props
+  state: State
 
   _onPressAddDeck = () => {
     // Add without share code if possible
@@ -92,35 +96,33 @@ class DeckPreview extends React.Component {
   }
 
   render() {
-    const leftItem = {
-      title: 'Back',
-      icon: CueIcons.back,
-      display: 'icon',
-      onPress: () => {this.props.navigator.pop()}
-    }
-
-    let rightItems
-    let deck = this.contains(this.props.deck.uuid, this.props.decks)
+    let rightButtons
+    let deckInLibrary = this.contains(this.props.deck.uuid, this.props.decks)
 
     if (Platform.OS === 'android') {
-      if (deck) {
-        rightItems = [
-          {
+      if (deckInLibrary) {
+        rightButtons = [
+          makeButton({
             title: 'Open',
-            display: 'text',
-            onPress: () => this.props.navigator.push({deck: deck})
-          }
+            id: 'open',
+          })
         ]
       } else {
-        rightItems = [
-          {
+        rightButtons = [
+          makeButton({
             title: 'Add to Library',
-            display: 'text',
-            onPress: this._onPressAddDeck,
-          }
+            id: 'add',
+          })
         ]
       }
+    } else {
+      rightButtons = []
     }
+
+    this.props.navigator.setButtons({
+      leftButtons: [],
+      rightButtons,
+    })
 
     let tabView
 
@@ -132,18 +134,15 @@ class DeckPreview extends React.Component {
 
     return (
       <View style={styles.container}>
-        <CueHeader
-          leftItem={leftItem}
-          rightItems={rightItems} />
-            <DeckPreviewHeader
-              navigator={this.props.navigator}
-              deck={this.props.deck}
-              tabs={previewTabs}
-              currentTab={this.state.tab}
-              onChange={this.onChange.bind(this)}
-              addLibrary={this._onPressAddDeck}
-              deckInLibrary={deck} />
-            {tabView}
+        <DeckPreviewHeader
+          navigator={this.props.navigator}
+          deck={this.props.deck}
+          deckInLibrary={deckInLibrary}
+          tabs={previewTabs}
+          currentTab={this.state.tab}
+          onChange={this.onChange.bind(this)}
+          addLibrary={this._onPressAddDeck}/>
+        {tabView}
       </View>
     )
   }
@@ -157,7 +156,7 @@ function select(store) {
 
 function actions(dispatch) {
   return {
-      addLibrary: (uuid: string, shareCode: ?string) => dispatch(addLibrary(uuid, shareCode)),
+      addLibrary: (uuid: string, shareCode?: string) => dispatch(addLibrary(uuid, shareCode)),
   };
 }
 

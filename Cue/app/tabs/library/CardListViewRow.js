@@ -46,7 +46,7 @@ const styles = {
   },
   frontText: {
     fontSize: Platform.OS === 'android' ? 14 : 17,
-    fontWeight: Platform.OS === 'android' ? '500' : '600',
+    fontWeight: Platform.OS === 'android' ? '500' : '700',
     color: CueColors.primaryText,
     marginBottom: 12,
     flex: 1,

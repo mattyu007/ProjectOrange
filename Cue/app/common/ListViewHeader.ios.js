@@ -6,11 +6,13 @@ import React from 'react'
 import { Text, Dimensions } from 'react-native'
 import CueColors from './CueColors'
 
-export default class ListViewHeader extends React.Component {
-  props: {
-    section: string,
-    style?: Object,
-  }
+type Props = {
+  section: string,
+  style?: Object,
+}
+
+export default class ListViewHeader extends React.Component<Props, *> {
+  props: Props
 
   render() {
     // styles is defined here since we need to be able to respond to window
@@ -22,7 +24,6 @@ export default class ListViewHeader extends React.Component {
         padding: 16,
         color: CueColors.primaryText,
         width: Dimensions.get('window').width,
-        backgroundColor: '#F00',
       }
     }
 

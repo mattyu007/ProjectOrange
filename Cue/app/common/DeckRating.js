@@ -14,22 +14,31 @@ const styles = {
   container: {
     flexDirection: 'row',
   },
+  text: {
+    color: CueColors.primaryText,
+  },
+  noRatingsText: {
+    color: CueColors.lightText,
+  },
   positive: {
     tintColor: CueColors.positiveTint,
-    marginRight: 5
+    marginRight: 4
   },
   negative: {
     tintColor: CueColors.negativeTint,
-    marginRight: 5
+    marginRight: 4
   }
 }
 
-export default class DeckRating extends React.Component {
-  props: {
-    deck: DeckMetadata,
-    onPress?: () => void,
-    textStyle? : Object,
-  }
+type Props = {
+  deck: DeckMetadata,
+  onPress?: () => void,
+  style?: any,
+  textStyle?: any,
+}
+
+export default class DeckRating extends React.Component<Props, *> {
+  props: Props
 
   render() {
     let image
@@ -38,7 +47,11 @@ export default class DeckRating extends React.Component {
     let negative = positive - this.props.deck.rating
 
     if (this.props.deck.num_ratings == 0) {
-      return <Text style={[styles.container, this.props.textStyle]} >No Ratings</Text>
+      return (
+        <Text style={[styles.container, styles.noRatingsText, this.props.style, this.props.textStyle]}>
+          No Ratings
+        </Text>
+      )
     }
 
     percentage = Math.floor(positive/this.props.deck.num_ratings * 100)
@@ -49,8 +62,13 @@ export default class DeckRating extends React.Component {
       image = <Image style={styles.negative} source={CueIcons.thumbsDown} />
     }
 
-    return <View style={styles.container}>{image}
-                        <Text style={this.props.textStyle}>{percentage}% (+{positive} / -{negative})</Text></View>
-
+    return (
+      <View style={[styles.container, this.props.style]}>
+        {image}
+        <Text style={[styles.text, this.props.textStyle]}>
+          {percentage}% (+{positive} / -{negative})
+        </Text>
+      </View>
+    )
   }
 }

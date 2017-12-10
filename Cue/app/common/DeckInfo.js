@@ -23,7 +23,7 @@ const styles = {
   },
   infoHeader: {
     fontSize: Platform.OS === 'android' ? 14 : 17,
-    fontWeight: Platform.OS === 'android' ? '500' : '600',
+    fontWeight: Platform.OS === 'android' ? '500' : '700',
     color: CueColors.primaryText,
     marginBottom: 12,
   },
@@ -45,10 +45,12 @@ const styles = {
   },
 }
 
-export default class DeckInfo extends React.Component {
-  props: {
-    deck: DeckMetadata,
-  }
+type Props = {
+  deck: DeckMetadata,
+}
+
+export default class DeckInfo extends React.Component<Props, *> {
+  props: Props
 
   render() {
     let tags

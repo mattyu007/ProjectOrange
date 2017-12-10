@@ -9,8 +9,7 @@ import CueColors from './CueColors'
 
 const styles = {
   container: {
-    marginHorizontal: 16,
-    marginVertical: 12,
+    margin: 16,
   },
 }
 

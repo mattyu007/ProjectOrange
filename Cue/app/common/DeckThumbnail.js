@@ -79,7 +79,7 @@ const baseStyles = {
 }
 
 type Props = {
-  deck: Deck,
+  deck: DeckMetadata,
   hideInsets?: boolean,
   deletable?: boolean,
   style?: Object,

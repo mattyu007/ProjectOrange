@@ -20,8 +20,8 @@ const styles = {
     marginHorizontal: 16,
     marginBottom: 16,
   },
-  thumbnail: {
-    marginBottom: 8
+  rating: {
+    marginTop: 8
   }
 }
 
@@ -37,7 +37,6 @@ export default class DiscoverViewListItem extends React.Component<Props, *> {
     return (
       <View style={styles.itemContainer}>
         <DeckThumbnail
-          style={styles.thumbnail}
           hideInsets
           deck={this.props.deck}
           onPress={() => this.props.navigator.push({
@@ -46,7 +45,9 @@ export default class DiscoverViewListItem extends React.Component<Props, *> {
               deck: this.props.deck,
             },
           })} />
-        <DeckRating deck={this.props.deck} />
+        <DeckRating
+          style={styles.rating}
+          deck={this.props.deck} />
       </View>
     )
   }
