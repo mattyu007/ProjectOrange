@@ -1,9 +1,11 @@
 // @flow
-
-'use strict';
+'use strict'
 
 import React from 'react'
-import { Image, View, Text, Navigator } from 'react-native'
+import { Image, View, Text } from 'react-native'
+
+import { Navigator } from 'react-native-navigation'
+import { CueScreens } from '../../CueNavigation'
 
 import type { DeckMetadata } from '../../api/types'
 
@@ -18,26 +20,32 @@ const styles = {
     marginHorizontal: 16,
     marginBottom: 16,
   },
-  cardContainer: {
-    marginBottom: 5
+  thumbnail: {
+    marginBottom: 8
   }
 }
 
-export default class DiscoverViewListItem extends React.Component {
-  props: {
-    navigator: Navigator,
-    deck: DeckMetadata
-  }
+type Props = {
+  navigator: Navigator,
+  deck: DeckMetadata
+}
+
+export default class DiscoverViewListItem extends React.Component<Props, *> {
+  props: Props
 
   render() {
     return (
       <View style={styles.itemContainer}>
-        <View style={styles.cardContainer}>
-          <DeckThumbnail
-            hideInsets
-            deck={this.props.deck}
-            onPress={() => this.props.navigator.push({preview: this.props.deck})} />
-        </View>
+        <DeckThumbnail
+          style={styles.thumbnail}
+          hideInsets
+          deck={this.props.deck}
+          onPress={() => this.props.navigator.push({
+            screen: CueScreens.deckPreview,
+            passProps: {
+              deck: this.props.deck,
+            },
+          })} />
         <DeckRating deck={this.props.deck} />
       </View>
     )

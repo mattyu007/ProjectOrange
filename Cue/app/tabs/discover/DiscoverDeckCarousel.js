@@ -1,9 +1,10 @@
 // @flow
-
-'use strict';
+'use strict'
 
 import React from 'react'
-import { Image, ListView, Navigator } from 'react-native'
+import { Image, ListView } from 'react-native'
+
+import { Navigator } from 'react-native-navigation'
 
 import CueIcons from '../../common/CueIcons'
 

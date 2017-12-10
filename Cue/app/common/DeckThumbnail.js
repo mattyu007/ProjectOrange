@@ -78,15 +78,17 @@ const baseStyles = {
   }
 }
 
-export default class DeckThumbnail extends React.Component {
-  props: {
-    deck: Deck,
-    hideInsets?: boolean,
-    deletable?: boolean,
-    style?: Object,
-    onPress?: () => void,
-    onPressDelete?: () => void,
-  }
+type Props = {
+  deck: Deck,
+  hideInsets?: boolean,
+  deletable?: boolean,
+  style?: Object,
+  onPress?: () => void,
+  onPressDelete?: () => void,
+}
+
+export default class DeckThumbnail extends React.Component<Props, *> {
+  props: Props
 
   _getWidth = () => {
     const paddingOneSide = 16

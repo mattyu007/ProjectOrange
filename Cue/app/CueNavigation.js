@@ -15,6 +15,7 @@ import PlayDeckView from './tabs/library/play/PlayDeckView'
 import DeckSharingOptions from './tabs/library/DeckSharingOptions'
 
 import DiscoverHome from './tabs/discover/DiscoverHome'
+import DeckPreview from './common/DeckPreview'
 
 import SearchHome from './tabs/search/SearchHome'
 
@@ -31,6 +32,7 @@ export const CueScreens = {
   deckSharingOptions: 'cue.library.DeckSharingOptions',
 
   discoverHome: 'cue.discover.DiscoverHome',
+  deckPreview: 'cue.discover.DeckPreview',
 
   searchHome: 'cue.search.SearchHome',
 
@@ -48,6 +50,7 @@ export function registerScreens(store: any, provider: any) {
   Navigation.registerComponent(CueScreens.deckSharingOptions, () => DeckSharingOptions, store, provider)
 
   Navigation.registerComponent(CueScreens.discoverHome, () => DiscoverHome, store, provider)
+  Navigation.registerComponent(CueScreens.deckPreview, () => DeckPreview, store, provider)
 
   Navigation.registerComponent(CueScreens.searchHome, () => SearchHome, store, provider)
 
