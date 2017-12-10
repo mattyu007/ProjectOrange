@@ -44,7 +44,7 @@ const styles = {
     borderWidth: 1,
     borderRadius: 4,
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: '700',
     paddingVertical: 4,
     paddingHorizontal: 8,
   },

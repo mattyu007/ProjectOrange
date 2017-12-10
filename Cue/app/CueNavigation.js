@@ -1,7 +1,7 @@
 // @flow
 'use strict'
 
-import { Platform } from 'react-native'
+import { Platform, AppRegistry } from 'react-native'
 
 import { Navigation } from 'react-native-navigation'
 

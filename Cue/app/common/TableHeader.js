@@ -16,7 +16,7 @@ const iosStyles = {
     paddingBottom: 8,
     backgroundColor: 'transparent',
     color: CueColors.darkGrey,
-    fontSize: 13,
+    fontSize: 12,
   },
 }
 
@@ -31,11 +31,13 @@ const androidStyles = {
   }
 }
 
-export default class TableHeader extends React.Component {
-  props: {
-    style?: Object,
-    text: string
-  }
+type Props = {
+  style?: Object,
+  text: string
+}
+
+export default class TableHeader extends React.Component<Props, *> {
+  props: Props
 
   render() {
     let styles = Platform.OS === 'android' ? androidStyles : iosStyles
@@ -43,7 +45,9 @@ export default class TableHeader extends React.Component {
 
     return (
       <View style={[styles.container || undefined, this.props.style]}>
-        <Text style={styles.headerText}>
+        <Text
+          style={styles.headerText}
+          allowFontScaling={false}>
           {text}
         </Text>
       </View>

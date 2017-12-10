@@ -55,6 +55,9 @@ export default function startApp(isLoggedIn: boolean) {
       screen: {
         screen: CueScreens.loginScreen,
         title: 'Login', // TODO: remove
+      },
+      appStyle: {
+        navBarHidden: true,
       }
     })
   }

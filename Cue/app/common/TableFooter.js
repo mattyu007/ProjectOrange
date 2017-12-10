@@ -11,7 +11,7 @@ const iosStyles = {
     paddingVertical: 8,
     backgroundColor: 'transparent',
     color: CueColors.darkGrey,
-    fontSize: 13,
+    fontSize: 12,
   },
 }
 
@@ -34,7 +34,9 @@ export default class TableFooter extends React.Component {
     let styles = Platform.OS === 'android' ? androidStyles : iosStyles
 
     return (
-      <Text style={[styles.footerText, this.props.style]}>
+      <Text
+        style={[styles.footerText, this.props.style]}
+        allowFontScaling={false}>
         {this.props.text}
       </Text>
     )

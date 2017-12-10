@@ -20,7 +20,7 @@ export default class ListViewHeader extends React.Component<Props, *> {
     const styles = {
       sectionHeader: {
         fontSize: 17,
-        fontWeight: '600',
+        fontWeight: '700',
         padding: 16,
         color: CueColors.primaryText,
         width: Dimensions.get('window').width,

@@ -53,7 +53,7 @@ const styles = {
   },
   connectivityWarningText: {
     textAlign: 'center',
-    fontWeight: '600',
+    fontWeight: '700',
     fontSize: 14,
     color: 'white',
   },
