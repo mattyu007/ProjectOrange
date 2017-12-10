@@ -2,7 +2,9 @@
 
 import React from 'react'
 import { View, Text, Image, TouchableHighlight, TouchableNativeFeedback, Platform, Alert, NetInfo } from 'react-native'
+
 import { Navigator } from 'react-native-navigation'
+import { CueScreens } from '../../CueNavigation'
 
 import { connect } from 'react-redux'
 
@@ -252,7 +254,10 @@ class LibraryHome extends React.Component<Props, State> {
       this.props.onSyncLibrary(this.props.localChanges).then(failedSyncs => {
         if (failedSyncs && failedSyncs.length) {
           this.setState({refreshing: false, lastSyncTime: new Date(), needsSync: false})
-          this.props.navigator.push({failedSyncs})
+          this.props.navigator.showModal({
+            screen: CueScreens.syncConflict,
+            passProps: { failedSyncs },
+          })
         } else {
           return this.props.onLoadLibrary().then(response => {
             this.setState({refreshing: false, lastSyncTime: new Date(), needsSync: false})
@@ -311,7 +316,10 @@ class LibraryHome extends React.Component<Props, State> {
       LibraryApi.getUuidByShareCode(normalizedShareCode).then(json => {
         return LibraryApi.fetchDeck(json.uuid, normalizedShareCode)
       }).then(deck => {
-        this.props.navigator.push({preview: deck})
+        this.props.navigator.push({
+          screen: CueScreens.deckPreview,
+          passProps: { deck }
+        })
       }).catch(e => {
         Alert.alert(
           Platform.OS === 'android' ? 'Failed to look up share code' : 'Failed to Look Up Share Code',
@@ -340,7 +348,10 @@ class LibraryHome extends React.Component<Props, State> {
             )
           } else {
             let deck = this.props.onCreateDeck(deckName).deck
-            this.props.navigator.push({deck})
+            this.props.navigator.push({
+              screen: CueScreens.deckView,
+              passProps: { deck }
+            })
           }
         }},
       ],
@@ -388,7 +399,6 @@ class LibraryHome extends React.Component<Props, State> {
         {text: buttonText, style: 'destructive',
           onPress: () => {
             this.props.onDeleteDeck(deck.uuid)
-            this.props.navigator.pop()
           }
         }
       ]

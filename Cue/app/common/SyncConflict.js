@@ -1,7 +1,11 @@
 // @flow
 
 import React from 'react'
-import { View, Text, ListView, Dimensions, Navigator, Platform, Alert, ActivityIndicator } from 'react-native'
+import { View, Text, ListView, Dimensions, Platform, Alert, ActivityIndicator } from 'react-native'
+
+import { Navigator } from 'react-native-navigation'
+import { makeButton } from '../CueNavigation'
+
 import type { Deck } from '../api/types';
 import type { Conflict } from '../actions/library'
 import { connect } from 'react-redux'
@@ -22,6 +26,12 @@ type Props = {
   resolveConflict: (conflict: Conflict) => any
 }
 
+type State = {
+  dataSource: ListView.DataSource,
+  conflicts: Array<Conflict>,
+  loading: boolean,
+}
+
 const styles = {
   container: {
     flex: 1,
@@ -37,24 +47,22 @@ const styles = {
   }
 }
 
-class SyncConflict extends React.Component {
+class SyncConflict extends React.Component<Props, State> {
   props: Props
-
-  state: {
-    dataSource: ListView.dataSource,
-    conflicts: Array<Conflict>,
-    loading: boolean,
-  }
+  state: State
 
   constructor(props: Props) {
     super(props)
+
+    this.props.navigator.setOnNavigatorEvent(this._onNavigatorEvent)
+
     let ds = new ListView.DataSource({
       rowHasChanged: (r1, r2) => r1 != r2
     })
-    let conflicts = []
+
     this.state = {
-      dataSource: ds.cloneWithRows(conflicts),
-      conflicts,
+      dataSource: ds.cloneWithRows([]),
+      conflicts: [],
       loading: true,
     }
   }
@@ -100,36 +108,50 @@ class SyncConflict extends React.Component {
       })
     }).catch(e => {
       this._internetAlert(e)
-      this.props.navigator.pop()
+      this.props.navigator.dismissModal()
     })
   }
 
-
-  _getLeftItem = () => {
-    return {
-      title: 'Later',
-      icon: CueIcons.cancel,
-      onPress: () => { this.props.navigator.pop() }
-    }
-  }
-
-  _getRightItems = () => {
-    if (this.state.conflicts
-      && !this.state.conflicts.find(c => typeof c.useServerDeck === 'undefined')
-      && !this.state.loading) {
-      return [{
-        title: 'Done',
-        icon: CueIcons.done,
-        onPress: () => {
+  _onNavigatorEvent = (event: any) => {
+    if (event.type === 'NavBarButtonPress') {
+      switch (event.id) {
+        case 'cancel':
+          this.props.navigator.dismissModal()
+          break
+        case 'done':
           let promises = []
           this.state.conflicts.forEach(conflict => {
             promises.push(this.props.resolveConflict(conflict))
           })
           Promise.all(promises)
-          .catch(e => this._internetAlert(e))
-          .then(this.props.navigator.pop())
-        }
-      }]
+            .catch(e => this._internetAlert(e))
+            .then(this.props.navigator.dismissModal())
+          break
+      }
+    }
+  }
+
+  _getLeftButtons = () => {
+    return [
+      makeButton({
+        title: 'Later',
+        id: 'cancel',
+        icon: CueIcons.cancel,
+      })
+    ]
+  }
+
+  _getRightButtons = () => {
+    if (this.state.conflicts
+        && !this.state.conflicts.find(c => typeof c.useServerDeck === 'undefined')
+        && !this.state.loading) {
+      return [
+        makeButton({
+          title: 'Done',
+          id: 'done',
+          icon: CueIcons.done,
+        })
+      ]
     }
   }
 
@@ -204,8 +226,6 @@ class SyncConflict extends React.Component {
     )
   }
 
-
-
   render() {
     let title
     let removeClippedSubviews
@@ -215,6 +235,13 @@ class SyncConflict extends React.Component {
       title = 'Resolve Conflicts'
       removeClippedSubviews = false
     }
+
+    this.props.navigator.setTitle({ title })
+
+    this.props.navigator.setButtons({
+      leftButtons: this._getLeftButtons(),
+      rightButtons: this._getRightButtons(),
+    })
 
     let headerText = 'Changes were made to the following deck'
       + (this.state.conflicts.length > 1 ? 's' : '')
@@ -237,15 +264,10 @@ class SyncConflict extends React.Component {
 
     return (
       <View style={styles.container}>
-        <CueHeader
-          title={title}
-          leftItem={this._getLeftItem()}
-          rightItems={this._getRightItems()} />
         { content }
       </View>
     )
   }
-
 }
 
 function select(store) {
