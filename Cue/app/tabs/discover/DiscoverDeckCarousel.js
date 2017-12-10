@@ -20,12 +20,13 @@ type Props = {
   decks: Array<any>
 }
 
-export default class DiscoverDeckCarousel extends React.Component {
-  props: Props
+type State = {
+  dataSource: ListView.DataSource
+}
 
-  state: {
-    dataSource: ListView.DataSource
-  }
+export default class DiscoverDeckCarousel extends React.Component<Props, State> {
+  props: Props
+  state: State
 
   ds: ListView.DataSource
 
@@ -50,7 +51,6 @@ export default class DiscoverDeckCarousel extends React.Component {
   render() {
     return (
       <ListView
-        automaticallyAdjustContentInsets={false}
         horizontal={true}
         contentContainerStyle={styles.list}
         dataSource={this.state.dataSource}

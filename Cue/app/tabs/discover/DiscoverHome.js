@@ -1,8 +1,10 @@
 // @flow
 
 import React from 'react'
-import { View, Text, Image, ScrollView, ListView, RefreshControl, Navigator, Platform, Dimensions, Alert } from 'react-native'
-import type { DeckMetadata } from '../../api/types';
+import { View, Text, Image, ScrollView, ListView, RefreshControl, Platform, Dimensions, Alert } from 'react-native'
+import type { DeckMetadata } from '../../api/types'
+
+import { Navigator } from 'react-native-navigation'
 
 import { discoverDecks } from '../../actions'
 
@@ -35,14 +37,15 @@ type Props = {
   onRefreshDiscover: () => any,
 }
 
-class DiscoverHome extends React.Component {
-  props: Props
+type State = {
+  dataSource: ListView.DataSource,
+  refreshing: boolean,
+  deviceOrientation: 'LANDSCAPE' | 'PORTRAIT' | 'UNKNOWN',
+}
 
-  state: {
-    dataSource: ListView.DataSource,
-    refreshing: boolean,
-    deviceOrientation: 'LANDSCAPE' | 'PORTRAIT' | 'UNKNOWN',
-  }
+class DiscoverHome extends React.Component<Props, State> {
+  props: Props
+  state: State
 
   ds: ListView.DataSource
 
@@ -114,15 +117,6 @@ class DiscoverHome extends React.Component {
   }
 
   render() {
-    let menuItem
-    if (Platform.OS === 'android') {
-      menuItem = {
-        title: 'Menu',
-        icon: CueIcons.menu,
-        onPress: this.props.onPressMenu
-      }
-    }
-
     let refreshControl = (
       <RefreshControl
         colors={[CueColors.primaryTint]}
@@ -133,14 +127,9 @@ class DiscoverHome extends React.Component {
 
     return (
       <View style={styles.container}>
-        <CueHeader
-          leftItem={menuItem}
-          title='Discover' />
         <ListView
           key={this.state.deviceOrientation}
           onLayout={this._onLayout}
-          automaticallyAdjustContentInsets={false}
-          contentInset={{bottom: 49}}
           style={styles.bodyContainer}
           dataSource={this.state.dataSource}
           refreshControl={refreshControl}
