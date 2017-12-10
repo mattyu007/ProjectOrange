@@ -19,6 +19,7 @@ import DiscoverHome from './tabs/discover/DiscoverHome'
 import DeckPreview from './common/DeckPreview'
 
 import SearchHome from './tabs/search/SearchHome'
+import SearchTextInput from './tabs/search/SearchTextInput'
 
 import AccountHome from './tabs/account/AccountHome'
 
@@ -37,6 +38,7 @@ export const CueScreens = {
   deckPreview: 'cue.discover.DeckPreview',
 
   searchHome: 'cue.search.SearchHome',
+  searchTextInput: 'cue.search.SearchTextInput',
 
   accountHome: 'cue.account.AccountHome',
 }
@@ -56,6 +58,7 @@ export function registerScreens(store: any, provider: any) {
   Navigation.registerComponent(CueScreens.deckPreview, () => DeckPreview, store, provider)
 
   Navigation.registerComponent(CueScreens.searchHome, () => SearchHome, store, provider)
+  Navigation.registerComponent(CueScreens.searchTextInput, () => SearchTextInput, store, provider)
 
   Navigation.registerComponent(CueScreens.accountHome, () => AccountHome, store, provider)
 }

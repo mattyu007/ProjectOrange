@@ -6,7 +6,10 @@ import { searchDecks } from '../../actions'
 import type { State } from '../../reducers/user'
 import type { DeckMetadata } from '../../api/types'
 
-import { View, Text, Navigator, Platform, TextInput, Image, Alert } from 'react-native'
+import { View, Text, Platform, TextInput, Image, Alert } from 'react-native'
+
+import { Navigator } from 'react-native-navigation'
+import { CueScreens } from '../../CueNavigation'
 
 import { connect } from 'react-redux'
 
@@ -20,26 +23,6 @@ const styles = {
   container: {
     flex: 1,
     backgroundColor: 'white'
-  },
-  bodyContainer: {
-    flex: 1,
-  },
-  searchBox: {
-    color: Platform.OS === 'android' ? 'white' : CueColors.primaryText,
-    backgroundColor: Platform.OS === 'android' ? 'transparent' : 'white',
-    borderRadius: 5,
-    flex: 1,
-    fontSize: 16,
-    paddingVertical: 6,
-    paddingHorizontal: 8,
-    marginRight: Platform.OS === 'android' ? 90 : 8,
-    marginLeft: Platform.OS === 'android' ? 0 : 8,
-    height: Platform.OS === 'android' ? 50 : 30,
-  },
-  searchBoxContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    backgroundColor: 'transparent'
   },
 }
 
@@ -55,55 +38,34 @@ type Props = {
   onSearch: (searchString: string) => any,
 }
 
-class SearchHome extends React.Component {
+class SearchHome extends React.Component<Props, *> {
   props: Props
 
-  search = (searchText) => {
+  _onSearch = (searchText: string) => {
     this.props.onSearch(searchText)
-    .catch(e => {
-      console.warn('Failed to search for decks', e)
-      
-      Alert.alert(
-        (Platform.OS === 'android' ? 'Failed to search for decks' : 'Failed to Search for Decks'),
-        e.recoveryMessage
-      )
-    })
+      .catch(e => {
+        console.warn('Failed to search for decks', e)
+
+        Alert.alert(
+          (Platform.OS === 'android' ? 'Failed to search for decks' : 'Failed to Search for Decks'),
+          e.recoveryMessage
+        )
+      })
   }
 
   render() {
-    let menuItem
-    if (Platform.OS === 'android') {
-      menuItem = {
-        title: 'Menu',
-        icon: CueIcons.menu,
-        onPress: this.props.onPressMenu
+    this.props.navigator.setStyle({
+      navBarCustomView: CueScreens.searchTextInput,
+      navBarCustomViewInitialProps: {
+        onSearch: this._onSearch
       }
-    }
-
-    let titleComponent;
-    titleComponent = (
-      <View style={styles.searchBoxContainer}>
-        <TextInput
-            defaultValue={this.props.searchString}
-            placeholder='Search'
-            placeholderTextColor= {placeHolderTextColor}
-            onSubmitEditing={(event) => this.search(event.nativeEvent.text)}
-            underlineColorAndroid='white'
-            style={styles.searchBox}>
-        </TextInput>
-      </View>
-    )
+    })
 
     return (
-      <View style={styles.container}>
-        <CueHeader
-        leftItem={menuItem}
-          customTitleComponent={titleComponent}/>
-          <SearchListView
-            style={styles.bodyContainer}
-            navigator={this.props.navigator}
-            decks={this.props.searchResults} />
-      </View>
+      <SearchListView
+        style={styles.container}
+        navigator={this.props.navigator}
+        decks={this.props.searchResults} />
     )
   }
 }
