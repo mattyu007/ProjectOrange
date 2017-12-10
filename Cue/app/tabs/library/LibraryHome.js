@@ -86,10 +86,15 @@ const AUTO_SYNC_TRIGGER_THROTTLE_MS = 30000
 
 class LibraryHome extends React.Component<Props, State> {
 
+  props: Props
+  state: State
+
   _navigationListenerToken: any
 
   constructor(props: Props) {
     super(props)
+
+    this.props.navigator.setOnNavigatorEvent(this._onNavigatorEvent)
 
     this.state = {
       connected: null,
@@ -391,58 +396,46 @@ class LibraryHome extends React.Component<Props, State> {
   }
 
 
-  /* ==================== Render ==================== */
+  /* ==================== Navigation ==================== */
 
-  _getLeftItem = () => {
-    if (Platform.OS === 'android') {
-      return {
-        title: 'Menu',
-        icon: CueIcons.menu,
-        onPress: this.props.onPressMenu
-      }
-    } else {
-      return this._getToggleItem()
-    }
-  }
-
-  _getRightItems = () => {
-    if (Platform.OS === 'android') {
-      return [this._getToggleItem()]
-    } else if (!this.state.editing) {
+  _getLeftButtons = (): Array<{}> => {
+    if (this.state.editing) {
       return [{
-        key: 'Add',
-        title: 'Add',
-        icon: CueIcons.plus,
-        display: 'icon',
-        onPress: this._onPressAddDeck
+          title: 'Done',
+          id: 'done',
+      }]
+    } else {
+      return [{
+        title: 'Edit',
+        id: 'edit',
       }]
     }
   }
 
-  _getToggleItem = () => {
-    if (this.state.editing) {
-      return {
-        title: 'Done',
-        icon: CueIcons.done,
-        onPress: () => {
-          this.setState({
-            editing: false,
-          })
-          // Call this._refresh()?
-        }
-      }
+  _getRightButtons = (): Array<{}> => {
+    if (!this.state.editing) {
+      return [{
+        icon: CueIcons.plus,
+        id: 'add',
+      }]
     } else {
-      return {
-        title: 'Edit',
-        icon: CueIcons.edit,
-        onPress: () => {
-          this.setState({
-            editing: true,
-          })
-        }
+      return []
+    }
+  }
+
+  _onNavigatorEvent = (event: any) => {
+    if (event.type === 'NavBarButtonPress') {
+      if (event.id === 'add') {
+        this._onPressAddDeck()
+      } else if (event.id === 'edit') {
+        this.setState({ editing: true })
+      } else if (event.id === 'done') {
+        this.setState({ editing: false })
       }
     }
   }
+
+  /* ==================== Render ==================== */
 
   _renderConnectivityWarning = () => {
     if (this.state.connected === false) {
@@ -498,16 +491,13 @@ class LibraryHome extends React.Component<Props, State> {
   }
 
   render() {
-    let leftItem = this._getLeftItem()
-    let rightItems = this._getRightItems()
+    this.props.navigator.setButtons({
+      leftButtons: this._getLeftButtons(),
+      rightButtons: this._getRightButtons(),
+    })
 
     return (
       <View style={styles.container}>
-        <CueHeader
-          leftItem={leftItem}
-          title='Library'
-          key={this.state.editing}
-          rightItems={rightItems} />
         {this._renderConnectivityWarning()}
         <LibraryListView
           style={styles.bodyContainer}

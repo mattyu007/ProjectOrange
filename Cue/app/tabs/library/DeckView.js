@@ -76,6 +76,10 @@ type State = {
 
 class DeckView extends React.Component<Props, State> {
 
+  static navigatorStyle = {
+    tabBarHidden: true,
+  }
+
   constructor(props: Props) {
     super(props)
 
@@ -93,6 +97,7 @@ class DeckView extends React.Component<Props, State> {
   }
 
   _findDeck = (decks: Array<Deck>, deckUuid: string): Deck => {
+    // $FlowSuppress: The deck will always exist in the list of decks
     return decks.find((deck: Deck) => deck.uuid === deckUuid)
   }
 
