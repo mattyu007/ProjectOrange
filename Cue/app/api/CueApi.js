@@ -28,19 +28,23 @@ class CueApi {
 	}
 
 	static fetch(endpoint: string, method: string = 'GET', body: ?string = null): Promise<*> {
-		let headers = null;
+		let headers = {
+			'Accept': 'application/json',
+			'Content-Type': 'application/json',
+		};
 
 		if (this.userId != null && this.accessToken != null) {
 			headers = {
+				...headers,
 				'X-CUE-USER-ID' : this.userId,
 				'X-CUE-ACCESS-TOKEN': this.accessToken,
 			}
 		}
 		this.setNetworkActivityIndicatorVisible(true)
 		return fetch(serverURL + endpoint, {
-			method: method,
-			headers: headers,
-			body: body,
+			method,
+			headers,
+			body,
 		})
 		.then(checkStatus)
 		.then(response => response.text())

@@ -24,11 +24,13 @@ const androidStyles = {
   }
 }
 
-export default class TableFooter extends React.Component {
-  props: {
-    text: string,
-    style?: Object,
-  }
+type Props = {
+  text: string,
+  style?: Object,
+}
+
+export default class TableFooter extends React.Component<Props, *> {
+  props: Props
 
   render() {
     let styles = Platform.OS === 'android' ? androidStyles : iosStyles

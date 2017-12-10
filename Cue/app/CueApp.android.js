@@ -1,7 +1,13 @@
 // @flow
 
+import { Navigation } from 'react-native-navigation'
+import { CueScreens, registerScreens } from './CueNavigation'
+import CueColors from './common/CueColors'
+import CueIcons from './common/CueIcons'
+
 export default function startApp(isLoggedIn: boolean) {
   if (isLoggedIn) {
+    console.info("Starting tabs")
     Navigation.startTabBasedApp({
       tabs: [
         {
@@ -40,16 +46,18 @@ export default function startApp(isLoggedIn: boolean) {
         navBarTextColor: CueColors.toolbarText,
         navBarBackgroundColor: CueColors.primaryTint,
         navBarButtonColor: CueColors.toolbarText,
-
-        // iOS:
         statusBarTextColorScheme: 'light',
       }
     })
   } else {
+    console.info("Starting login screen")
     Navigation.startSingleScreenApp({
       screen: {
         screen: CueScreens.loginScreen,
         title: 'Login', // TODO: remove
+      },
+      appStyle: {
+        navBarHidden: true,
       }
     })
   }
