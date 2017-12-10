@@ -3,7 +3,10 @@
 'use strict';
 
 import React from 'react'
-import { View, Text, Image, ScrollView, ListView, Navigator, Platform, Alert, LayoutAnimation, UIManager } from 'react-native'
+import { View, Text, Image, ScrollView, ListView, Platform, Alert, LayoutAnimation, UIManager } from 'react-native'
+
+import { Navigator } from 'react-native-navigation'
+import { CueScreens, makeButton } from '../../CueNavigation'
 
 import { connect } from 'react-redux'
 import { editDeck, flagCard, copyDeck, rateDeck } from '../../actions'
@@ -76,12 +79,17 @@ type State = {
 
 class DeckView extends React.Component<Props, State> {
 
+  props: Props
+  state: State
+
   static navigatorStyle = {
     tabBarHidden: true,
   }
 
   constructor(props: Props) {
     super(props)
+
+    this.props.navigator.setOnNavigatorEvent(this._onNavigatorEvent)
 
     this.state = {
       deck: this._findDeck(this.props.decks, this.props.deckUuid),
@@ -105,7 +113,7 @@ class DeckView extends React.Component<Props, State> {
     this.props.flagCard(this.props.deckUuid, cardUuid, flag)
   }
 
-  _rateDeck = () => {
+  _onPressRate = () => {
     let buttons = [
       {text: 'Recommend',  onPress: () => this.props.rateDeck(this.state.deck.uuid, 1)},
       {text: 'Would Not Recommend', onPress: () => this.props.rateDeck(this.state.deck.uuid, -1)},
@@ -123,7 +131,7 @@ class DeckView extends React.Component<Props, State> {
     )
   }
 
-  _copyDeck = () => {
+  _onPressCopy = () => {
     Alert.alert(
       (Platform.OS === 'android'
         ? 'Copy this deck?'
@@ -140,6 +148,21 @@ class DeckView extends React.Component<Props, State> {
     )
   }
 
+  _onPressFilter = () => {
+    this.setState({
+      filtering: !this.state.filtering,
+    })
+  }
+
+  _onPressShare = () => {
+    this.props.navigator.showModal({
+      screen: CueScreens.deckSharingOptions,
+      passProps: {
+        deck: this.state.deck
+      }
+    })
+  }
+
   _onDeckNameChanged = (name: string) => {
     this.props.editDeckName(this.props.deckUuid, name)
   }
@@ -149,11 +172,14 @@ class DeckView extends React.Component<Props, State> {
   }
 
   _onEditCard = (card: Card) => {
-    this.props.navigator.push({
-      cardEntry: card,
-      onSubmit: (front: string, back: string, existingUuid: string) => {
-        this.props.editCard(this.props.deckUuid, card.uuid, front, back)
-      }
+    this.props.navigator.showModal({
+      screen: CueScreens.cardEntryView,
+      passProps: {
+        existingCard: card,
+        onSubmit: (front: string, back: string, existingUuid: string) => {
+          this.props.editCard(this.props.deckUuid, card.uuid, front, back)
+        }
+      },
     })
   }
 
@@ -171,7 +197,13 @@ class DeckView extends React.Component<Props, State> {
         [{text: 'OK', style: 'cancel'}]
       )
     } else {
-      this.props.navigator.push({ playDeckSetup: this.state.deck, flagFilter: this.state.filtering })
+      this.props.navigator.showModal({
+        screen: CueScreens.playDeckSetupView,
+        passProps: {
+          deck: this.state.deck,
+          flagFilter: this.state.filtering,
+        },
+      })
     }
   }
 
@@ -197,103 +229,120 @@ class DeckView extends React.Component<Props, State> {
     }
   }
 
-  _getAllCommonItems = () => {
+  _getAllButtons = () => {
     return {
-      addItem: {
-        title: 'Add card',
+      add: makeButton({
+        title: 'Add',
+        id: 'add',
+        display: 'icon',
         icon: CueIcons.plus,
-        display: 'icon',
-        onPress: () => {
-          this.props.navigator.push({
-            cardEntry: null,
-            onSubmit: (front: string, back: string, existingUuid: ?string) => {
-              this.props.addCard(this.props.deckUuid, front, back, (this.state.deck.cards || []).length)
-            }
-          })
-        },
-      },
-      backItem: {
-        title: 'Back',
-        icon: CueIcons.back,
-        display: 'icon',
-        onPress: () => { this.props.navigator.pop() },
-      },
-      copyItem: {
+      }),
+      copy: makeButton({
         title: 'Copy',
-        icon: CueIcons.copy,
-        onPress: this._copyDeck
-      },
-      rateItem: {
+        id: 'copy',
+      }),
+      rate: makeButton({
         title: 'Rate',
-        display: 'text',
-        onPress: this._rateDeck
-      },
-      editItem: this._getEditToggleItem(),
-      filterItem: {
+        id: 'rate',
+      }),
+      edit: makeButton({
+        title: 'Edit',
+        id: 'edit',
+        icon: CueIcons.edit,
+      }),
+      done: makeButton({
+        title: 'Done',
+        id: 'done',
+        icon: CueIcons.done,
+      }),
+      filter: makeButton({
         title: 'Filter flagged cards',
+        id: 'filter',
+        display: 'icon',
         icon: this.state.filtering ? CueIcons.filterToggleSelected : CueIcons.filterToggle,
-        onPress: () => this.setState({
-          filtering: !this.state.filtering
-        }),
-      },
-      shareItem: {
+      }),
+      share: makeButton({
         title: 'Deck sharing options',
+        id: 'share',
+        display: 'icon',
         icon: CueIcons.share,
-        onPress: () => {
-          this.props.navigator.push({ sharingOptions: this.state.deck })
-        }
+      })
+    }
+  }
+
+  _onNavigatorEvent = (event: any) => {
+    if (event.type === 'NavBarButtonPress') {
+      switch (event.id) {
+        case 'add':
+          this.props.navigator.showModal({
+            screen: CueScreens.cardEntryView,
+            passProps: {
+              existingCard: null,
+              onSubmit: (front: string, back: string, existingUuid: ?string) => {
+                this.props.addCard(this.props.deckUuid, front, back, (this.state.deck.cards || []).length)
+              },
+            },
+          })
+          break
+
+        case 'edit':
+          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+          this.setState({editing: true, filtering: false})
+          break
+
+        case 'done':
+          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+          this.setState({editing: false})
+          break
+
+        case 'filter':
+          this._onPressFilter()
+          break
+
+        case 'copy':
+          this._onPressCopy()
+          break
+
+        case 'rate':
+          this._onPressRate()
+          break
       }
     }
   }
 
-  _getLeftItems = ({backItem}) => {
-    if (this.state.editing) {
-      return
-    }
-
-    return backItem
-  }
-
-  _getRightItems = ({addItem, copyItem, rateItem, editItem, filterItem, shareItem}) => {
+  _getRightButtons = ({add, copy, rate, edit, done, filter, share}) => {
     if (this.state.editing) {
       return [
-        editItem
+        done
       ]
     } else if (Platform.OS === 'android') {
       if (this.state.deck.accession === 'private') {
         return [
-          filterItem,
-          addItem,
-          shareItem,
-          editItem
+          filter,
+          add,
+          share,
+          edit
         ]
       } else {
         return [
-          filterItem,
-          shareItem,
+          filter,
+          share,
+          copy,
+          rate,
         ]
       }
     } else {
       if (this.state.deck.accession === 'private') {
         return [
-          addItem,
-          editItem
+          edit,
+          add
         ]
       } else {
         return [
-          copyItem,
-          rateItem
+          rate,
+          copy
         ]
       }
-    }
-  }
-
-  _getOverflowItems = ({copyItem, rateItem}) => {
-    if (this.state.deck.accession !== 'private') {
-      return [
-        copyItem,
-        rateItem
-      ]
     }
   }
 
@@ -318,11 +367,21 @@ class DeckView extends React.Component<Props, State> {
     }
   }
 
-  _renderToolbar = ({filterItem, shareItem}) => {
+  _renderToolbar = ({filter, share}) => {
     if (Platform.OS !== 'android' && !this.state.editing) {
+      let filterItem = {
+        ...filter,
+        onPress: () => { this._onPressFilter() }
+      }
+
       let playItem = {
         icon: CueIcons.play,
         onPress: () => { this._onPlayDeck() }
+      }
+
+      let shareItem = {
+        ...share,
+        onPress: () => { this._onPressShare() }
       }
 
       return (
@@ -333,18 +392,15 @@ class DeckView extends React.Component<Props, State> {
   }
 
   render() {
-    const allItems = this._getAllCommonItems()
-    const leftItem = this._getLeftItems(allItems)
-    const rightItems = this._getRightItems(allItems)
-    const overflowItems = this._getOverflowItems(allItems)
+    const allButtons = this._getAllButtons()
+
+    this.props.navigator.setButtons({
+      leftButtons: [],
+      rightButtons: this._getRightButtons(allButtons),
+    })
 
     return (
       <View style={styles.container}>
-        <CueHeader
-          leftItem={leftItem}
-          rightItems={rightItems}
-          overflowItems={overflowItems}
-          key={this.state.filtering.toString()} />
         <View style={{flex: 1}}>
           <DeckViewInfoHeader
             key={this.state.deck.share_code}
@@ -361,7 +417,7 @@ class DeckView extends React.Component<Props, State> {
             onFlagCard={this._flagCard}
             onMoveCard={this._onMoveCard} />
           {this._renderFABs()}
-          {this._renderToolbar(allItems)}
+          {this._renderToolbar(allButtons)}
         </View>
       </View>
     )

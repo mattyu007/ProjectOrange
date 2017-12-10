@@ -3,8 +3,11 @@
 'use strict'
 
 import React from 'react'
-import { View, Text, Navigator, Platform } from 'react-native'
+import { View, Text, Platform } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+
+import { Navigator } from 'react-native-navigation'
+import { makeButton } from '../../CueNavigation'
 
 import type { Card } from '../../api/types'
 
@@ -34,19 +37,22 @@ type Props = {
   onSubmit: (front: string, back: string, existingUuid: ?string) => void
 }
 
-export default class CardEntryView extends React.Component {
-  props: Props
+type State = {
+  frontText: string,
+  backText: string
+}
 
-  state: {
-    frontText: string,
-    backText: string
-  }
+export default class CardEntryView extends React.Component<Props, State> {
+  props: Props
+  state: State
 
   frontRowRef: ?TextEntryTableRow
   backRowRef: ?TextEntryTableRow
 
   constructor(props: Props) {
     super(props)
+
+    this.props.navigator.setOnNavigatorEvent(this._onNavigatorEvent)
 
     this.state = {
       frontText: this.props.existingCard ? this.props.existingCard.front : '',
@@ -87,6 +93,50 @@ export default class CardEntryView extends React.Component {
     }
   }
 
+  _onNavigatorEvent = (event) => {
+    if (event.type === 'NavBarButtonPress') {
+      switch (event.id) {
+        case 'cancel':
+          this.props.navigator.dismissModal()
+          break
+        case 'done':
+          if (this._isSubmittable()) {
+            this.props.onSubmit(
+              this.state.frontText, this.state.backText,
+              this.props.existingCard ? this.props.existingCard.uuid : undefined)
+            this.props.navigator.dismissModal()
+          } else {
+            if (this.state.frontText.length === 0) {
+              alert('Front text is required.')
+            } else if (this.state.backText.length === 0) {
+              alert('Back text is required.')
+            }
+          }
+          break
+      }
+    }
+  }
+
+  _getLeftButtons = () => {
+    return [
+      makeButton({
+        title: 'Cancel',
+        id: 'cancel',
+        icon: CueIcons.cancel,
+      })
+    ]
+  }
+
+  _getRightButtons = () => {
+    return [
+      makeButton({
+        title: 'Done',
+        id: 'done',
+        icon: CueIcons.done,
+      })
+    ]
+  }
+
   render() {
     let title
     if (Platform.OS === 'android') {
@@ -95,40 +145,14 @@ export default class CardEntryView extends React.Component {
       title = this.props.existingCard ? 'Edit Card' : 'New Card'
     }
 
-    let leftItem = {
-      title: 'Cancel',
-      icon: CueIcons.cancel,
-      onPress: () => { this.props.navigator.pop() }
-    }
-
-    let rightItems = [
-      {
-        title: 'Done',
-        icon: CueIcons.done,
-        onPress: () => {
-          if (this._isSubmittable()) {
-            this.props.onSubmit(
-              this.state.frontText, this.state.backText,
-              this.props.existingCard ? this.props.existingCard.uuid : undefined)
-            this.props.navigator.pop()
-          } else {
-            if (this.state.frontText.length === 0) {
-              alert('Front text is required.')
-            } else if (this.state.backText.length === 0) {
-              alert('Back text is required.')
-            }
-          }
-        }
-      }
-    ]
+    this.props.navigator.setTitle({ title })
+    this.props.navigator.setButtons({
+      leftButtons: this._getLeftButtons(),
+      rightButtons: this._getRightButtons()
+    })
 
     return (
       <View style={styles.container}>
-        <CueHeader
-          title={title}
-          leftItem={leftItem}
-          rightItems={rightItems} />
-
         <KeyboardAwareScrollView
           style={{flex: 1}}
           getTextInputRefs={() => [this.frontRowRef ? this.frontRowRef.getTextInputRef() : undefined,

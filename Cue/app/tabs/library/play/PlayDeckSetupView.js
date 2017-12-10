@@ -1,7 +1,10 @@
 // @flow
 
 import React from 'react'
-import { View, Text, ScrollView, Navigator, StyleSheet, Platform, Picker, Alert } from 'react-native'
+import { View, Text, ScrollView, StyleSheet, Platform, Picker, Alert } from 'react-native'
+
+import { Navigator } from 'react-native-navigation'
+import { CueScreens } from '../../../CueNavigation'
 
 import type { Deck, Card } from '../../../api/types'
 
@@ -19,11 +22,6 @@ const styles = {
     flex: 1,
     backgroundColor: Platform.OS === 'android' ? 'white' : CueColors.coolLightGrey,
   },
-
-  rowText: {
-    fontSize: 17,
-    color: CueColors.primaryText,
-  }
 }
 
 type Props = {
@@ -32,21 +30,24 @@ type Props = {
   flagFilter: boolean,
 }
 
+type State = {
+  playbackOption: PlaybackOption,
+  customStartIndex: number,
+  flaggedOnly: boolean,
+  answerFirst: boolean,
+  filteredCards: Array<Card>,
+}
+
 type PlaybackOption = 'sequential' | 'shuffled' | 'custom'
 
-export default class PlayDeckSetupView extends React.Component {
+export default class PlayDeckSetupView extends React.Component<Props, State> {
   props: Props
-
-  state: {
-    playbackOption: PlaybackOption,
-    customStartIndex: number,
-    flaggedOnly: boolean,
-    answerFirst: boolean,
-    filteredCards: Array<Card>,
-  }
+  state: State
 
   constructor(props: Props) {
     super(props)
+
+    this.props.navigator.setOnNavigatorEvent(this._onNavigatorEvent)
 
     let state = {
       playbackOption: 'sequential',
@@ -125,10 +126,15 @@ export default class PlayDeckSetupView extends React.Component {
       )
       return
     }
-    this.props.navigator.replace({
-      playDeck: this.props.deck,
-      cardFilter: this._generateDeckFilter(this.state),
-      startIndex: this.state.playbackOption === 'custom' ? this.state.customStartIndex : 0,
+
+    this.props.navigator.showModal({
+      screen: CueScreens.playDeckView,
+      animationType: 'none',
+      passProps: {
+        deck: this.props.deck,
+        cardFilter: this._generateDeckFilter(this.state),
+        startIndex: this.state.playbackOption === 'custom' ? this.state.customStartIndex : 0,
+      },
     })
   }
 
@@ -196,34 +202,74 @@ export default class PlayDeckSetupView extends React.Component {
     }
   }
 
-  render() {
-    let leftItem = {
-      title: 'Cancel',
-      icon: CueIcons.cancel,
-      onPress: () => { this.props.navigator.pop() }
-    }
-    let rightItems = [
-      {
-        key: 'Play',
-        title: 'Play',
-        icon: CueIcons.forward,
-        onPress: this._onPressPlay
+  _onNavigatorEvent = (event) => {
+    if (event.type === 'NavBarButtonPress') {
+      switch (event.id) {
+        case 'cancel':
+          this.props.navigator.dismissModal()
+          break
+        case 'play':
+          this._onPressPlay()
+          break
       }
-    ]
+    }
+  }
+
+  _getLeftButtons = () => {
+    if (Platform.OS === 'android') {
+      return [
+        {
+          title: 'Cancel',
+          id: 'cancel',
+          icon: CueIcons.cancel,
+        },
+      ]
+    } else {
+      return [
+        {
+          title: 'Cancel',
+          id: 'cancel',
+        },
+      ]
+    }
+  }
+
+  _getRightButtons = () => {
+    if (Platform.OS === 'android') {
+      return [
+        {
+          title: 'Play',
+          id: 'play',
+          icon: CueIcons.forward,
+        },
+      ]
+    } else {
+      return [
+        {
+          title: 'Play',
+          id: 'play',
+        },
+      ]
+    }
+  }
+
+  render() {
+    this.props.navigator.setTitle({
+      title: 'Play “' + this.props.deck.name + '”'
+    })
+    this.props.navigator.setButtons({
+      leftButtons: this._getLeftButtons(),
+      rightButtons: this._getRightButtons(),
+    })
+
     return (
-      <View style={{flex: 1}}>
-        <CueHeader
-          leftItem={leftItem}
-          title={'Play “' + this.props.deck.name + '”'}
-          rightItems={rightItems} />
-        <ScrollView
-          style={styles.container}
-          contentContainerStyle={{paddingBottom: 40}}>
-          {this._renderPlaybackOptions()}
-          {this._renderCustomSelection()}
-          {this._renderModifiers()}
-        </ScrollView>
-      </View>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={{paddingBottom: 40}}>
+        {this._renderPlaybackOptions()}
+        {this._renderCustomSelection()}
+        {this._renderModifiers()}
+      </ScrollView>
     )
   }
 }

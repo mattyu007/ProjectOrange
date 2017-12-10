@@ -1,7 +1,9 @@
 // @flow
 
 import React from 'react'
-import { Navigator, Animated, Easing, View, Text, Image, TouchableOpacity, PanResponder, Platform, Dimensions, StatusBar } from 'react-native'
+import { Animated, Easing, View, Text, Image, TouchableOpacity, PanResponder, Platform, Dimensions } from 'react-native'
+
+import { Navigator } from 'react-native-navigation'
 
 import { connect } from 'react-redux'
 import { flagCard } from '../../../actions'
@@ -75,24 +77,30 @@ type Props = {
   flagCard: (deckUuid: string, cardUuid: string, flag: boolean) => any
 }
 
+type State = {
+  index: number,
+  cards: Array<Card>,
+  cardXY: Animated.ValueXY,
+  cardOpacity: Animated.Value,
+  cardScale: Animated.Value,
+  flagY: Animated.Value,
+  flagOpacity: Animated.Value,
+  nextX: Animated.Value,
+  nextOpacity: Animated.Value,
+  backX: Animated.Value,
+  backOpacity: Animated.Value,
+  triggeredAction: TriggeredAction,
+}
+
 type TriggeredAction = 'next' | 'flag' | 'back' | 'none'
 
-class PlayDeckView extends React.Component {
+class PlayDeckView extends React.Component<Props, State> {
   props: Props
+  state: State
 
-  state: {
-    index: number,
-    cards: Array<Card>,
-    cardXY: Animated.ValueXY,
-    cardOpacity: Animated.Value,
-    cardScale: Animated.Value,
-    flagY: Animated.Value,
-    flagOpacity: Animated.Value,
-    nextX: Animated.Value,
-    nextOpacity: Animated.Value,
-    backX: Animated.Value,
-    backOpacity: Animated.Value,
-    triggeredAction: TriggeredAction,
+  static navigatorStyle = {
+    navBarHidden: true,
+    statusBarHidden: true,
   }
 
   panResponder: PanResponder
@@ -131,16 +139,8 @@ class PlayDeckView extends React.Component {
     this._setUpIndicatorAnimation()
   }
 
-  componentWillMount() {
-    StatusBar.setHidden(true)
-  }
-
   componentDidMount = () => {
     this._setCurrentCard(this.state.index, true)
-  }
-
-  componentWillUnmount() {
-    StatusBar.setHidden(false)
   }
 
 
@@ -263,12 +263,12 @@ class PlayDeckView extends React.Component {
   /* ==================== Card Show ==================== */
 
   _setCurrentCard = (index: number, immediate?: boolean) => {
-    setTimeout(() => { this._setCurrentCardImpl(index) }, immediate ? 0 : DURATION_LONG)
+    setTimeout(() => { this._doSetCurrentCard(index) }, immediate ? 0 : DURATION_LONG)
   }
 
-  _setCurrentCardImpl = (index: number) => {
+  _doSetCurrentCard = (index: number) => {
     if (index < 0 || index >= this.state.cards.length) {
-      this.props.navigator.pop()
+      this.props.navigator.dismissAllModals()
       return
     }
 
@@ -448,9 +448,9 @@ class PlayDeckView extends React.Component {
 
     return (
       <View style={styles.container}>
-        <TouchableOpacity style={styles.exitIconContainer} onPress={() => this.props.navigator.pop()}>
+        <TouchableOpacity style={styles.exitIconContainer} onPress={() => this.props.navigator.dismissAllModals()}>
           <View>
-            <Image style={styles.exitIcon} source={CueIcons.down} />
+            <Image style={styles.exitIcon} source={CueIcons.cancel} />
           </View>
         </TouchableOpacity>
         <Text style={styles.title} numberOfLines={2}>

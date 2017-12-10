@@ -3,9 +3,12 @@
 'use strict'
 
 import React from 'react'
-import { View, Text, Navigator, Platform, Alert } from 'react-native'
+import { View, Text, Platform, Alert } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { remove as stripDiacritics } from 'diacritics'
+
+import { Navigator } from 'react-native-navigation'
+import { makeButton } from '../../CueNavigation'
 
 import type { Deck } from '../../api/types'
 
@@ -33,6 +36,8 @@ const styles = {
   },
 }
 
+type SharingStatus = 'private' | 'shared' | 'public'
+
 type Props = {
   navigator: Navigator,
   deck: Deck,
@@ -40,23 +45,25 @@ type Props = {
   // From Redux:
   editTags: (deckUuid: string, newTags: Array<string>) => any,
   recordShareCode: (deckUuid: string, shareCode: string) => any,
-  setPublic: (deckUuid: string, isPublic: boolean) => any,
+  setPublic: (deckUuid: string, isPublic: boolean, eraseShareCode?: boolean) => any,
 }
 
-type SharingStatus = 'private' | 'shared' | 'public'
+type State = {
+  dirty: boolean,
+  editable: boolean,
+  selectedOption: SharingStatus,
+  shareCode: ?string,
+  tags: Array<string>,
+}
 
-class DeckSharingOptions extends React.Component {
+class DeckSharingOptions extends React.Component<Props, State> {
   props: Props
-  state: {
-    dirty: boolean,
-    editable: boolean,
-    selectedOption: SharingStatus,
-    shareCode: string,
-    tags: Array<string>,
-  }
+  state: State
 
   constructor(props: Props) {
     super(props)
+
+    this.props.navigator.setOnNavigatorEvent(this._onNavigatorEvent)
 
     this.state = {
       dirty: false,
@@ -116,7 +123,7 @@ class DeckSharingOptions extends React.Component {
       this.props.setPublic(this.props.deck.uuid, true)
     }
 
-    this.props.navigator.pop()
+    this.props.navigator.dismissModal()
   }
 
   _handleSharedSubmit = () => {
@@ -174,7 +181,7 @@ class DeckSharingOptions extends React.Component {
         this.props.setPublic(this.props.deck.uuid, false, false)
       }
 
-      this.props.navigator.pop()
+      this.props.navigator.dismissModal()
     }
   }
 
@@ -207,7 +214,7 @@ class DeckSharingOptions extends React.Component {
             style: 'default',
             onPress: () => {
               this.props.setPublic(this.props.deck.uuid, false)
-              this.props.navigator.pop()
+              this.props.navigator.dismissModal()
             }
           }
         ]
@@ -337,11 +344,40 @@ class DeckSharingOptions extends React.Component {
 
   /* ==================== Main Component Render ==================== */
 
-  _getLeftItem = () => {
-    return {
-      title: this.state.dirty ? 'Cancel' : 'Close',
-      icon: this.state.dirty ? CueIcons.cancel : CueIcons.back,
-      onPress: () => { this.props.navigator.pop() }
+  _onNavigatorEvent = (event: any) => {
+    if (event.type === 'NavBarButtonPress') {
+      switch (event.id) {
+        case 'cancel':
+          this.props.navigator.dismissModal()
+          break
+        case 'done':
+          this._onSubmit()
+          break
+      }
+    }
+  }
+
+  _getLeftButtons = () => {
+    return [
+      makeButton({
+        title: this.state.dirty ? 'Cancel' : 'Close',
+        id: 'cancel',
+        icon: this.state.dirty ? CueIcons.cancel : CueIcons.back,
+      })
+    ]
+  }
+
+  _getRightButtons = () => {
+    if (this.state.dirty) {
+      return [
+        makeButton({
+          title: 'Save',
+          id: 'done',
+          icon: CueIcons.done,
+        })
+      ]
+    } else {
+      return []
     }
   }
 
@@ -368,15 +404,19 @@ class DeckSharingOptions extends React.Component {
   }
 
   render() {
+    this.props.navigator.setTitle({
+      title: 'Sharing'
+    })
+
+    this.props.navigator.setButtons({
+      leftButtons: this._getLeftButtons(),
+      rightButtons: this._getRightButtons(),
+    })
+
     return (
       <View style={{flex: 1,}}>
-        <CueHeader
-          key={this.state.dirty}
-          title={'Sharing'}
-          leftItem={this._getLeftItem()}
-          rightItems={this._getRightItems()}/>
-        <KeyboardAwareScrollView>
-          style={styles.container}
+        <KeyboardAwareScrollView
+          style={styles.container}>
           {this.props.deck.accession !== 'private' ? this._renderDisabledHeader() : undefined}
           {this._renderSharingOptions()}
           {this.state.selectedOption === 'shared' ? this._renderShareCode() : undefined}
