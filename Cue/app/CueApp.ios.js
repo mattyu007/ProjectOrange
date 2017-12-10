@@ -7,6 +7,7 @@ import CueIcons from './common/CueIcons'
 
 export default function startApp(isLoggedIn: boolean) {
   if (isLoggedIn) {
+    console.info("Starting tabs")
     Navigation.startTabBasedApp({
       tabs: [
         {
@@ -49,6 +50,7 @@ export default function startApp(isLoggedIn: boolean) {
       }
     })
   } else {
+    console.info("Starting login screen")
     Navigation.startSingleScreenApp({
       screen: {
         screen: CueScreens.loginScreen,

@@ -74,18 +74,17 @@ type Props = {
   onCopyDeck: (deck: Deck) => any,
 }
 
+type State = {
+  connected: ?boolean,
+  editing: boolean,
+  refreshing: boolean,
+  lastSyncTime: ?Date,
+  needsSync: boolean,
+}
+
 const AUTO_SYNC_TRIGGER_THROTTLE_MS = 30000
 
-class LibraryHome extends React.Component {
-  props: Props
-
-  state: {
-    connected: ?boolean,
-    editing: boolean,
-    refreshing: boolean,
-    lastSyncTime: ?Date,
-    needsSync: boolean,
-  }
+class LibraryHome extends React.Component<Props, State> {
 
   _navigationListenerToken: any
 

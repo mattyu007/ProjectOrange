@@ -3,7 +3,7 @@ import { Navigation } from 'react-native-navigation'
 import LoginScreen from './login/LoginScreen'
 
 import LibraryHome from './tabs/library/LibraryHome'
-import LibraryListView from './tabs/library/LibraryListView'
+import DeckView from './tabs/library/DeckView'
 
 import DiscoverHome from './tabs/discover/DiscoverHome'
 
@@ -11,32 +11,28 @@ import SearchHome from './tabs/search/SearchHome'
 
 import AccountHome from './tabs/account/AccountHome'
 
-const CueScreens = {
+export const CueScreens = {
   loginScreen: 'cue.login.LoginScreen',
 
-  libraryHome: 'cue.tabs.library.LibraryHome',
-  libraryListView: 'cue.tabs.library.LibraryListView',
+  libraryHome: 'cue.library.LibraryHome',
+  deckView: 'cue.library.deck.DeckView',
 
-  discoverHome: 'cue.tabs.discover.DiscoverHome',
+  discoverHome: 'cue.discover.DiscoverHome',
 
-  searchHome: 'cue.tabs.search.SearchHome',
+  searchHome: 'cue.search.SearchHome',
 
-  accountHome: 'cue.tabs.account.AccountHome',
+  accountHome: 'cue.account.AccountHome',
 }
 
-function registerScreens(store, provider) {
+export function registerScreens(store, provider) {
   Navigation.registerComponent(CueScreens.loginScreen, () => LoginScreen, store, provider)
 
   Navigation.registerComponent(CueScreens.libraryHome, () => LibraryHome, store, provider)
+  Navigation.registerComponent(CueScreens.deckView, () => DeckView, store, provider)
 
   Navigation.registerComponent(CueScreens.discoverHome, () => DiscoverHome, store, provider)
 
   Navigation.registerComponent(CueScreens.searchHome, () => SearchHome, store, provider)
 
   Navigation.registerComponent(CueScreens.accountHome, () => AccountHome, store, provider)
-}
-
-module.exports = {
-  CueScreens,
-  registerScreens
 }

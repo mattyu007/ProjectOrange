@@ -5,6 +5,7 @@
 import React from 'react'
 import { View, Text, Platform, ListView, Dimensions, RefreshControl, StyleSheet } from 'react-native'
 import { Navigator } from 'react-native-navigation'
+import { CueScreens, registerScreens } from '../../CueNavigation'
 
 import type { Deck, Card } from '../../api/types'
 
@@ -45,13 +46,12 @@ type Props = {
   onDeleteDeck: (deck: Deck) => void,
 }
 
-class LibraryListView extends React.Component {
-  props: Props
+type State = {
+  dataSource: ListView.DataSource,
+  deviceOrientation: 'LANDSCAPE' | 'PORTRAIT' | 'UNKNOWN',
+}
 
-  state: {
-    dataSource: ListView.DataSource,
-    deviceOrientation: 'LANDSCAPE' | 'PORTRAIT' | 'UNKNOWN',
-  }
+class LibraryListView extends React.Component<Props, State> {
 
   _onLayout = () => {
     const windowDimensions = Dimensions.get('window')
@@ -132,7 +132,7 @@ class LibraryListView extends React.Component {
         <DeckThumbnail
           deck={deck}
           deletable={this.props.editing}
-          onPress={() => this.props.navigator.push({deck: deck})}
+          onPress={() => this.props.navigator.push({screen: CueScreens.deckView, passProps: { deckUuid: deck.uuid }})}
           onPressDelete={() => this.props.onDeleteDeck(deck)}/>
       </View>
     )
@@ -175,8 +175,6 @@ class LibraryListView extends React.Component {
       <ListView
         key={this.state.deviceOrientation}
         onLayout={this._onLayout}
-        automaticallyAdjustContentInsets={false}
-        contentInset={{bottom: 49}}
         contentContainerStyle={styles.list}
         dataSource={this.state.dataSource}
         initialListSize={8}

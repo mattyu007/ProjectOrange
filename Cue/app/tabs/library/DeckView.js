@@ -68,14 +68,13 @@ type Props = {
   moveCard: (deckUuid: string, cardUuid: string, from: number, to: number) => any,
 }
 
-class DeckView extends React.Component {
-  props: Props
+type State = {
+  deck: Deck,
+  editing: boolean,
+  filtering: boolean,
+}
 
-  state: {
-    deck: Deck,
-    editing: boolean,
-    filtering: boolean,
-  }
+class DeckView extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props)
