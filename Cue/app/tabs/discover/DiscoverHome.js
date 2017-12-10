@@ -59,6 +59,7 @@ class DiscoverHome extends React.Component<Props, State> {
 
     this.state = {
       ...this._getNewState(props),
+      refreshing: false,
       deviceOrientation: 'UNKNOWN',
     }
   }

@@ -79,16 +79,12 @@ class CardFace extends React.Component {
   }
 
   render() {
-    // To work around an issue with RN 0.42? + react-native-flip-card, we need to
-    // manually flip the back face of the card.
-    let extraCardFaceStyle = this.props.side === 'back' ? {transform: [{scaleX: -1}]} : undefined
-
     let extraTextStyle = this.props.side === 'front' ? styles.frontText : styles.backText
 
     let flag = this.props.flagged ? <Image style={styles.flag} source={CueIcons.indicatorFlag} /> : undefined
 
     return (
-      <View style={[styles.cardFace, extraCardFaceStyle]}>
+      <View style={styles.cardFace}>
         <Text style={styles.cardCount}>
           {this.props.position} of {this.props.count}
         </Text>

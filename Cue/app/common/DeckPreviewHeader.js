@@ -27,7 +27,8 @@ const styles = {
   },
   deckTitle: {
     color: 'white',
-    fontSize: 28
+    fontSize: 28,
+    fontWeight: '700',
   },
   deckAuthor: {
     color: 'white',
@@ -36,9 +37,6 @@ const styles = {
   },
   ratings: {
     color: 'white',
-  },
-  tabs: {
-    marginTop: 20
   },
   addButton: {
     color: 'white',
@@ -112,7 +110,7 @@ export default class DeckPreviewHeader extends React.Component<Props, *> {
             {iosButton}
           </View>
         </View>
-        <CueTabs style={styles.tabs}
+        <CueTabs
           tabs={this.props.tabs}
           currentTab={this.props.currentTab}
           onChange={this.props.onChange} />

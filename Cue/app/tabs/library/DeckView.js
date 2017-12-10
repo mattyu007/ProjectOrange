@@ -84,6 +84,7 @@ class DeckView extends React.Component<Props, State> {
 
   static navigatorStyle = {
     tabBarHidden: true,
+    navBarNoBorder: true,
   }
 
   constructor(props: Props) {

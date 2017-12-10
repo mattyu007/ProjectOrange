@@ -19,7 +19,8 @@ const styles = {
     elevation: 4,
   },
   titleText: {
-    fontSize: Platform.OS === 'android' ? 24 : 28,
+    fontSize: 28,
+    fontWeight: '700',
     backgroundColor: 'transparent',
     color: 'white',
   },

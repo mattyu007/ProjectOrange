@@ -242,8 +242,14 @@ class PlayDeckView extends React.Component<Props, State> {
 
   _commitFlagAction = () => {
     // Update the local snapshot of the deck state
-    let card = this.state.cards[this.state.index]
-    card.needs_review = !card.needs_review
+    let cards = this.state.cards.slice()
+    let card = cards[this.state.index]
+    card = {
+      ...card,
+      needs_review: !card.needs_review
+    }
+    cards[this.state.index] = card
+    this.setState({ cards })
 
     // Flag the card in the Redux store
     this.props.flagCard(this.props.deck.uuid, card.uuid, card.needs_review)
