@@ -64,6 +64,10 @@ class DiscoverHome extends React.Component {
     this.setState(this._getNewState(newProps))
   }
 
+  componentDidMount() {
+    this._refresh()
+  }
+
   _onLayout = () => {
     let { width, height } = Dimensions.get('window')
     this.setState({
@@ -103,10 +107,8 @@ class DiscoverHome extends React.Component {
         refreshing: false
       }
     } else {
-      this._fetchDiscoverDecks()
       return {
         dataSource: this.ds.cloneWithRowsAndSections({}),
-        refreshing: true
       }
     }
   }
@@ -152,7 +154,7 @@ class DiscoverHome extends React.Component {
 function select(store) {
   return {
     newDecks: store.discover.newDecks,
-    topDecks : store.discover.topDecks,
+    topDecks: store.discover.topDecks,
   };
 }
 

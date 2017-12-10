@@ -1,7 +1,8 @@
 // @flow
 
 import React from 'react'
-import { View, Text, Image, TouchableHighlight, TouchableNativeFeedback, Navigator, Platform, Alert, NetInfo } from 'react-native'
+import { View, Text, Image, TouchableHighlight, TouchableNativeFeedback, Platform, Alert, NetInfo } from 'react-native'
+import { Navigator } from 'react-native-navigation'
 
 import { connect } from 'react-redux'
 
@@ -105,7 +106,7 @@ class LibraryHome extends React.Component {
 
   componentDidMount() {
     // Register to listen to navigation events
-    this._navigationListenerToken = this.props.navigator.navigationContext.addListener('didfocus', this._onNavigatorEvent)
+    // this._navigationListenerToken = this.props.navigator.navigationContext.addListener('didfocus', this._onNavigatorEvent)
 
     // Android doesn't give us an initial callback when we add an event listener,
     // but iOS will return 'false' for fetch() even if there is connectivity.
@@ -135,21 +136,23 @@ class LibraryHome extends React.Component {
       this.props.onClearInaccessibleDecks()
     }
 
-    if (newProps.navigator !== this.props.navigator) {
-      this._navigationListenerToken.remove()
-      this._navigationListenerToken = newProps.navigator.navigationContext.addListener('didfocus', this._onNavigatorEvent)
-    }
+    // if (newProps.navigator !== this.props.navigator) {
+    //   this._navigationListenerToken.remove()
+    //   this._navigationListenerToken = newProps.navigator.navigationContext.addListener('didfocus', this._onNavigatorEvent)
+    // }
   }
 
   componentWillUnmount() {
     NetInfo.isConnected.removeEventListener('change', this._onNetworkIsConnectedChanged)
-    this._navigationListenerToken.remove()
+    // this._navigationListenerToken.remove()
   }
 
 
   /* ==================== Sync Support ==================== */
 
   _isLibraryHomeInForeground = () => {
+    return true
+
     let routes = this.props.navigator.getCurrentRoutes()
     let currentRoute = routes[routes.length - 1]
 

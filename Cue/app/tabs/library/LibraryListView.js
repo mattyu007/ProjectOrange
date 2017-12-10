@@ -3,7 +3,8 @@
 'use strict';
 
 import React from 'react'
-import { Navigator, View, Text, Platform, ListView, Dimensions, RefreshControl, StyleSheet } from 'react-native'
+import { View, Text, Platform, ListView, Dimensions, RefreshControl, StyleSheet } from 'react-native'
+import { Navigator } from 'react-native-navigation'
 
 import type { Deck, Card } from '../../api/types'
 
@@ -181,7 +182,7 @@ class LibraryListView extends React.Component {
         initialListSize={8}
         pageSize={2}
         refreshControl={refreshControl}
-        renderSectionHeader={(decks, category) => <ListViewHeader style={{marginLeft: -16}} section={category} />}
+        // renderSectionHeader={(decks, category) => <ListViewHeader style={{marginLeft: -16}} section={category} />}
         renderRow={this._renderRow}
         removeClippedSubviews={removeClippedSubviews} />
       )

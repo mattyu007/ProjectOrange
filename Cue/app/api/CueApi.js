@@ -27,7 +27,7 @@ class CueApi {
 		this.accessToken = accessToken;
 	}
 
-	static fetch (endpoint: string, method: string = 'GET', body: ?string = null): Promise<JSON> {
+	static fetch(endpoint: string, method: string = 'GET', body: ?string = null): Promise<JSON> {
 		let headers = null;
 
 		if (this.userId != null && this.accessToken != null) {

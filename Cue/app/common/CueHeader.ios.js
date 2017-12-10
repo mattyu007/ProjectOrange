@@ -137,15 +137,14 @@ styles = {
   },
   textItem: {
     color: 'white',
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: "400", // regular
     paddingHorizontal: 6,
   },
   titleTextItem: {
     color: 'white',
-    fontSize: 18,
-    fontWeight: "500", // medium
-    letterSpacing: 0.5
+    fontSize: 17,
+    fontWeight: "600", // bold
   }
 }
 

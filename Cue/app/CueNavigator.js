@@ -2,7 +2,10 @@
 
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Platform, BackAndroid, Navigator, Text, StyleSheet } from 'react-native'
+import { Platform, Navigator, BackAndroid, Text, StyleSheet } from 'react-native'
+
+// TODO: Migrate to wix/react-native-navigation
+// import { Navigator } from 'react-native-deprecated-custom-components'
 
 import { connect } from 'react-redux'
 import { switchTab } from './actions/tabs'

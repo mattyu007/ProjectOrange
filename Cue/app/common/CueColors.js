@@ -16,6 +16,7 @@ module.exports = {
 
   primaryText: '#53585F',
   lightText: 'rgba(0, 0, 0, 0.4)',
+  toolbarText: '#FFFFFF',
 
   darkGrey: 'hsl(0, 0%, 40%)',
   mediumGrey: 'hsl(0, 0%, 60%)',

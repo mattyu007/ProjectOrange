@@ -22,6 +22,7 @@ export default class ListViewHeader extends React.Component {
         padding: 16,
         color: CueColors.primaryText,
         width: Dimensions.get('window').width,
+        backgroundColor: '#F00',
       }
     }
 

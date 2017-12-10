@@ -4,9 +4,9 @@ import {applyMiddleware, createStore} from 'redux';
 import thunk from 'redux-thunk';
 import {persistStore, autoRehydrate} from 'redux-persist';
 import promise from './promise';
-var reducers = require('../reducers');
+import rootReducer from '../reducers';
 import { createLogger } from 'redux-logger';
-var {AsyncStorage} = require('react-native');
+import { AsyncStorage } from 'react-native';
 
 var isDebuggingInChrome = __DEV__;
 
@@ -16,10 +16,23 @@ var logger = createLogger({
   duration: true,
 });
 
+// const store = createStore(
+//   reducers,
+//   undefined,
+//   compose(
+//     applyMiddleware(thunk, promise, logger),
+//     autoRehydrate()
+//   )
+// )
+//
+// persistStore(store, {storage: AsyncStorage, blacklist: ['tabs', 'discover']})
+//
+// module.exports = store
+
 var createCueStore = applyMiddleware(thunk, promise, logger)(createStore);
 
 function configureStore(onComplete: ?() => void) {
-  const store = autoRehydrate()(createCueStore)(reducers);
+  const store = autoRehydrate()(createCueStore)(rootReducer);
   persistStore(store, {storage: AsyncStorage, blacklist: ['tabs', 'discover']}, onComplete);
 
   if (isDebuggingInChrome) {
