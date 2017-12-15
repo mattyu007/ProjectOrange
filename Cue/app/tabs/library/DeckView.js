@@ -84,7 +84,6 @@ class DeckView extends React.Component<Props, State> {
 
   static navigatorStyle = {
     tabBarHidden: true,
-    navBarNoBorder: true,
   }
 
   constructor(props: Props) {
@@ -311,6 +310,19 @@ class DeckView extends React.Component<Props, State> {
     }
   }
 
+  _getLeftButtons = () => {
+    if (this.state.editing) {
+      return [
+        makeButton({
+          title: '',
+          id: 'nothing',
+        })
+      ]
+    } else {
+      return []
+    }
+  }
+
   _getRightButtons = ({add, copy, rate, edit, done, filter, share}) => {
     if (this.state.editing) {
       return [
@@ -396,7 +408,8 @@ class DeckView extends React.Component<Props, State> {
     const allButtons = this._getAllButtons()
 
     this.props.navigator.setButtons({
-      leftButtons: [],
+      animated: true,
+      leftButtons: this._getLeftButtons(),
       rightButtons: this._getRightButtons(allButtons),
     })
 

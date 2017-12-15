@@ -8,7 +8,8 @@ import CueColors from './CueColors'
 const iosStyles = {
   footerText: {
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingTop: 6,
+    paddingBottom: 8,
     backgroundColor: 'transparent',
     color: CueColors.darkGrey,
     fontSize: 12,

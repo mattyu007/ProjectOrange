@@ -54,10 +54,6 @@ class DeckPreview extends React.Component<Props, State> {
   props: Props
   state: State
 
-  static navigatorStyle = {
-    navBarNoBorder: true,
-  }
-
   _onPressAddDeck = () => {
     // Add without share code if possible
     this.props.addLibrary(this.props.deck.uuid,

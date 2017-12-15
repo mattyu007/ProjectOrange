@@ -17,6 +17,7 @@ import CueHeader from '../../common/CueHeader'
 import CueIcons from '../../common/CueIcons'
 import CueColors from '../../common/CueColors'
 
+import SearchInlineTextInput from './SearchInlineTextInput'
 import SearchListView from './SearchListView'
 
 const styles = {
@@ -54,18 +55,22 @@ class SearchHome extends React.Component<Props, *> {
   }
 
   render() {
-    this.props.navigator.setStyle({
-      navBarCustomView: CueScreens.searchTextInput,
-      navBarCustomViewInitialProps: {
-        onSearch: this._onSearch
-      }
-    })
+    // this.props.navigator.setStyle({
+    //   navBarCustomView: CueScreens.searchTextInput,
+    //   navBarCustomViewInitialProps: {
+    //     onSearch: this._onSearch
+    //   }
+    // })
 
     return (
-      <SearchListView
-        style={styles.container}
-        navigator={this.props.navigator}
-        decks={this.props.searchResults} />
+      <View style={{ flex: 1 }}>
+        <SearchInlineTextInput
+          onSearch={this._onSearch} />
+        <SearchListView
+          style={styles.container}
+          navigator={this.props.navigator}
+          decks={this.props.searchResults} />
+      </View>
     )
   }
 }

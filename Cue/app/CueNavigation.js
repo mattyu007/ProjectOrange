@@ -1,7 +1,7 @@
 // @flow
 'use strict'
 
-import { Platform, AppRegistry } from 'react-native'
+import { Platform } from 'react-native'
 
 import { Navigation } from 'react-native-navigation'
 
@@ -38,7 +38,6 @@ export const CueScreens = {
   deckPreview: 'cue.discover.DeckPreview',
 
   searchHome: 'cue.search.SearchHome',
-  searchTextInput: 'cue.search.SearchTextInput',
 
   accountHome: 'cue.account.AccountHome',
 }
@@ -58,7 +57,6 @@ export function registerScreens(store: any, provider: any) {
   Navigation.registerComponent(CueScreens.deckPreview, () => DeckPreview, store, provider)
 
   Navigation.registerComponent(CueScreens.searchHome, () => SearchHome, store, provider)
-  Navigation.registerComponent(CueScreens.searchTextInput, () => SearchTextInput, store, provider)
 
   Navigation.registerComponent(CueScreens.accountHome, () => AccountHome, store, provider)
 }
@@ -70,39 +68,22 @@ type ButtonConfiguration = {
   icon?: number,
 }
 
-export function makeButton(config: ButtonConfiguration): any {
-  if (!config.icon) {
-    return {
-      title: config.title,
-      id: config.id,
-    }
+export function makeButton({ title, id, display, icon }: ButtonConfiguration): any {
+  if (!icon) {
+    return { title, id }
   }
 
   if (Platform.OS === 'android') {
-    if (config.display && config.display === 'text') {
-      return {
-        title: config.title,
-        id: config.id,
-      }
+    if (display && display === 'text') {
+      return { title, id }
     } else {
-      return {
-        title: config.title,
-        id: config.id,
-        icon: config.icon
-      }
+      return { title, id, icon }
     }
   } else {
-    if (config.display && config.display === 'icon') {
-      return {
-        title: config.title,
-        id: config.id,
-        icon: config.icon,
-      }
+    if (display && display === 'icon') {
+      return { title, id, icon }
     } else {
-      return {
-        title: config.title,
-        id: config.id,
-      }
+      return { title, id }
     }
   }
 }

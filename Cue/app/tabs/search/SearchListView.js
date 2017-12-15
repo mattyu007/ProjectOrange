@@ -3,13 +3,16 @@
 'use strict';
 
 import React from 'react'
-import { Navigator, View, Text, ListView, Image, Platform, Dimensions } from 'react-native'
+import { View, Text, ListView, Image, Platform, Dimensions } from 'react-native'
+
+import { Navigator } from 'react-native-navigation'
 
 import { connect } from 'react-redux'
 
 import type { DeckMetadata, Card } from '../../api/types'
 
 import EmptyView from '../../common/EmptyView'
+import CueColors from '../../common/CueColors'
 import CueIcons from '../../common/CueIcons'
 
 import SearchListViewItem from './SearchListViewItem'
@@ -23,15 +26,16 @@ type Props = {
   decks: ?Array<DeckMetadata>,
 }
 
-class SearchListView extends React.Component {
+type State = {
+  dataSource: ?ListView.DataSource,
+  deviceOrientation: 'LANDSCAPE' | 'PORTRAIT' | 'UNKNOWN',
+}
+
+class SearchListView extends React.Component<Props, State> {
   props: Props
+  state: State
 
   ds: ListView.DataSource
-
-  state: {
-    dataSource: ListView.DataSource,
-    deviceOrientation: 'LANDSCAPE' | 'PORTRAIT' | 'UNKNOWN',
-  }
 
   _onLayout = () => {
     const windowDimensions = Dimensions.get('window')
@@ -72,17 +76,16 @@ class SearchListView extends React.Component {
           titleText={'There are no public decks matching your search.'} />
       )
     }
+
     return (
       <ListView
         key={this.state.deviceOrientation}
         onLayout={this._onLayout}
-        automaticallyAdjustContentInsets={false}
-        contentInset={{bottom: 49}}
-        contentContainerStyle={styles.list}
+        // $FlowSuppress: state.dataSource is always non-null
         dataSource={this.state.dataSource}
         renderRow={deck => <SearchListViewItem navigator={this.props.navigator} deck={deck} />}
         renderSeparator={(section, row) => <ListViewHairlineSeparator key={row} />} />
-      )
+    )
   }
 };
 

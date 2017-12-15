@@ -46,6 +46,7 @@ export default function startApp(isLoggedIn: boolean) {
         navBarTextColor: CueColors.toolbarText,
         navBarBackgroundColor: CueColors.primaryTint,
         navBarButtonColor: CueColors.toolbarText,
+        navBarNoBorder: true,
         statusBarTextColorScheme: 'light',
       }
     })
@@ -58,6 +59,7 @@ export default function startApp(isLoggedIn: boolean) {
       },
       appStyle: {
         navBarHidden: true,
+        statusBarTextColorScheme: 'light',
       }
     })
   }

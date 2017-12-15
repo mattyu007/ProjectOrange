@@ -92,7 +92,6 @@ class LoginScreen extends React.Component {
         <Text style={styles.actionText}>Let&rsquo;s get started.</Text>
         <FacebookLoginButton
           onLoginFinished={(error, result) => {
-            alert(`error: ${JSON.stringify(result)}, result: ${JSON.stringify(result)}`)
             if (error) {
               console.warn("Facebook login failed", error)
               Alert.alert(

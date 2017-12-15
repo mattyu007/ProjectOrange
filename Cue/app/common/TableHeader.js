@@ -13,7 +13,7 @@ const iosStyles = {
   headerText: {
     paddingHorizontal: 16,
     paddingTop: 32,
-    paddingBottom: 8,
+    paddingBottom: 6,
     backgroundColor: 'transparent',
     color: CueColors.darkGrey,
     fontSize: 12,

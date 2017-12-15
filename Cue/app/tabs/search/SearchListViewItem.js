@@ -3,7 +3,10 @@
 'use strict';
 
 import React from 'react'
-import { Image, View, Text, TouchableOpacity, Navigator, Platform, TouchableNativeFeedback, TouchableHighlight } from 'react-native'
+import { Image, View, Text, TouchableOpacity, Platform, TouchableNativeFeedback, TouchableHighlight } from 'react-native'
+
+import { Navigator } from 'react-native-navigation'
+import { CueScreens } from '../../CueNavigation'
 
 import type { DeckMetadata } from '../../api/types'
 
@@ -32,10 +35,21 @@ const styles = {
   }
 }
 
-export default class SearchListViewItem extends React.Component {
-  props: {
-    navigator: Navigator,
-    deck: DeckMetadata
+type Props = {
+  navigator: Navigator,
+  deck: DeckMetadata
+}
+
+export default class SearchListViewItem extends React.Component<Props, *> {
+  props: Props
+
+  _onPressDeck = () => {
+    this.props.navigator.push({
+      screen: CueScreens.deckPreview,
+      passProps: {
+        deck: this.props.deck,
+      },
+    })
   }
 
   render() {
@@ -45,7 +59,7 @@ export default class SearchListViewItem extends React.Component {
           <DeckThumbnail hideInsets deck={this.props.deck} />
         </View>
         <View style={styles.textContainer}>
-          <Text style={styles.firstText} numberOfLines={2}>By {this.props.deck.author} </Text>
+          <Text style={styles.firstText} numberOfLines={2}>By {this.props.deck.author}</Text>
           <DeckRating deck={this.props.deck} />
         </View>
       </View>
@@ -54,20 +68,18 @@ export default class SearchListViewItem extends React.Component {
     if (Platform.OS === 'android') {
       return (
         <TouchableNativeFeedback
-          onPress={() => this.props.navigator.push({preview: this.props.deck})} >
+          onPress={this._onPressDeck} >
           {contents}
         </TouchableNativeFeedback>
       )
     } else {
       return (
         <TouchableHighlight
-          onPress={() => this.props.navigator.push({preview: this.props.deck})}
+          onPress={this._onPressDeck}
           underlayColor={CueColors.veryLightGrey}>
           {contents}
         </TouchableHighlight>
       )
     }
-
-
   }
 }

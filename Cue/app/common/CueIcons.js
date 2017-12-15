@@ -24,6 +24,7 @@ module.exports = {
   radioChecked: require('./img/radio_checked.png'),
   radioUnchecked: require('./img/radio_unchecked.png'),
   reorder: require('./img/reorder.png'),
+  searchHint: require('./img/search_hint.png'),
   share: require('./img/share.png'),
   thumbsUp: require('./img/thumb_up.png'),
   thumbsDown: require('./img/thumb_down.png'),
